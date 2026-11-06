@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build:wallet": "node scripts/build-wallet.mjs",
-    "test:browser": "node --test --test-concurrency=1 browser/circle.browser.test.mjs browser/garden.browser.test.mjs browser/trust.browser.test.mjs"
+    "test:browser": "node --test --test-concurrency=1 browser/circle.browser.test.mjs browser/garden.browser.test.mjs browser/trust.browser.test.mjs browser/pay.browser.test.mjs"
   },
   "dependencies": {
     "@walletconnect/sign-client": "2.26.0",

@@ -63,3 +63,4 @@
 .fork-card .fine{font-size:.66rem;color:var(--cream-faint);margin-top:9px;line-height:1.45}
 @media (max-width:640px){#fork-ribbon{display:none}}
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.fork-tile #fork-pay-go{display:inline-block;margin:12px 0 2px;white-space:normal;text-align:center;line-height:1.4;text-decoration:none}

@@ -77,6 +77,13 @@ test('preview serves only public assets and refuses writes and repository paths'
   assert.equal(steward.status, 200);
   assert.match(steward.body, /Ask Mira’s <em>public steward/);
   assert.match(steward.headers['content-security-policy'], /connect-src 'self' https:\/\/oso-zerog-steward.shakaverse.workers.dev/);
+  const pay = await get('/pay');
+  assert.equal(pay.status, 200);
+  assert.match(pay.body, /tip the artist — run the real x402 loop on Hedera testnet/);
+  assert.match(pay.headers['content-security-policy'], /connect-src 'self' https:\/\/oso-tip-loop\.shakaverse\.workers\.dev;/);
+  assert.match(pay.headers['content-security-policy'], /script-src 'self';/);
+  assert.match((await get('/pay.css')).headers['content-type'], /^text\/css/);
+  assert.doesNotMatch(steward.headers['content-security-policy'], /oso-tip-loop/);
   const config = JSON.parse((await get('/wallet-config.json')).body);
   assert.equal(config.projectId, '');
   assert.equal(config.enabled, false);
@@ -86,7 +93,7 @@ test('preview serves only public assets and refuses writes and repository paths'
       assert.equal((await get(path)).status, 200, path);
     }
   }
-  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs', '/steward.mjs']) {
+  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs', '/steward.mjs', '/pay.mjs']) {
     const module = await get(path);
     assert.equal(module.status, 200);
     assert.match(module.headers['content-type'], /^text\/javascript/);

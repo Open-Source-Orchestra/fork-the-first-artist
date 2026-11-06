@@ -1,39 +1,86 @@
 # 🎻 Fork the First Artist
-*ETHGlobal Mumbai 2026 · Open Source Orchestra*
+*ETHGlobal Mumbai 2026 · Open Source Orchestra · Continuity project*
 
-Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on Hedera**, and their own **AI steward agent on 0G**. The agent takes payments; the money goes straight to the artist. **3.69%** pays the agent's own compute. **OSO takes zero cut, zero profit, no token.**
+**Product goal:** give each consenting musician an **ENS name**, an **x402 payment rail on Hedera**, and an **AI steward using 0G Private Computer**. Fans pay the artist directly; the intended **96.31% / 3.69%** split assigns a small share toward agent compute. **OSO takes zero cut, zero profit, no token.**
 
-- 📋 Plan + live status: https://opensourceorchestra.org/ethglobalmumbai/
-- 📄 Full plan: [docs/PLAN.md](docs/PLAN.md)
-- Numbered coding workflow: [docs/IMPLEMENTATION-WORKFLOW.md](docs/IMPLEMENTATION-WORKFLOW.md)
-- Prize strategy and confirmed decisions: [docs/PRIZE-STRATEGY.md](docs/PRIZE-STRATEGY.md)
-- Implementation history and verification: [docs/IMPLEMENTATION-LOG.md](docs/IMPLEMENTATION-LOG.md)
+- 🌺 Public preview: https://artist.opensourceorchestra.org/
+- 📋 Status: https://opensourceorchestra.org/ethglobalmumbai/
+- 🎬 [Video script](docs/DEMO-SCRIPT.md) · [Submission draft/checklist](docs/SUBMISSION.md)
+- 🔗 [Hedera transaction proof](docs/TX-PROOF.md) · [Arkiv evidence](arkiv/README.md)
+- 📄 [Product target](docs/PLAN.md) · [Prize strategy](docs/PRIZE-STRATEGY.md)
+- 🧾 [Implementation history](docs/IMPLEMENTATION-LOG.md) · [Payment/agent review](docs/PR-3-REVIEW.md)
 
-## Layout
-| Folder | What |
+## Current reality — read before demoing
+
+The repository contains a static artist preview, a transient local draft editor, wallet connection adapters, offline-tested payment/agent/Arkiv scaffolding, and integration documentation. **A mock ID, split preview, fixture, or offline test is not chain/provider evidence.**
+
+| Layer | Current boundary |
 |---|---|
-| `payments/` | x402 on Hedera + 96.31/3.69 split |
-| `frontend/` | profile, claim, tip |
-| `claims/` | Arkiv steward CLI: encrypted invites, revocation, freeze records |
-| `ens/` | artist names + records |
-| `agent/` | 0G steward agent, spend cap, HCS claim log |
-| `docs/` | plan, tx proofs, demo script |
+| Frontend | Live static preview; no public claim, paid chat, or publishing |
+| Hedera x402 | Live-mode code exists; see [TX-PROOF](docs/TX-PROOF.md) for actual settled IDs |
+| 96.31/3.69 | Exact arithmetic exists; only an HTS transaction proves the on-chain split |
+| 0G | Provider/meter code exists; only a real response/request ID proves inference |
+| Arkiv | Encrypted synthetic-invitation CLI exists; see [evidence status](arkiv/README.md) |
+| Claims | Wallet-proof redemption, consent activation and service-freeze enforcement remain pending |
+| ENS | Ownership requirements only; no issuer implementation or artist subname claimed |
 
-## Local frontend preview
+The checked-in artist JSON is a **demo fixture**, not verified biographical, song, ENS, payout, or consent evidence. Do not activate a real artist from it.
 
-Run `npm run dev:frontend` from this directory and open `http://127.0.0.1:4173`. Explore the sample OSO profile or open `/draft` to preview a name and bio in the current tab. Drafts are not saved or published; claim and payment integration are not active. See [frontend/README.md](frontend/README.md) for scope, verification, and source attribution.
+## Run the local preview
 
-Arkiv integration and pending testnet evidence: [arkiv/README.md](arkiv/README.md).
+Requires Node **22.18+** (Node 24 also works).
 
-The [claims README](claims/README.md) documents the trusted steward CLI and database setup. Invite issuance and freeze records are implemented; wallet-proof redemption, service enforcement, and public claim routes are still pending.
+```sh
+npm run install:all
+npm test
+npm run dev:frontend
+# open http://127.0.0.1:4173
+```
 
-## How we work
-- Branch → pull request → **1 approval from a teammate** → merge. No direct pushes to `main`.
-- Rules: nothing goes live for an artist without their consent · agent collects, artist holds · Hedera testnet for payments, ENS mainnet design with deployment review · no secrets/keys in the repo (use `.env`, never committed).
-- Post progress in the team Telegram; the status page is updated from there.
+Explore the sample profile or `/draft`. Drafts exist only in the current tab; they are not saved or published. HashPack additionally requires the generated runtime and a public Reown project ID; see [frontend/README.md](frontend/README.md).
 
-## Continuity
-Builds on Open Source Orchestra and OSO P.I.T. (ETHGlobal New Delhi). Reused source and new work must be distinguished in the implementation log and import notices. Prior 0G/Hedera integration evidence is unavailable; sponsor eligibility is tracked in the prize strategy.
+For the two-service dev demo and the credentialed Hedera/0G path, follow [docs/RUNBOOK.md](docs/RUNBOOK.md). Dev mode deliberately returns `mock-…`, `dev-…`, and `[dev-mock inference]` values. Live mode requires separate fan, artist and compute accounts and must never silently substitute the mock fan header.
+
+## Architecture
+
+```text
+fan agent ── HTTP 402 / X-PAYMENT ──► payments /ask ──► artist payout
+                                          │
+                                          ▼
+                                    artist steward
+                                          │ capped per-call x402 meter
+                                          ▼
+                                  0G Private Computer
+
+Arkiv: encrypted, expiring invitation/service state + explicit reads
+HCS: spend audit when configured; claim logging is a separate unfinished flow
+ENS: artist-controlled identity target; not implemented by this scaffold
+```
+
+| Folder | Contents |
+|---|---|
+| `payments/` | x402 resource server, inference meter, exact split arithmetic, HTS/HCS live adapters |
+| `agent/` | steward, fenced artist data, provider adapters, autonomous payer, budgets and demo client |
+| `frontend/` | static artist preview, local draft editor, wallet connection adapters |
+| `claims/` + `arkiv/` | encrypted Arkiv steward CLI, schema and judging evidence |
+| `ens/` | ownership/permission acceptance criteria; no issuer yet |
+| `docs/` | setup, implementation history, review, proof and submission materials |
+
+## Continuity and AI attribution
+
+This extends Open Source Orchestra / OSO P.I.T. The adapted frontend source is pinned to `shakaleikaumaka/oso-storytelling@b6be898f38df8fff7abc53334b5641a89e31939b`; exact reused paths and licenses are in [frontend/SOURCE.md](frontend/SOURCE.md) and its third-party notices. New Mumbai work is recorded incrementally in git, [IMPLEMENTATION-LOG](docs/IMPLEMENTATION-LOG.md), and [build-log](docs/build-log/). Prior 0G/Hedera integration evidence is not claimed.
+
+AI assisted implementation, review, tests and documentation as disclosed in those files and commit messages. Human contributors supplied product/consent decisions, integration review, live account operation and the narrated demo. Include this attribution and the planning artifacts in the ETHGlobal submission.
 
 ## Team
-Shaka (artist + demo lead) · teammates TBD · AI help disclosed (Agent Ohana).
+
+- **Shaka** — artist + product/demo lead.
+- **Prince Keshri** — frontend, wallets, claims/Arkiv.
+- **Rajarshi Roy** — payments, agent and Hedera integration.
+- Additional accepted contributors must be listed with their actual contribution and Telegram/X contact in [SUBMISSION.md](docs/SUBMISSION.md); AI agents are not human teammates.
+
+## Contribution and safety rules
+
+Branch → pull request → required human/code-owner review → merge. No direct pushes to `main`.
+
+Nothing goes live for an artist without consent and verified activation. The artist's key is never a backend credential; payout destinations are server-bound to verified configuration. Hedera/Arkiv demo setup is testnet-only. ENS deployment/spend needs separate review. Never commit `.env`, keys, bearer tokens, pairing URIs, ledgers containing private data, or seed phrases.

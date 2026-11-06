@@ -1,0 +1,74 @@
+# ETHGlobal submission draft — human review required
+
+Do not submit until every bracketed evidence field is replaced with a real value or the corresponding claim is removed. Recommended category: **Continuity**. Recommended partner limit (3): **Hedera, 0G, Arkiv**.
+
+## Project name
+
+**Fork the First Artist — Open Source Orchestra**
+
+## Short description
+
+A consent-first artist home where a fan agent discovers an HTTP 402 price, pays the musician directly on Hedera, and receives an answer from the artist's 0G-powered steward. Arkiv holds encrypted, expiring steward-invitation state. The intended 96.31% / 3.69% split directs a small share toward agent compute; OSO takes zero cut and there is no token.
+
+## What exists / what was added at Mumbai
+
+**Pre-existing:** Open Source Orchestra's public visual language and artist-circle/profile design, imported from `shakaleikaumaka/oso-storytelling@b6be898f38df8fff7abc53334b5641a89e31939b` with notices in `frontend/SOURCE.md` and `frontend/third-party/`.
+
+**New during ETHGlobal Mumbai:** buildless artist preview and transient draft editor; MetaMask/HashPack connection adapters; x402 Hedera payment gate and autonomous fan/steward payment clients; exact 96.31/3.69 arithmetic and HTS custom-fee token script; HCS spend logging; provider/fencing/budget/degradation logic for a 0G steward; encrypted Arkiv invitation/revocation/freeze state and reads; integration fixes, testnet evidence and demo materials. Detailed incremental history is in `docs/IMPLEMENTATION-LOG.md`, `docs/build-log/`, and the git commits.
+
+**Not claimed as complete:** production artist activation, two-wallet signed claim redemption, ENS issuance, automated conversion of Hedera revenue into 0G Compute credit, or a second-artist fork. Update this list before submission if any becomes genuinely functional.
+
+## Live links and proof
+
+- App: https://artist.opensourceorchestra.org/
+- Repo: https://github.com/Open-Source-Orchestra/fork-the-first-artist
+- Hedera transaction: **[REAL TX ID + HASHSCAN URL]**
+- 0G model + request ID: **[REAL MODEL + REQUEST ID + VERIFIABLE RESPONSE/PROOF]**
+- Arkiv writer: **[REAL PUBLIC WRITER ADDRESS]**
+- Arkiv entity + issue/revoke transactions: **[REAL ENTITY/TX LINKS]**
+- Arkiv reproducible query: **[EXACT QUERY + RPC/EXPLORER INSTRUCTIONS]**
+- Video: **[2:35–2:50 HUMAN-NARRATED 720p+ VIDEO URL]**
+
+## Hedera partner answer
+
+An autonomous fan agent reads the x402 v2 `accepts` requirements, signs the exact Hedera testnet payment without a human wallet approval, and retries the artist resource. The resource verifies, obtains the artist-grounded answer, settles last, and returns the transaction/provenance envelope. Failed inference/settlement and degraded template responses are not charged. **[Insert actual transaction ID, recipient and HashScan evidence.]** Separately describe HTS custom-fee split and HCS only if their real transactions/messages are shown.
+
+Feedback: **[Add specific facilitator/SDK friction and useful documentation improvement from the live run.]**
+
+## 0G partner answer
+
+0G Private Computer is in the steward's main answer path, not an optional chat sidecar. Artist data and fan instructions are fenced; the steward's answer is coupled to the paid artist resource and a capped inference meter. The response exposes the real 0G model/request ID and reported verification metadata. Without 0G, a fresh artist-grounded AI answer and its 0G provenance are unavailable; the app must refuse or degrade without charging rather than disguise a template as inference. **[Insert actual request ID and live app path.]**
+
+We are targeting **Private Computer**, not claiming Agents That Pay for Themselves unless automatic Hedera-revenue-to-0G-credit funding is actually demonstrated.
+
+Feedback: **[Add actual model catalog/request-ID/TEE/credit setup observations.]**
+
+## Arkiv partner answer
+
+The new Mumbai integration stores encrypted, expiring synthetic steward invitations on Rabdi. State transitions atomically replace the prior entity and append an encrypted audit event; the status feature reads and authenticates current state rather than treating Arkiv as a write-only log. Raw bearer tokens, wallet proofs and private artist data are never written as public plaintext. **[Insert writer/entity/transactions/query and identify the user-facing read.]**
+
+See `arkiv/schema.md`, `arkiv/friction.md`, `arkiv/reach.md`, `arkiv/why-arkiv.md`, and `arkiv/how-you-use-arkiv.md`.
+
+## Team and meaningful human contribution
+
+- **Shaka** — product vision, artist/community context, consent and ownership boundaries, demo/pitch and final human decisions.
+- **Prince Keshri** — frontend/wallet/claims implementation, reviews and integration decisions.
+- **Rajarshi Roy** — payment/agent architecture and implementation, testing and live payment work.
+- **[Other accepted team members only if they actually joined/contributed]**.
+
+Required 0G contacts: **[each submitted team member's Telegram and X; do not guess]**.
+
+## AI attribution
+
+AI assistance was used for scaffolding, implementation, review, tests and documentation. It is recorded in commit messages, `docs/IMPLEMENTATION-LOG.md`, `docs/build-log/`, and package notices. Human teammates supplied the product/consent requirements, made design and integration decisions, reviewed changes, operated live accounts, and must perform the narrated demo/final submission. Do not describe AI agents as human team members.
+
+## Final dashboard checklist
+
+- [ ] Continuity selected and prior OSO work disclosed.
+- [ ] No more than three partners: Hedera + 0G + Arkiv.
+- [ ] Repo public and all prompt/spec/planning artifacts required by AI rules included.
+- [ ] Live app works for a judge, not only on the presenter's machine.
+- [ ] Video 2:00–2:59, at least 720p, human narration, no prohibited recording/editing.
+- [ ] Team roster max five; each member accepted/staked individually; Telegram/X contacts filled.
+- [ ] Exact real transaction/request/entity IDs match README and video.
+- [ ] Submitted by **08:00 IST target**, hard deadline **09:00 IST**, and uploaded page/video verified.

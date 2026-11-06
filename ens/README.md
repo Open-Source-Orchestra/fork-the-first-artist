@@ -6,7 +6,7 @@ Planned: ENSv2 on Ethereum mainnet, approved by the owner on 6 November 2026 for
 
 Artists control their records. OSO must not be able to revoke or reassign their subnames. Any agent authority is limited to explicitly delegated non-payout records. A disputed-claim freeze affects OSO-hosted services, not ENS ownership or payout records.
 
-The parent name is not chosen; the owner will provide it later. Do not invent a parent, substitute a custodial namespace, or label a name as non-revocable before verification. Transferability, expiry/renewal policy, wallet adapters, and exact agent permissions remain unspecified.
+`osoartist.eth` was subsequently reported as the intended parent, but this repository has not verified its controller, registry path, issuance method, or suitability. Do not label a name as non-revocable before verification. Transferability, expiry/renewal policy, wallet adapters, and exact agent permissions remain unspecified. ENS implementation is deferred behind the core Hedera/0G/Arkiv demo.
 
 ## Acceptance criteria before issuance
 

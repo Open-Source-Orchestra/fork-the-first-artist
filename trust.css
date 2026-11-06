@@ -1,0 +1,14 @@
+/* Steward desk + invited consent: the circle's chain of trust. */
+.trust-chain { list-style: none; counter-reset: t; padding: 0; margin: 18px 0 0; display: grid; gap: 6px; font-family: var(--sans); font-size: .85rem; color: var(--cream-dim); }
+.trust-chain li { counter-increment: t; position: relative; padding-left: 30px; }
+.trust-chain li::before { content: counter(t); position: absolute; left: 0; top: -1px; width: 21px; height: 21px; border-radius: 50%; border: 1px solid var(--gold-soft); color: var(--gold-bright); font-size: .7rem; display: flex; align-items: center; justify-content: center; }
+.trust-chain b { color: var(--cream); }
+.trust-checks { list-style: none; padding: 0; margin: 16px 0 0; font-family: var(--sans); font-size: .85rem; display: grid; gap: 4px; }
+.trust-checks .ok { color: #8ff1e2; }
+.trust-checks .bad { color: #ffaba0; }
+.invite-banner { border: 1px solid rgba(45, 212, 191, .55); background: linear-gradient(160deg, rgba(45, 212, 191, .12), rgba(240, 196, 100, .06)); border-radius: 14px; padding: 14px 16px; margin: 18px 0; font-family: var(--sans); font-size: .9rem; color: var(--cream-dim); }
+.invite-banner strong { color: var(--cream); }
+.invite-banner.bad { border-color: rgba(255, 171, 160, .6); background: rgba(255, 171, 160, .08); }
+#invite-link { font-size: .8rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .78rem; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }

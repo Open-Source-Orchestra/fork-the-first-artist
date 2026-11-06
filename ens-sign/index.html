@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <script type="application/json" id="kit">{"generatedAt":"2026-11-06T22:43:21.342Z","readAtBlock":"26358871","gasPriceGwei":"0.052608515","parent":{"name":"osoartist.eth","owner":"0x25965899f4600b3AA5362ee4f34be95E5E62c934","tokenId":"18788971598184817501331852826333265300141243488095966786240725509410079637504","expiry":"2027-11-06T22:05:47.000Z","currentSubregistry":"0x0000000000000000000000000000000000000000"},"opsKey":"0xe70050DF1587aA0E5CBD5735D448E5A9C9392293","userRegistry":{"address":"0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48","deployed":false,"note":"deterministic VerifiableFactory address for (ops key, salt); same before and after deployment"},"balances":{"shakaEth":"0.00047740097134096","opsEth":"0"},"estimate":{"artists":5,"opsGas":"4410519","opsEthAtCurrentGas":"0.000232030854969285","recommendedFundEth":"0.00035","fundCappedByBalance":false,"wantedFundEth":"0.00035","shakaTotalNeedsEth":"0.0003623924617934","shakaCanAfford":true},"order":"Ops key deploys the registry + artists first (agent-sent, needs funding), then Shaka signs set-subregistry. Order is safe either way: before activation the names simply do not resolve.","txs":[{"id":"fund-ops","required":false,"order":1,"title":"Send 0.00035 ETH to the OSO ops key (gas for 5 artists)","plain":"A normal ETH transfer from your wallet to the OSO registrar/ops key 0xe70050DF1587aA0E5CBD5735D448E5A9C9392293. It pays the gas to create the OSO artist registry and 5 artist names + their own resolvers. Skip this if a teammate funds the ops key instead.","from":"0x25965899f4600b3AA5362ee4f34be95E5E62c934","to":"0xe70050DF1587aA0E5CBD5735D448E5A9C9392293","value":"0x13e52b9abe000","data":"0x","chainId":"0x1","gasEstimate":"21000"},{"id":"set-subregistry","required":true,"order":2,"title":"Activate osoartist.eth: point its subnames at the OSO artist registry","plain":"Calls ETHRegistry.setSubregistry on YOUR name osoartist.eth so that \u003cartist>.osoartist.eth is looked up in the OSO UserRegistry 0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48. Each artist's name in that registry is owned by the artist's own wallet; neither OSO nor you can take it back, change its resolver or its payout (fork-tested). You can later re-point osoartist.eth (that is the one power you keep) unless you also sign the optional lock.","from":"0x25965899f4600b3AA5362ee4f34be95E5E62c934","to":"0xf60aba43E1f7F3DAB1186Ff03B561401C9Df85E2","value":"0x0","data":"0x341ec559298a2e5a2bb87f2f8f31df9991f0e4d57cd09ad956f9d118bbb5470900000000000000000000000000000000e9d4002cb12a53b50faa244cf801ced40d7c3b48","chainId":"0x1","gasEstimate":"57520"},{"id":"lock-subregistry","required":false,"irreversible":true,"order":3,"title":"OPTIONAL · IRREVERSIBLE: give up re-pointing osoartist.eth forever","plain":"Revokes your own SET_SUBREGISTRY role (and its admin) on osoartist.eth. After this nobody — not you, not OSO — can swap the artist registry out from under the artists. You keep ownership, renewal and resolver of osoartist.eth. Do NOT sign tonight unless you are sure; it cannot be undone.","from":"0x25965899f4600b3AA5362ee4f34be95E5E62c934","to":"0xf60aba43E1f7F3DAB1186Ff03B561401C9Df85E2","value":"0x0","data":"0xdfa70d8b298a2e5a2bb87f2f8f31df9991f0e4d57cd09ad956f9d118bbb5470900000000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000025965899f4600b3aa5362ee4f34be95e5e62c934","chainId":"0x1","gasEstimate":"79750"}]}</script>
+    <script type="module" src="/ens-sign.mjs"></script>
+    <title>osoartist.eth · Shaka signing kit</title>
+  </head>
+  <body>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/consent">Artist consent</a><a href="/steward">Steward</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro">
+        <p class="kicker">ENSv2 · Ethereum mainnet · only for the owner of osoartist.eth</p>
+        <h1>Shaka's signing kit</h1>
+        <p class="sub" id="summary"></p>
+        <p class="draft-notice">Each button opens MetaMask with exactly the transaction shown. Nothing is sent unless you confirm in MetaMask. Agents never see your key.</p>
+        <p><button type="button" id="connect">Connect MetaMask</button> <span id="who" aria-live="polite"></span></p>
+      </section>
+      <div id="txs"></div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>

@@ -30,7 +30,7 @@ A Continuity artist-home prototype with 40 public artist previews, a transient l
 - Current production preview: https://artist.opensourceorchestra.org/ (older static sample)
 - Integrated review preview: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ (repaired circle + live Arkiv read; wallets disabled)
 - Repo: https://github.com/Open-Source-Orchestra/fork-the-first-artist
-- Hedera transaction: **[REAL TX ID + HASHSCAN URL]**
+- Hedera x402 fan payment (1 HBAR, autonomous): [`0.0.9185802@1794000789.476065413`](https://hashscan.io/testnet/transaction/0.0.9185802-1794000789-476065413); steward → 0G meter ×3 (0.01 HBAR each); 96.31% artist forward [`0.0.11345897-1794000798-406931877`](https://hashscan.io/testnet/transaction/0.0.11345897-1794000798-406931877); HCS split log [topic `0.0.11345907`](https://hashscan.io/testnet/topic/0.0.11345907) seq 2. Full table: `docs/TX-PROOF.md`
 - Live 0G steward: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/steward/ (real judge-accessible answer path)
 - 0G model + request ID: `0gm-1.0-35b-a3b` · `9e3a7a4e-b434-4ba8-9627-cf40c9312ab3`; verification chat `dd606f89-101e-48dd-b2ed-b7d5beaa79fb`; provider `0xf4FB8d2bD856e672b5f9848b0eD235A20079B250`; actual compute cost `207` micro-USD; no independent TEE claim
 - Arkiv writer: `0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2` (dedicated synthetic Rabdi writer)
@@ -40,9 +40,9 @@ A Continuity artist-home prototype with 40 public artist previews, a transient l
 
 ## Hedera partner answer
 
-An autonomous fan agent reads the x402 v2 `accepts` requirements, signs the exact Hedera testnet payment without a human wallet approval, and retries the artist resource. The resource verifies, obtains the artist-grounded answer, settles last, and returns the transaction/provenance envelope. Failed inference/settlement and degraded template responses are not charged. **[Insert actual transaction ID, recipient and HashScan evidence.]** Separately describe HTS custom-fee split and HCS only if their real transactions/messages are shown.
+An autonomous fan agent reads the x402 v2 `accepts` requirements, signs the exact Hedera testnet payment without a human wallet approval, and retries the artist resource. The resource verifies, obtains the artist-grounded answer, settles last, and returns the transaction/provenance envelope. Failed inference/settlement and degraded template responses are not charged. Live proof: fan `0.0.11345895` paid 1 HBAR to the steward `0.0.11345897` via the x402.org facilitator (fee payer `0.0.9185802`); the steward paid 0.01 HBAR per 0G inference call to the meter `0.0.11345898` (agent pays for its own thinking); Utkarsh's Hedera Agent Kit steward then forwarded exactly 96,310,000 tinybar (96.31%) to the artist `0.0.11345896` and logged the split to HCS topic `0.0.11345907`, all re-read from the mirror node (`docs/TX-PROOF.md`). Separately describe HTS custom-fee split and HCS only if their real transactions/messages are shown.
 
-Feedback: **[Add specific facilitator/SDK friction and useful documentation improvement from the live run.]**
+Feedback: (1) accounts auto-created by sending HBAR to an EVM alias are *hollow* and the facilitator returns `invalid_exact_hedera_payload_signature_invalid` until each has paid one own-key transaction — worth a loud note in the x402 Hedera docs and a clearer error; (2) `@x402/hedera` refuses HBAR quotes unless the payer opts into non-default assets with spend caps — sensible, but undocumented; (3) the portal faucet's CAPTCHA/Cloudflare gate blocks agent-driven setup, a PAT-only testnet path that works from cloud IPs would help agent builders.
 
 ## 0G partner answer
 

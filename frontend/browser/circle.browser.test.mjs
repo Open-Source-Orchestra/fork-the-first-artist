@@ -64,7 +64,7 @@ async function assertNoOverflow(page) {
 for (const viewport of viewports) {
   test(`every seat center hits its own native button at ${viewport.name}`, async () => {
     await withPage(viewport, async (page) => {
-      const response = await page.goto(`${base}/`, { waitUntil: 'networkidle' });
+      const response = await page.goto(`${base}/list`, { waitUntil: 'networkidle' });
       assert.equal(response.status(), 200);
       await assertNoOverflow(page);
       await page.getByRole('searchbox', { name: 'Find an artist by name' }).waitFor({ state: 'visible' });
@@ -111,7 +111,7 @@ for (const viewport of viewports) {
 
 test('native semantics, accessible search, and filter controls precede all seats', async () => {
   await withPage(viewports[0], async (page) => {
-    await page.goto(`${base}/`);
+    await page.goto(`${base}/list`);
     assert.equal(await page.locator('#ring > li[role]').count(), 0);
     assert.equal(await page.locator('#ring .seat[role]').count(), 0);
     assert.equal(await page.locator('#ring > li').count(), 40);
@@ -136,7 +136,7 @@ test('native semantics, accessible search, and filter controls precede all seats
 for (const viewport of viewports) {
   test(`combined filters and complete reset stay consistent at ${viewport.name}`, async () => {
     await withPage(viewport, async (page) => {
-      await page.goto(`${base}/`);
+      await page.goto(`${base}/list`);
       const visibleSeats = page.locator('#ring > li:not([hidden]) .seat');
       await page.locator('[data-day="3"]').click();
       assert.equal(await page.locator('[data-day="3"]').getAttribute('aria-pressed'), 'true');
@@ -178,7 +178,7 @@ for (const viewport of viewports) {
 
 test('native dialog opens by keyboard, Escape closes it, and focus returns to its seat', async () => {
   await withPage(viewports[0], async (page) => {
-    await page.goto(`${base}/`);
+    await page.goto(`${base}/list`);
     const seat = page.locator('.seat[data-slug="alaska-x-subcult"]');
     await seat.focus();
     await page.keyboard.press('Enter');
@@ -199,7 +199,7 @@ test('native dialog opens by keyboard, Escape closes it, and focus returns to it
 
 test('CTA prefills only the selected public name and removes its transient slug', async () => {
   await withPage(viewports[1], async (page) => {
-    await page.goto(`${base}/`);
+    await page.goto(`${base}/list`);
     await page.locator('.seat[data-slug="alaska-x-subcult"]').click();
     const draftLink = page.locator('#p-draft');
     assert.equal(await draftLink.textContent(), 'Start a local draft');
@@ -222,7 +222,7 @@ test('CTA prefills only the selected public name and removes its transient slug'
 
 test('no-JS has a useful 40-artist list, working project routes, and no 0/0 state', async () => {
   await withPage(viewports[2], async (page) => {
-    const response = await page.goto(`${base}/`);
+    const response = await page.goto(`${base}/list`);
     assert.equal(response.status(), 200);
     assert.equal(await page.locator('.seat').count(), 0);
     assert.equal(await page.locator('.no-js-artists > li').count(), 40);
@@ -247,7 +247,7 @@ test('no-JS has a useful 40-artist list, working project routes, and no 0/0 stat
 test('axe WCAG audit is clean on every public route at all three viewports', async () => {
   for (const viewport of viewports) {
     await withPage(viewport, async (page) => {
-      for (const route of ['/', '/home', '/draft', '/wallets']) {
+      for (const route of ['/list', '/home', '/draft', '/wallets']) {
         const response = await page.goto(base + route);
         assert.equal(response.status(), 200);
         await page.evaluate(axe.source);

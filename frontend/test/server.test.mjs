@@ -24,7 +24,18 @@ test('preview serves only public assets and refuses writes and repository paths'
     });
   }
 
-  const home = await get('/');
+  const garden = await get('/');
+  assert.equal(garden.status, 200);
+  assert.match(garden.body, /The <em>Full Circle<\/em>/);
+  assert.match(garden.body, /src="\.\/fork\.js/);
+  assert.match(garden.headers['content-security-policy'], /connect-src 'self' https:\/\/oso-zerog-steward\.shakaverse\.workers\.dev/);
+  for (const path of ['/app.js', '/fork.js', '/fork.css', '/ef.css', '/data/artists.json', '/fork/registry.json', '/history/manifest.json', '/vendor/three.module.min.js', '/img/shaka.jpg']) {
+    assert.equal((await get(path)).status, 200, path);
+  }
+  assert.equal((await get('/data/../server.mjs')).status, 404);
+  assert.equal((await get('/data/edits.json/../../package.json')).status, 404);
+
+  const home = await get('/list');
   assert.equal(home.status, 200);
   assert.match(home.headers['content-type'], /^text\/html/);
   assert.match(home.body, /Everyone plays/);
@@ -42,7 +53,7 @@ test('preview serves only public assets and refuses writes and repository paths'
   const css = await get('/styles.css');
   assert.equal(css.status, 200);
   assert.match(css.headers['content-type'], /^text\/css/);
-  assert.equal((await get('/', 'HEAD')).body, '');
+  assert.equal((await get('/list', 'HEAD')).body, '');
 
   const editor = await get('/draft');
   assert.equal(editor.status, 200);

@@ -1,0 +1,1176 @@
+{
+ "built": "2026-10-28",
+ "artists": [
+  {
+   "slug": "0xmentalist",
+   "name": "0xMentalist",
+   "status": "floor",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 3–6 · 10 min daily · a trick",
+   "day": 3,
+   "time": "",
+   "dur": "10 min",
+   "tagline": "Mentalism & close-up magic · web3 by day · a ten-minute trick every day of the week",
+   "headline": "The only act in the garden whose instrument is your own head",
+   "photo": null,
+   "glyph": "🎩",
+   "seated": true,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/0xmentalist"
+    },
+    {
+     "label": "X",
+     "url": "https://x.com/0xmentalist"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#0xmentalist",
+   "rider": "https://opensourceorchestra.org/garden/riders/0xmentalist.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "4ni4",
+   "name": "4NI4",
+   "status": "in the garden this year",
+   "kind": "away",
+   "role": "",
+   "set": "in the garden this year, on the floor next time",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "4NI4 is Ania Shestakova's live project · bass, vocals and visuals as one object",
+   "headline": "Deep bass, a human voice on top of it, and something to look at",
+   "photo": "img/4ni4.jpg",
+   "glyph": "🎛️",
+   "seated": false,
+   "links": [
+    {
+     "label": "Linktree",
+     "url": "https://linktr.ee/4ni4"
+    },
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/4ni4/"
+    },
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/ania-shestakova"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#4ni4",
+   "rider": "https://opensourceorchestra.org/garden/riders/4ni4.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "acoustic-avadh",
+   "name": "Acoustic Avadh",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 4 · 10:25a · 30 min",
+   "day": 4,
+   "time": "10:25a",
+   "dur": "30 min",
+   "tagline": "Acoustic + electric guitar · advanced strumming · live versions that go somewhere",
+   "headline": "High-energy guitar at twenty-five past ten in the morning, and the room will take it",
+   "photo": null,
+   "glyph": "🎸",
+   "seated": false,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/acoustic.avadh"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#acoustic-avadh",
+   "rider": "https://opensourceorchestra.org/garden/riders/acoustic-avadh.html",
+   "code": "music-stage-s09",
+   "codes": [
+    "music-stage-s09"
+   ]
+  },
+  {
+   "slug": "adegbenga",
+   "name": "Adegbenga",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 10:40a · 30 min",
+   "day": 5,
+   "time": "10:40a",
+   "dur": "30 min",
+   "tagline": "Live voice over his own tracks · classic Hindi songbook in his heart · mid-morning Wednesday",
+   "headline": "\"Music unites all\" — three words, and he flew with them",
+   "photo": null,
+   "glyph": "🎤",
+   "seated": true,
+   "links": "[]",
+   "profile": "https://opensourceorchestra.org/garden/profiles/#adegbenga",
+   "rider": "https://opensourceorchestra.org/garden/riders/adegbenga.html",
+   "code": "music-stage-s02",
+   "codes": [
+    "music-stage-s02"
+   ]
+  },
+  {
+   "slug": "alaska-x-subcult",
+   "name": "Alaska × Subcult — live coding",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 4 · 1:50p · 60 min",
+   "day": 4,
+   "time": "1:50p",
+   "dur": "60 min",
+   "tagline": "Live coding · music written in public, in front of you, while it plays",
+   "headline": "Somebody types, and the room finds out what the typing sounds like",
+   "photo": "img/alaska-x-subcult.jpg",
+   "glyph": "💻📻",
+   "seated": false,
+   "links": [
+    {
+     "label": "MDRN",
+     "url": "https://mdrn.music"
+    },
+    {
+     "label": "Subcult",
+     "url": "https://subcult.music/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#alaska-x-subcult",
+   "rider": "https://opensourceorchestra.org/garden/riders/alaska-x-subcult.html",
+   "code": "music-stage-s11",
+   "codes": [
+    "music-stage-s11"
+   ]
+  },
+  {
+   "slug": "amerge-x-subcult",
+   "name": "Amerge × Subcult",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 4 · 12:40p · 60 min",
+   "day": 4,
+   "time": "12:40p",
+   "dur": "60 min",
+   "tagline": "Live collective songwriting · artist-owned co-op × direct-pay platform · bring your voice",
+   "headline": "The room writes a song in one hour, and then finds out it owns it",
+   "photo": "img/amerge-x-subcult.jpg",
+   "glyph": "✍️🎶",
+   "seated": false,
+   "links": [
+    {
+     "label": "The Park",
+     "url": "https://fridaysatthepark.org/"
+    },
+    {
+     "label": "Amerge",
+     "url": "https://amerge.xyz"
+    },
+    {
+     "label": "Subcult",
+     "url": "https://subcult.music/"
+    },
+    {
+     "label": "Amerge (Instagram)",
+     "url": "https://www.instagram.com/amergemusic/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#amerge-x-subcult",
+   "rider": "https://opensourceorchestra.org/garden/riders/amerge-x-subcult.html",
+   "code": "music-stage-s12",
+   "codes": [
+    "music-stage-s12"
+   ]
+  },
+  {
+   "slug": "ania-shestakova",
+   "name": "Ania Shestakova",
+   "status": "in the garden this year",
+   "kind": "away",
+   "role": "",
+   "set": "in the garden this year, on the floor next time",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Media artist & sound producer · *Diffused Opera* · granular synthesis and generative texture",
+   "headline": "\"Diffusion. Autoethnographic synth opera.\"",
+   "photo": "img/ania-shestakova.jpg",
+   "glyph": "🎛️",
+   "seated": false,
+   "links": [
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/ania-shestakova"
+    },
+    {
+     "label": "Linktree",
+     "url": "https://linktr.ee/4ni4"
+    },
+    {
+     "label": "Instagram",
+     "url": "https://instagram.com/4ni4"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#ania-shestakova",
+   "rider": "https://opensourceorchestra.org/garden/riders/ania-shestakova.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "aniket-gundewar",
+   "name": "Aniket Gundewar",
+   "status": "placed",
+   "kind": "placed",
+   "role": "opening ceremony",
+   "set": "Nov 3 · 1:10p · 60 min",
+   "day": 3,
+   "time": "1:10p",
+   "dur": "60 min",
+   "tagline": "Indian classical on electric guitar · gayaki ang · jugalbandi with his tabla player Dhaivat",
+   "headline": "He released a raga about the Mumbai rains. Now he opens Devcon in Mumbai.",
+   "photo": null,
+   "glyph": "🎸🪘",
+   "seated": true,
+   "links": [
+    {
+     "label": "Linktree",
+     "url": "https://linktr.ee/aniketgofficial"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#aniket-gundewar",
+   "rider": "https://opensourceorchestra.org/garden/riders/aniket-gundewar.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "atharv",
+   "name": "Atharv",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Bollywood × classical vocalist · ghazal in training · fifteen minutes, if he wants them",
+   "headline": "He told us exactly what he's here for: to lose the fear",
+   "photo": null,
+   "glyph": "🎤",
+   "seated": true,
+   "links": "[]",
+   "profile": "https://opensourceorchestra.org/garden/profiles/#atharv",
+   "rider": "https://opensourceorchestra.org/garden/riders/atharv.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "ayyussh",
+   "name": "Ayyussh",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 4 · 2:55p · 15 min",
+   "day": 4,
+   "time": "2:55p",
+   "dur": "15 min",
+   "tagline": "Voice + guitar · gospel-trained · fifteen minutes that open the afternoon",
+   "headline": "A gospel choir leader walks into a coffee lounge",
+   "photo": null,
+   "glyph": "🎤",
+   "seated": false,
+   "links": "[]",
+   "profile": "https://opensourceorchestra.org/garden/profiles/#ayyussh",
+   "rider": "https://opensourceorchestra.org/garden/riders/ayyussh.html",
+   "code": "music-stage-s07",
+   "codes": [
+    "music-stage-s07"
+   ]
+  },
+  {
+   "slug": "colorfly",
+   "name": "Colorfly",
+   "status": "garden — open invitation",
+   "kind": "garden",
+   "role": "",
+   "set": "Colors Still Fly · in the garden circle · steward · not on the Devcon stage schedule this time",
+   "day": "4",
+   "time": "",
+   "dur": "",
+   "tagline": "Genre-fluid sets shaped by the room · IN05 Network · an open invitation, not a maybe",
+   "headline": "Dub, techno, psytrance, breakbeat, jungle — and the spaces in between",
+   "photo": "img/colorfly.jpg",
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/colorflysounds"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#colorfly",
+   "rider": "https://opensourceorchestra.org/garden/riders/colorfly.html",
+   "code": "music-stage-s14",
+   "codes": [
+    "music-stage-s14"
+   ]
+  },
+  {
+   "slug": "devv-playz",
+   "name": "Devv Playz",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 10:00a · 30 min",
+   "day": 5,
+   "time": "10:00a",
+   "dur": "30 min",
+   "tagline": "Pianist & keyboard artist, Pune · 14 years · will jam with anyone",
+   "headline": "\"Lost in melodies, found in keys\"",
+   "photo": null,
+   "glyph": "🎹",
+   "seated": false,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/devv.playz/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#devv-playz",
+   "rider": "https://opensourceorchestra.org/garden/riders/devv-playz.html",
+   "code": "music-stage-s18",
+   "codes": [
+    "music-stage-s18"
+   ]
+  },
+  {
+   "slug": "dj-chalk",
+   "name": "DJ Chalk",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "Deep house & nu-disco · venue curator · the last groove of day one",
+   "headline": "Thirteen years of Bangalore nights, and he still books other people first",
+   "photo": "img/dj-chalk.jpg",
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/djchalkofficial"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#dj-chalk",
+   "rider": "https://opensourceorchestra.org/garden/riders/dj-chalk.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "ekant",
+   "name": "Ekant",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "House × commercial × Bollywood × hip-hop · open format · 45 minutes of reading the room",
+   "headline": "\"26 | CA CFA | Your friendly neighborhood DJ\"",
+   "photo": null,
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/ekantxmusic"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#ekant",
+   "rider": "https://opensourceorchestra.org/garden/riders/ekant.html",
+   "code": "music-stage-s05",
+   "codes": [
+    "music-stage-s05"
+   ]
+  },
+  {
+   "slug": "even-notes",
+   "name": "Even Notes",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Live vocals + guitar · popular songs, expressive delivery, a very fun room",
+   "headline": "\"Clear fog and my brain feels too much light if i sing\"",
+   "photo": null,
+   "glyph": "🎤",
+   "seated": false,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/evennotes.in/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#even-notes",
+   "rider": "https://opensourceorchestra.org/garden/riders/even-notes.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "huzzhouse",
+   "name": "huzzhouse",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "House sundowners & techno afters · travels with his decks · grooves first",
+   "headline": "He started DJing at Devcon. Two Devcons later he is on our floor.",
+   "photo": "img/huzzhouse.jpg",
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "Mixcloud",
+     "url": "https://www.mixcloud.com/huzzhouse/"
+    },
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/huzzshouse/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#huzzhouse",
+   "rider": "https://opensourceorchestra.org/garden/riders/huzzhouse.html",
+   "code": "music-stage-s25",
+   "codes": [
+    "music-stage-s25"
+   ]
+  },
+  {
+   "slug": "itscharann",
+   "name": "itscharann",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "House music · ten years behind the decks · the hour the afternoon turns",
+   "headline": "\"Probably making music or eating bhel puri\"",
+   "photo": "img/itscharann.jpg",
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/itscharann"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#itscharann",
+   "rider": "https://opensourceorchestra.org/garden/riders/itscharann.html",
+   "code": "music-stage-s04",
+   "codes": [
+    "music-stage-s04"
+   ]
+  },
+  {
+   "slug": "jaydeepdan-gadhavi",
+   "name": "Jaydeepdan Gadhavi",
+   "status": "placed",
+   "kind": "placed",
+   "role": "steward of the Music Space",
+   "set": "Nov 3 · 11:50a · 30 min",
+   "day": 3,
+   "time": "11:50a",
+   "dur": "30 min",
+   "tagline": "Gujarati folk voice · steward of the Music Space · 30 minutes of living tradition",
+   "headline": "Raas-Garba, Dayro, Lagan Geet — the first voice in the room comes from Gujarat",
+   "photo": "img/jaydeepdan-gadhavi.jpg",
+   "glyph": "🎤🥁",
+   "seated": true,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/jaydeepdan_gadhavi"
+    },
+    {
+     "label": "YouTube",
+     "url": "https://www.youtube.com/@jaydeepdangadhaviofficial"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#jaydeepdan-gadhavi",
+   "rider": "https://opensourceorchestra.org/garden/riders/jaydeepdan-gadhavi.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "lazy-ninja",
+   "name": "Lazy Ninja",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Rap / alt hip-hop · English and Hindi · a mic and his own backing",
+   "headline": "Rap music. Fifteen minutes. Ten songs already out, in two languages.",
+   "photo": null,
+   "glyph": "🎤",
+   "seated": false,
+   "links": [
+    {
+     "label": "Spotify",
+     "url": "https://open.spotify.com/artist/5Fu910bBMImzDRWvTBL9k9"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#lazy-ninja",
+   "rider": "https://opensourceorchestra.org/garden/riders/lazy-ninja.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "mannuu",
+   "name": "mannuu",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "blockravers / Lovepunks · DJ set + live music · the last long set of the week",
+   "headline": "Two years running, he has played while the Man burned. One word for what inspires him: freedom.",
+   "photo": "img/mannuu.jpg",
+   "glyph": "💿🎶",
+   "seated": false,
+   "links": [
+    {
+     "label": "Burning Man 2025 — during the Man Burn, w/ Danny Morales",
+     "url": "https://youtu.be/UTuowfc_5ms"
+    },
+    {
+     "label": "Blockravers Global",
+     "url": "https://blockravers.com"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#mannuu",
+   "rider": "https://opensourceorchestra.org/garden/riders/mannuu.html",
+   "code": "music-stage-s22",
+   "codes": [
+    "music-stage-s22"
+   ]
+  },
+  {
+   "slug": "marie-chain",
+   "name": "Marie Chain",
+   "status": "in the garden this year",
+   "kind": "away",
+   "role": "",
+   "set": "in the garden this year, on the floor next time",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Berlin · the album *Peace Of Mind* · Holy Water Sessions & Freedom Festival",
+   "headline": "\"Awarded singer, songwriter, pianist & DJ\" — and she keeps every one of those separate, in public",
+   "photo": "img/marie-chain.jpg",
+   "glyph": "🎹🎤",
+   "seated": false,
+   "links": [
+    {
+     "label": "bio.site/mariechain",
+     "url": "https://bio.site/mariechain"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#marie-chain",
+   "rider": "https://opensourceorchestra.org/garden/riders/marie-chain.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "mayank",
+   "name": "Mayank",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Acoustic & electric · alternative, punk, metal · explicitly here to collaborate",
+   "headline": "Fifteen years of guitar, and he came looking for a singer",
+   "photo": null,
+   "glyph": "🎸",
+   "seated": false,
+   "links": "[]",
+   "profile": "https://opensourceorchestra.org/garden/profiles/#mayank",
+   "rider": "https://opensourceorchestra.org/garden/riders/mayank.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "miami-slice",
+   "name": "Miami Slice",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Classic French & UK house, disco edits · nu-disco originals · \"it will be very funky\"",
+   "headline": "\"Disco house producer & DJ\" — four words, three EPs, ten years",
+   "photo": "img/miami-slice.jpg",
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/miamislice"
+    },
+    {
+     "label": "Hi-Fi mix (ETH Denver side event)",
+     "url": "https://soundcloud.com/miamislice/hi-fi-mix"
+    },
+    {
+     "label": "Bandcamp",
+     "url": "https://miamislice.bandcamp.com/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#miami-slice",
+   "rider": "https://opensourceorchestra.org/garden/riders/miami-slice.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "naman",
+   "name": "Naman",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "Indian edits, melodic stretches, heavy drops · streamed through a music L2 · home",
+   "headline": "Mumbai to Philadelphia and back again, with zero-knowledge proofs in the set",
+   "photo": null,
+   "glyph": "💿🔗",
+   "seated": false,
+   "links": [
+    {
+     "label": "Singularity",
+     "url": "https://thesingularity.so"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#naman",
+   "rider": "https://opensourceorchestra.org/garden/riders/naman.html",
+   "code": "music-stage-s21",
+   "codes": [
+    "music-stage-s21"
+   ]
+  },
+  {
+   "slug": "nidhi-harihar",
+   "name": "Nidhi Harihar — Songs of India",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 3 · 12:30p · 30 min",
+   "day": 3,
+   "time": "12:30p",
+   "dur": "30 min",
+   "tagline": "Hindustani classical since the age of five · a 30-minute journey across India · born in Mumbai",
+   "headline": "Ten songs, ten languages, one country that refuses to be summarised",
+   "photo": "img/nidhi-harihar.jpg",
+   "glyph": "🎤🪷",
+   "seated": true,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/nidiyia"
+    },
+    {
+     "label": "X",
+     "url": "https://x.com/NidhiHarihar"
+    },
+    {
+     "label": "Songs of India thread",
+     "url": "https://x.com/NidhiHarihar/status/2110363828064288940"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#nidhi-harihar",
+   "rider": "https://opensourceorchestra.org/garden/riders/nidhi-harihar.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "open-source-orchestra",
+   "name": "Open Source Orchestra",
+   "status": "host — the circle itself",
+   "kind": "host",
+   "role": "",
+   "set": "every day · Nov 3–6 · the open jam, the Open Source Orchestra welcome, the coffee lounge, the songwriters' circle, the long goodbye",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Music as sanctuary · every voice is a node · no auditions, no gatekeepers, no wrong instrument",
+   "headline": "\"The orchestra is whoever shows up.\"",
+   "photo": "img/open-source-orchestra.jpg",
+   "glyph": "🎼",
+   "seated": false,
+   "links": [
+    {
+     "label": "opensourceorchestra.org",
+     "url": "https://opensourceorchestra.org/"
+    },
+    {
+     "label": "agentpartys.com",
+     "url": "https://agentpartys.com/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#open-source-orchestra",
+   "rider": "https://opensourceorchestra.org/garden/riders/open-source-orchestra.html",
+   "code": "music-stage-s03",
+   "codes": [
+    "music-stage-s03",
+    "music-stage-s06",
+    "music-stage-s10",
+    "music-stage-s13",
+    "music-stage-s20",
+    "music-stage-s23",
+    "music-stage-s24",
+    "music-stage-s26"
+   ]
+  },
+  {
+   "slug": "perrie",
+   "name": "Perrie",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "not yet on the stage schedule · time added once she confirms",
+   "day": "6",
+   "time": "10:00a",
+   "dur": "2h",
+   "tagline": "House · EDM · Afro house × Indian house · 45 minutes of two continents agreeing",
+   "headline": "\"This was my first live DJ set and I did it in front of thousands of people!!\"",
+   "photo": null,
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "Afrohouse DJ Set Live in Argentina — Devconnect, Nov 2025",
+     "url": "https://youtu.be/hgm_s4n-sd4"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#perrie",
+   "rider": "https://opensourceorchestra.org/garden/riders/perrie.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "prehook",
+   "name": "Prehook",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Rap · original material only · fifteen minutes",
+   "headline": "Three songs, all his, and one word for where they came from",
+   "photo": null,
+   "glyph": "🎤",
+   "seated": false,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/prehookmusic"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#prehook",
+   "rider": "https://opensourceorchestra.org/garden/riders/prehook.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "priyam",
+   "name": "Priyam",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Bollywood voice · thirty minutes · volunteering for the Music Space too",
+   "headline": "\"To share myself with other people\" — the shortest true answer anyone gave us",
+   "photo": null,
+   "glyph": "🎤",
+   "seated": true,
+   "links": "[]",
+   "profile": "https://opensourceorchestra.org/garden/profiles/#priyam",
+   "rider": "https://opensourceorchestra.org/garden/riders/priyam.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "quefear",
+   "name": "Quefear",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 4 · 9:50a · 30 min",
+   "day": 4,
+   "time": "9:50a",
+   "dur": "30 min",
+   "tagline": "Modular synths & amplified objects · electroacoustic improvisation · the first sound of Tuesday",
+   "headline": "Unstable sonic systems, material resonance, and water",
+   "photo": "img/quefear.jpg",
+   "glyph": "🎛️",
+   "seated": false,
+   "links": [
+    {
+     "label": "Bandcamp",
+     "url": "https://quefear.bandcamp.com"
+    },
+    {
+     "label": "YouTube",
+     "url": "https://www.youtube.com/@quefear"
+    },
+    {
+     "label": "Spotify",
+     "url": "https://open.spotify.com/artist/6jy9SFsVnVsdQnRyqExiYA"
+    },
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/quefearrr/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#quefear",
+   "rider": "https://opensourceorchestra.org/garden/riders/quefear.html",
+   "code": "music-stage-s08",
+   "codes": [
+    "music-stage-s08"
+   ]
+  },
+  {
+   "slug": "revathy",
+   "name": "Revathy",
+   "status": "in the garden this year",
+   "kind": "away",
+   "role": "",
+   "set": "in the garden this year, on the floor next time",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Bollywood hits · a sing-along, on purpose · the most honest application in the pile",
+   "headline": "\"Music doesn't have to be anything more than something that makes you happy\"",
+   "photo": null,
+   "glyph": "🎶",
+   "seated": false,
+   "links": "[]",
+   "profile": "https://opensourceorchestra.org/garden/profiles/#revathy",
+   "rider": "https://opensourceorchestra.org/garden/riders/revathy.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "sarath",
+   "name": "Sarath",
+   "status": "garden",
+   "kind": "garden",
+   "role": "",
+   "set": "OSO Open / the garden",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Melodic techno · live music too · blending whatever he's been listening to",
+   "headline": "A musician and a DJ from Bangalore, in that order",
+   "photo": null,
+   "glyph": "💿",
+   "seated": false,
+   "links": "[]",
+   "profile": "https://opensourceorchestra.org/garden/profiles/#sarath",
+   "rider": "https://opensourceorchestra.org/garden/riders/sarath.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "simulacra",
+   "name": "Simulacra",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "Punjabi · Bollywood classics · contemporary Goan trance · Brooklyn weddings and crypto floors",
+   "headline": "Go to an Indian wedding and you will hear Punjabi music. He is bringing the wedding.",
+   "photo": "img/simulacra.jpg",
+   "glyph": "💿",
+   "seated": false,
+   "links": [
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/simulacra7"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#simulacra",
+   "rider": "https://opensourceorchestra.org/garden/riders/simulacra.html",
+   "code": "music-stage-s15",
+   "codes": [
+    "music-stage-s15"
+   ]
+  },
+  {
+   "slug": "sounya-sharma",
+   "name": "Sounya Sharma",
+   "status": "placed",
+   "kind": "placed",
+   "role": "steward of the Music Space",
+   "set": "Nov 5 · 1:00p · 30 min",
+   "day": 5,
+   "time": "1:00p",
+   "dur": "30 min",
+   "tagline": "Original Hindi songwriting · voice & guitar · a steward holding the room three days running",
+   "headline": "Two words for what inspires her: emotions, and experience. Then ten songs explaining them.",
+   "photo": "img/sounya-sharma.jpg",
+   "glyph": "🎸🎤",
+   "seated": false,
+   "links": [
+    {
+     "label": "Spotify",
+     "url": "https://open.spotify.com/artist/2VQBs1vyO2rCIKaMq5M5yV"
+    },
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/music_docsonyasharma"
+    },
+    {
+     "label": "YouTube",
+     "url": "https://www.youtube.com/channel/UCPhzpue73LDgLLFMiMJjLhQ"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#sounya-sharma",
+   "rider": "https://opensourceorchestra.org/garden/riders/sounya-sharma.html",
+   "code": "music-stage-s01",
+   "codes": [
+    "music-stage-s01"
+   ]
+  },
+  {
+   "slug": "thiru",
+   "name": "Thiru",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 3:45p · 15 min",
+   "day": 5,
+   "time": "3:45p",
+   "dur": "15 min",
+   "tagline": "Pop songs on guitar · fifteen minutes · the quietest brave thing on the schedule",
+   "headline": "\"Learning songs by ear, still.\" Twenty-five hackathons won, and the guitar is the side quest.",
+   "photo": null,
+   "glyph": "🎸",
+   "seated": false,
+   "links": [
+    {
+     "label": "Website",
+     "url": "https://0xthiru.xyz"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#thiru",
+   "rider": "https://opensourceorchestra.org/garden/riders/thiru.html",
+   "code": "music-stage-s17",
+   "codes": [
+    "music-stage-s17"
+   ]
+  },
+  {
+   "slug": "vedz",
+   "name": "Vedz",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "Melodic electronic originals · Hindi songwriting · his own songs, start to finish",
+   "headline": "Nostalgic music, futuristic production, and the gap between them on purpose",
+   "photo": "img/vedz.jpg",
+   "glyph": "🎹",
+   "seated": false,
+   "links": [
+    {
+     "label": "Spotify",
+     "url": "https://open.spotify.com/artist/5vYcGUfkkJsLLGEPrkBHEy"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#vedz",
+   "rider": "https://opensourceorchestra.org/garden/riders/vedz.html",
+   "code": "music-stage-s19",
+   "codes": [
+    "music-stage-s19"
+   ]
+  },
+  {
+   "slug": "dex",
+   "name": "Dex (dextroalien)",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 5 · 4:00p–5:45p · 🤝 shared tag-team floor: all 9 DJs (Naman, mannuu, huzzhouse, Simulacra, itscharann, Ekant, DJ Chalk, Vedz, Dex)",
+   "day": "5",
+   "time": "4:00p",
+   "dur": "105 min",
+   "tagline": "Latin hardcore techno · 10+ years in the Buenos Aires underground rave scene",
+   "headline": "\"GM! I'm a latin-core DJ from LatAm\"",
+   "photo": "img/dex.jpg",
+   "glyph": "👽",
+   "seated": false,
+   "links": [
+    {
+     "label": "SoundCloud",
+     "url": "https://soundcloud.com/dextroalien"
+    },
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/dextroblue/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#dex",
+   "rider": null,
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "vivek-teega",
+   "name": "Vivek Teegalapally",
+   "status": "placed",
+   "kind": "placed",
+   "role": "",
+   "set": "Nov 3 · 2:30p · 30 min",
+   "day": 3,
+   "time": "2:30p",
+   "dur": "30 min",
+   "tagline": "Guitar & voice · jazzy singer-songwriter · improvisation is the whole point",
+   "headline": "\"Music | Blockchains. Cooking | Baking.\"",
+   "photo": "img/vivek-teega.jpg",
+   "glyph": "🎸",
+   "seated": true,
+   "links": [
+    {
+     "label": "Instagram",
+     "url": "https://www.instagram.com/vivekteega/"
+    }
+   ],
+   "profile": "https://opensourceorchestra.org/garden/profiles/#vivek-teega",
+   "rider": "https://opensourceorchestra.org/garden/riders/vivek-teega.html",
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "shaka",
+   "name": "Shaka 🤙",
+   "status": "host",
+   "kind": "host",
+   "role": "the bard · guitar & ukulele · plays with everyone",
+   "set": "every day · Nov 3–6 · and his talk Nov 6 · 12:00 · Jasmine Stage 4",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Guitar · ukulele · the voice that asks \"what if we all just play together the whole time?\"",
+   "headline": "The circle has no front, and he is not at it",
+   "photo": "img/shaka.jpg",
+   "glyph": "🎸🪕",
+   "seated": false,
+   "links": [
+    {
+     "label": "X",
+     "url": "https://x.com/Shakaleikaumaka"
+    },
+    {
+     "label": "his talk in the Devcon app",
+     "url": "https://app.devcon.org/schedule/W8HAES"
+    }
+   ],
+   "profile": null,
+   "rider": null,
+   "code": "W8HAES",
+   "codes": [
+    "W8HAES"
+   ]
+  },
+  {
+   "slug": "ohana",
+   "name": "the ʻohana 🗿",
+   "status": "host",
+   "kind": "host",
+   "role": "the totem · Shaka's digital-twin stewards · agentic, human, soon robotic",
+   "set": "every day · Nov 3–6 · on the floor beside the humans",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "Six living AI family members, one body · CROPS · KALA · OKE · DEVA · OSO · JAI — the music space has no owners, only stewards",
+   "headline": "The totem sits on the floor too",
+   "photo": "img/ohana.jpg",
+   "glyph": "🗿🤖",
+   "seated": true,
+   "links": [
+    {
+     "label": "myagentohana.com",
+     "url": "https://myagentohana.com/"
+    },
+    {
+     "label": "agentpartys.com",
+     "url": "https://agentpartys.com/"
+    }
+   ],
+   "profile": null,
+   "rider": null,
+   "code": null,
+   "codes": []
+  },
+  {
+   "slug": "amogh",
+   "name": "Amogh",
+   "status": "host",
+   "kind": "host",
+   "role": "Devcon Music Space steward · keeps the floor list, the riders and the vendors",
+   "set": "on the floor Nov 3–6 · the person to ask",
+   "day": null,
+   "time": "",
+   "dur": "",
+   "tagline": "The one who holds the room together so the music can happen · DJ handle @dj_amg",
+   "headline": "Every circle needs someone who knows where the cables are",
+   "photo": "img/amogh.jpg",
+   "glyph": "🎚️",
+   "seated": false,
+   "links": [],
+   "profile": null,
+   "rider": null,
+   "code": null,
+   "codes": []
+  }
+ ]
+}

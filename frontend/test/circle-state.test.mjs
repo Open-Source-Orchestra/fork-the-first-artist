@@ -79,9 +79,9 @@ test('draft handoff accepts only an exact public roster slug', () => {
   assert.throws(() => draftUrlForArtist({}), TypeError);
 });
 
-test('static HTML keeps native semantics, control order, and a 40-name no-JS fallback', async () => {
+test('the accessible /list circle keeps native semantics, control order, and a 40-name no-JS fallback', async () => {
   const [html, css] = await Promise.all([
-    readFile(new URL('../public/index.html', import.meta.url), 'utf8'),
+    readFile(new URL('../public/list.html', import.meta.url), 'utf8'),
     readFile(new URL('../public/circle.css', import.meta.url), 'utf8'),
   ]);
   assert.doesNotMatch(html, /role="listitem"/);

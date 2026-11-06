@@ -1,0 +1,6 @@
+{
+  "parent": "osoartist.eth",
+  "consentPage": null,
+  "note": "Per-artist ENS state. An artist appears here only after signing consent with their own key. Keys are garden slugs.",
+  "artists": {}
+}

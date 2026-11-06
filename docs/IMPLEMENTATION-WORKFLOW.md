@@ -39,6 +39,8 @@ Updated owner decisions and verified partner requirements are recorded in [PRIZE
 
 ## Commit and review contract
 
+Current stage C progress: commit 12 implements steward issuance/revocation and freeze persistence with real PostgreSQL concurrency/rollback tests. Claims cannot yet be created through an application path; private drafts, consent, dual-wallet verification, service enforcement, and activation remain outstanding. The operational boundary and setup are in [claims/README.md](../claims/README.md).
+
 1. Work on a feature branch. Use a PR and obtain the teammate approval required by the root README before merging; never push directly to `main`.
 2. Number our commits consecutively within this implementation series: `01`, `02`, `03`, and so on. Preserve existing contributor commit messages and history.
 3. Make one cohesive feature or prerequisite per commit. Include its tests and documentation in that same commit. Do not combine unrelated completed features.

@@ -7,8 +7,8 @@
     "node": ">=22.18"
   },
   "scripts": {
-    "install:all": "npm --prefix payments install && npm --prefix agent install && npm --prefix frontend install --ignore-scripts",
-    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend",
+    "install:all": "npm --prefix payments install && npm --prefix agent install && npm --prefix frontend install --ignore-scripts && npm --prefix claims install --ignore-scripts",
+    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend && npm run test:claims",
     "typecheck": "npm --prefix payments run typecheck && npm --prefix agent run typecheck",
     "dev:payments": "npm --prefix payments start",
     "dev:agent": "npm --prefix agent start",
@@ -16,6 +16,9 @@
     "smoke": "node agent/scripts/smoke.ts",
     "dev:frontend": "node --env-file-if-exists=frontend/.env frontend/server.mjs",
     "test:frontend": "node --test frontend/test/*.test.mjs",
-    "build:wallet": "npm --prefix frontend run build:wallet"
+    "build:wallet": "npm --prefix frontend run build:wallet",
+    "test:claims": "npm --prefix claims test",
+    "test:claims:local": "npm --prefix claims run test:local",
+    "steward": "npm --prefix claims run steward --"
   }
 }

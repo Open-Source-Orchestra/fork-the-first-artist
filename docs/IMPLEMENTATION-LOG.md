@@ -189,3 +189,26 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - Owner confirmed steward CLI commands for invite issuance and service freezes; recorded this as the next backend boundary.
 
 Validation: install with lifecycle scripts disabled added 135 packages; npm's install-time audit reported zero known vulnerabilities. Browser bundle build passed (479,263 bytes). All 20 frontend tests passed with approved loopback access, including six native-session regressions and served runtime/notices/configuration checks. Syntax, HTML route/ID/accessibility references, and whitespace checks passed. Real HashPack pairing, QR/clipboard/CSP behavior, and browser layout remain unverified because no project ID exists yet and browser automation is unavailable. No signatures, payments, live claims, deployment, push, or merge occurred.
+
+## 12 — Persist steward invitations and service-freeze records
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+### Behavior and boundaries
+
+- Owner approved server-side steward commands without a public admin endpoint. Added a Node CLI for migration, invitation issuance, unused-invite revocation, freeze recording, and status. Host/database access authorizes operators; the actor label is attribution, not cryptographic authentication.
+- Added a PostgreSQL schema and pinned pg 8.23.1. Store only hashes of random 256-bit invitation tokens. Tokens return once after the issuance transaction commits; TTL defaults to 24 hours with a 1–72-hour bound. No message is sent or claim link generated.
+- Revocation takes the invite row lock; future redemption must use that same lock and verify expiry, both wallet proofs, and consent. Unique invite linkage prevents multiple claim rows. There is no application/CLI path that inserts a verified claim yet.
+- Freeze changes only freeze metadata and writes an audit event in the same transaction. Concurrent repeats are idempotent; audit failure rolls back state. No ENS/payout identity fields are changed. Existing services do not yet enforce this flag; the README explicitly marks that limitation.
+- Serialized migration application with an advisory lock, checksum validation, and transactional schema changes. Added explicit connection parsing, parameterized operator inputs, verified TLS for remote hosts, timeouts, sanitized CLI errors, and separate root commands for unit versus real database tests.
+- Documented operational setup, private token handling, restricted role privileges, migration behavior, future redemption/enforcement requirements, and test isolation. Database audit is private and mutable by database owners; it is not an HCS receipt.
+
+### Validation
+
+- Installed PostgreSQL 18 through approved Homebrew execution (18.6_1). Homebrew initialized its default cluster; this work did not start or enable a background/startup service. Tests used a separate private temporary cluster bound only to loopback with a random SCRAM password and no Unix socket.
+- Installed the claims dependency with lifecycle scripts disabled; `npm --prefix claims ls --depth=0` confirmed pg 8.23.1. Lockfile uses registry.npmjs.org package URLs. No new dependency-audit result is claimed in this entry.
+- Three database-free configuration/input tests passed. All nine tests then passed against real PostgreSQL, including concurrent migration, tokens/parameterized input, ten concurrent freezes, transactional rollback, incomplete-freeze constraint rejection, revocation, and CLI behavior. Added an explicit checksum-drift rejection case and reran all nine successfully.
+- `npm run steward -- --help` passed without database configuration and verified root argument forwarding. Reviewed source/schema, setup documentation, lockfile URLs, and staged whitespace. Existing frontend/agent/payment code is unchanged, so those suites were not rerun for this feature; their previously documented results and limitations still apply.
+- Both test clusters stopped after verification. Private temporary test data is retained for diagnosis. No production database, public endpoint, wallet signature, chain write, HCS event, payment source change, push, or merge occurred.
+
+Next: implement consent-bound wallet challenges and atomic redemption, then enforce verified/active/unfrozen claim state at service boundaries. Parent, Reown project ID, host/origin, and the pending public-data/permission decisions remain requirements for live integration; no placeholder is represented as configured.

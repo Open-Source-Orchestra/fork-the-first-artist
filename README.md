@@ -14,6 +14,7 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 |---|---|
 | `payments/` | x402 on Hedera + 96.31/3.69 split |
 | `frontend/` | profile, claim, tip |
+| `claims/` | PostgreSQL steward CLI: invites, revocation, freeze records |
 | `ens/` | artist names + records |
 | `agent/` | 0G steward agent, spend cap, HCS claim log |
 | `docs/` | plan, tx proofs, demo script |
@@ -21,6 +22,8 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 ## Local frontend preview
 
 Run `npm run dev:frontend` from this directory and open `http://127.0.0.1:4173`. Explore the sample OSO profile or open `/draft` to preview a name and bio in the current tab. Drafts are not saved or published; claim and payment integration are not active. See [frontend/README.md](frontend/README.md) for scope, verification, and source attribution.
+
+The [claims README](claims/README.md) documents the trusted steward CLI and database setup. Invite issuance and freeze records are implemented; wallet-proof redemption, service enforcement, and public claim routes are still pending.
 
 ## How we work
 - Branch → pull request → **1 approval from a teammate** → merge. No direct pushes to `main`.

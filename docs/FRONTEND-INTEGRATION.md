@@ -61,3 +61,7 @@ Live ENS/Hedera/0G verification requires the selected setup and locally configur
 ## Wallet connection progress
 
 Commit 10 adds unverified MetaMask extension connection; commit 11 adds configurable HashPack native testnet pairing and explicit payout-account selection. Both clear selections on changes and reject stale completion. The wallet page is separate from drafts; neither wallet connection is a verified claim. The owner will create a Reown project ID and selected Node + PostgreSQL for the future claim backend. See frontend/README.md for setup, dependency notices, scope, and missing live verification. No real parent, host, project ID, or database connection is configured.
+
+## Steward persistence progress
+
+Commit 12 adds the approved server-side steward CLI with PostgreSQL invitations, unused-invite revocation, service-freeze records, private transactional audit events, and versioned schema initialization. See [claims/README.md](../claims/README.md) for commands and the nine checks run against a fresh temporary database. There is no public admin endpoint. Wallet-proof redemption and runtime enforcement of freezes are still pending; existing services do not yet read this database. No production database was configured.

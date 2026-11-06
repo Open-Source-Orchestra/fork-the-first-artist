@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Ask a fictional artist's steward a question through real 0G Private Computer inference.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <script type="module" src="/steward.mjs"></script>
+    <title>Mira’s public steward · 0G Private Computer</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the steward</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/">Artist circle</a><a href="/arkiv">Arkiv proof</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="steward-heading">
+        <p class="kicker">Live 0G Private Computer · mainnet</p>
+        <h1 id="steward-heading">Ask Mira’s <em>public steward.</em></h1>
+        <p class="sub">A small artist-grounded question, answered by real 0G inference. The request and verification IDs appear with the answer.</p>
+        <p class="draft-notice"><strong>Fictional profile only:</strong> Mira Modal is an independent electronic musician who makes quiet music from field recordings and modular synths. Her public demo songs are <strong>Open Skies</strong> and <strong>Small Circuits</strong>. No real artist’s private data is used.</p>
+        <p class="draft-notice">This demonstrates live 0G inference in the main user flow. It is <strong>not</strong> a payment, an independently verified TEE attestation, or a self-funding-agent claim. The steward has no wallet or secret in your browser.</p>
+      </section>
+
+      <section class="card" aria-labelledby="question-heading">
+        <p class="eyebrow">01 / Your question</p>
+        <h2 id="question-heading">Ask about the public profile</h2>
+        <p id="service-status" class="editor-status" role="status">Checking the steward’s live configuration…</p>
+        <form id="steward-form" class="editor-form" autocomplete="off">
+          <fieldset id="steward-fields" disabled>
+            <legend class="visually-hidden">Question for Mira’s steward</legend>
+            <label for="steward-question">Question</label>
+            <p id="question-hint" class="field-hint">Up to 280 characters. Try “List Mira’s songs” or “What does Mira make music from?”</p>
+            <textarea id="steward-question" rows="4" maxlength="280" required aria-describedby="question-hint"></textarea>
+            <div class="editor-actions"><button id="ask-steward" class="primary-button" type="submit">Ask through real 0G</button></div>
+          </fieldset>
+        </form>
+        <p id="answer-status" class="editor-status" role="status"></p>
+        <article id="answer-card" class="card" hidden aria-labelledby="answer-heading">
+          <p class="eyebrow">02 / Real 0G answer</p>
+          <h3 id="answer-heading" tabindex="-1">The steward says</h3>
+          <p id="answer-text" dir="auto"></p>
+          <dl id="proof-details">
+            <dt>Request ID</dt><dd><code id="request-id"></code></dd>
+            <dt>Verification chat ID</dt><dd><code id="verification-id"></code></dd>
+            <dt>Provider</dt><dd><code id="provider-id"></code></dd>
+            <dt>Model</dt><dd><code id="model-id"></code></dd>
+            <dt>Actual compute cost</dt><dd id="billing-cost"></dd>
+            <dt>Verification boundary</dt><dd>Router metadata is shown; no independent TEE verification is claimed.</dd>
+          </dl>
+        </article>
+      </section>
+    </main>
+    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra · live 0G, no mock answer</p><a href="https://oso-zerog-steward.shakaverse.workers.dev/health" rel="noopener noreferrer" target="_blank">Worker health ↗</a></footer>
+  </body>
+</html>

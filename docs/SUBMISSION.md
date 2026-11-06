@@ -2,13 +2,20 @@
 
 Do not submit until every bracketed evidence field is replaced with a real value or the corresponding claim is removed. Recommended category: **Continuity**. Recommended partner limit (3): **Hedera, 0G, Arkiv**.
 
+## Proof-freeze decision gate
+
+- Keep **Arkiv** only with Continuity acceptance + the verified write/read/query/viewer evidence below.
+- Keep **Hedera** only after a real autonomous x402 transaction and HashScan link are inserted below; otherwise remove that partner and all live-payment claims.
+- Keep **0G Private Computer** only after a real judge-accessible 0G answer and request ID are inserted below; otherwise remove that partner and all live-inference claims.
+- Do not select ENS, 0G Keep Building, or Agents That Pay for Themselves without their separate required proof. One working integration is stronger than three unsupported selections.
+
 ## Project name
 
 **Fork the First Artist — Open Source Orchestra**
 
 ## Short description
 
-A consent-first artist home where a fan agent discovers an HTTP 402 price, pays the musician directly on Hedera, and receives an answer from the artist's 0G-powered steward. Arkiv holds encrypted, expiring steward-invitation state. The intended 96.31% / 3.69% split directs a small share toward agent compute; OSO takes zero cut and there is no token.
+A Continuity artist-home prototype with 40 public artist previews, a transient local draft, a live Arkiv synthetic-invitation reader, and a fail-closed Hedera x402 + 0G steward implementation. Arkiv write/revoke/read is proven on Rabdi testnet. Insert real Hedera/0G proof below before describing those integrations as live. The intended 96.31% / 3.69% split directs a small share toward agent compute; OSO takes zero cut and there is no token.
 
 ## What exists / what was added at Mumbai
 

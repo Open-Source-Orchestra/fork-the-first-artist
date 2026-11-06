@@ -201,6 +201,18 @@ test('registry: a configured provider with no key refuses to run — never a sil
   }
 });
 
+test('registry: the configured Gemini key selects the Google adapter', () => {
+  const before = process.env.GEMINI_API_KEY;
+  process.env.GEMINI_API_KEY = 'test-only';
+  try {
+    const registry = new ProviderRegistry(loadAgentConfig(), {});
+    assert.ok(registry.get('gemini') instanceof GoogleProvider);
+  } finally {
+    if (before === undefined) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = before;
+  }
+});
+
 test('registry: forceFake is the only way to get the offline provider', () => {
   const cfg = loadAgentConfig();
   const registry = new ProviderRegistry(cfg, { forceFake: true });

@@ -43,6 +43,7 @@ class CountingSteward implements AgentInterface {
 async function boot(
   t: TestContext,
   serviceToken?: string,
+  artist = DEMO_ARTIST,
 ): Promise<{ handle: StewardServerHandle; steward: CountingSteward }> {
   const steward = new CountingSteward();
   const handle = await startServer({
@@ -51,7 +52,7 @@ async function boot(
     serviceToken,
     steward,
     config: loadAgentConfig(),
-    artist: DEMO_ARTIST,
+    artist,
   });
   t.after(() => handle.close());
   return { handle, steward };
@@ -117,6 +118,22 @@ test('server: health and agent-card stay public without sensitive configuration 
   assert.equal(body.artist.name, 'Demo Artist');
   assert.equal('budget' in body, false, 'operator budget ceilings are not public discovery data');
   assert.doesNotMatch(raw, /never-return-this-secret|HEDERA_AGENT_PRIVATE_KEY|ZEROG_API_KEY|OPENAI_API_KEY/);
+});
+
+test('server: agent-card refuses to expose an unconsented artist profile', async (t) => {
+  const privateFixture = {
+    ...DEMO_ARTIST,
+    name: 'Private Unconsented Artist',
+    bio: 'never-publish-this-private-bio',
+    songs: ['never-publish-this-private-song'],
+    consent: false,
+  };
+  const { handle } = await boot(t, undefined, privateFixture);
+  const card = await fetch(`${handle.origin}/agent-card`);
+  assert.equal(card.status, 403);
+  const raw = await card.text();
+  assert.match(raw, /NO_CONSENT/);
+  assert.doesNotMatch(raw, /Private Unconsented Artist|never-publish-this-private/);
 });
 
 test('server: a simple text/form POST cannot invoke an unauthenticated loopback steward', async (t) => {

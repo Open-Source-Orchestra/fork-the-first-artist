@@ -1,6 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadConfig, type Config } from '../src/config.ts';
+import { loadConfig, loadDotEnv, type Config } from '../src/config.ts';
+
+test('config: the shipped .env.example parses with exact atomic prices', () => {
+  const keys = ['PRICE_ASK_USDC', 'PRICE_METER_USDC'] as const;
+  const previous = new Map(keys.map((key) => [key, process.env[key]]));
+  try {
+    for (const key of keys) delete process.env[key];
+    loadDotEnv(new URL('../.env.example', import.meta.url).pathname);
+    assert.equal(process.env.PRICE_ASK_USDC, '0.10');
+    assert.equal(process.env.PRICE_METER_USDC, '0.002');
+    const cfg = loadConfig();
+    assert.equal(cfg.prices.askAtomic, 100_000n);
+    assert.equal(cfg.prices.meterAtomic, 2_000n);
+  } finally {
+    for (const key of keys) {
+      const value = previous.get(key);
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
 
 const liveBase = (): Partial<Config> => ({
   mode: 'live',

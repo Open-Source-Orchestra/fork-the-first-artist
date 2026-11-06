@@ -78,6 +78,9 @@ export async function startServer(opts: StewardServerOptions = {}): Promise<Stew
         // is the difference between "the demo works" and "the demo works because it
         // silently fell back to the fake".
         if (url.pathname === '/agent-card') {
+          if (artist.consent !== true) {
+            return sendJson(res, 403, { ok: false, error: { code: 'NO_CONSENT', message: 'artist metadata is not public' } });
+          }
           const providers = Object.entries(cfg.providers)
             .filter(([, p]) => p.kind === 'inference')
             .map(([id, p]) => {

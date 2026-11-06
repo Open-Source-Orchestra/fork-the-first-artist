@@ -66,7 +66,7 @@ interface. A non-loopback `HOST` is refused at startup unless
 | Route | Access | Behavior |
 |---|---|---|
 | `GET /health` | public liveness | Reports the selected server provider/model/tools; no credentials or budget ceilings |
-| `GET /agent-card` | public discovery | Reports fictional/configured artist facts and sanitized provider availability; no secret variable names or operator budget |
+| `GET /agent-card` | consent-checked public discovery | Returns `403 NO_CONSENT` unless the configured artist explicitly opted in; otherwise reports only their shareable facts and sanitized provider availability, with no secret variable names or operator budget |
 | `POST /ask` | service-to-service | Runs only the server-selected provider/model and fixed demo tools |
 
 When `STEWARD_SERVICE_TOKEN` is set, every `POST /ask`—including loopback—must

@@ -293,6 +293,7 @@ Date: 6 November 2026 (UTC). Authors: `ohana-sysadmin` and synthetic test wallet
 - `fix/demo-payments@ce5e34c` made challenge requirements canonical, including facilitator `extra.feePayer`, across challenge/verify/settle. An offline contract test runs the real Hedera gate against a mocked facilitator for both resource paths.
 - Explicit settlement failure and uncertain/missing-transaction results no longer return paid content/proof or append paid ledger entries. Caller `?payTo=` cannot redirect the configured artist recipient. Compute spending excludes fan revenue; per-call ceilings and distinct compute→meter recipients are enforced. Only `ENOENT` creates an empty ledger; unreadable/malformed/invalid history fails closed. Dev TEE claims are null. The incomplete custom-token script is disabled before any chain action.
 - Payments now reads `STEWARD_SERVICE_TOKEN`, authenticates its steward call, ignores attempted caller provider/model/tool selection, and forwards `provenance.calls[]` as `proof.upstream.calls`. Documentation closes R2/R3/R4/R6 and records the remaining distributed-reservation and reconciliation boundaries.
+- The exact shipped `payments/.env.example` now parses with exact atomic prices (inline value comments moved to separate lines) and has a regression test. Gemini's `sdk: google` key now matches its registry adapter. `/agent-card` returns `403 NO_CONSENT` without exposing an unconsented artist's name/bio/songs; a private-fixture regression proves no leakage. `docs/ECONOMICS.md` records actual per-call break-even arithmetic and bootstrap/unspent-funds policy requirements.
 
 ### Real Arkiv evidence and user-facing read
 
@@ -303,6 +304,6 @@ Date: 6 November 2026 (UTC). Authors: `ohana-sysadmin` and synthetic test wallet
 ### Integrated verification
 
 - Clean dependency install completed after moving temporary data/cache off the small root overlay; this was an environment fix, not an application workaround.
-- **168/168 tests passed:** payments 55, agent 70, frontend 31, claims 12. Payments and agent typechecks passed. HashPack runtime/license build passed.
+- **171/171 tests passed:** payments 56, agent 72, frontend 31, claims 12. Payments and agent typechecks passed. HashPack runtime/license build passed.
 - Optional Playwright suite: **11/11 passed**, 120/120 seat centers correct, 12 axe scans with zero violations. Final integrated Arkiv browser read: HTTP/query success at block 302024, one readonly entity, no console errors.
 - Still not proven: real Hedera settlement, real 0G inference, HCS, on-chain split, Reown wallet pairing, claims/ENS activation, production hosting. Hedera accounts remained unfunded and 0G credentials were blocked by official CAPTCHA/team-credit provisioning; no mock was substituted for live evidence.

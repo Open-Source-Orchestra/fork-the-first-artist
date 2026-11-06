@@ -72,7 +72,7 @@
     "gemini": {
       "kind": "inference",
       "label": "Google Gemini",
-      "sdk": "@google/genai",
+      "sdk": "google",
       "baseUrl": "https://generativelanguage.googleapis.com",
       "envKey": "GEMINI_API_KEY",
       "defaultModel": "gemini-2.5-flash",

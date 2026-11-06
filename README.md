@@ -9,11 +9,11 @@
 - 🔗 [Hedera transaction proof](docs/TX-PROOF.md) · [Arkiv evidence](arkiv/README.md)
 - 📄 [Product target](docs/PLAN.md) · [Prize strategy](docs/PRIZE-STRATEGY.md)
 - 🧾 [Implementation history](docs/IMPLEMENTATION-LOG.md) · [Payment/agent review](docs/PR-3-REVIEW.md)
-- ✅ [Frontend demo-readiness evidence](docs/FRONTEND-DEMO-READINESS.md)
+- ✅ [Frontend demo-readiness evidence](docs/FRONTEND-DEMO-READINESS.md) · [Compute economics](docs/ECONOMICS.md)
 
 ## Current reality — read before demoing
 
-The repository contains a static artist preview, a transient local draft editor, wallet connection adapters, offline-tested payment/agent/Arkiv scaffolding, and integration documentation. **A mock ID, split preview, fixture, or offline test is not chain/provider evidence.**
+The repository contains a public artist-preview circle, transient local draft editor, wallet connection adapters, offline-tested payment/agent scaffolding, real synthetic Arkiv evidence, and integration documentation. **A mock ID, split preview, fixture, or offline test is not Hedera/0G chain/provider evidence.**
 
 | Layer | Current boundary |
 |---|---|

@@ -1,0 +1,24 @@
+{
+  "name": "fork-the-first-artist",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Open Source Orchestra — artist ENS names, x402 rails on Hedera, steward agents on 0G",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "install:all": "npm --prefix payments install && npm --prefix agent install && npm --prefix frontend install --ignore-scripts && npm --prefix claims install --ignore-scripts",
+    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend && npm run test:claims",
+    "typecheck": "npm --prefix payments run typecheck && npm --prefix agent run typecheck",
+    "dev:payments": "npm --prefix payments start",
+    "dev:agent": "npm --prefix agent start",
+    "demo": "node agent/scripts/demo.ts",
+    "smoke": "node agent/scripts/smoke.ts",
+    "dev:frontend": "node --env-file-if-exists=frontend/.env frontend/server.mjs",
+    "test:frontend": "node --test frontend/test/*.test.mjs",
+    "build:wallet": "npm --prefix frontend run build:wallet",
+    "test:claims": "npm --prefix claims test",
+    "steward": "npm --prefix claims run steward --",
+    "test:claims:arkiv": "npm --prefix claims run test:arkiv"
+  }
+}

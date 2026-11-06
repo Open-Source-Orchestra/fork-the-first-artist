@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/wallets.mjs"></script>
+    <script type="module" src="/hashpack-ui.mjs"></script>
+    <title>Your wallets · Open Source Orchestra</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to wallet connections</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Open Source Orchestra</a>
+      <nav aria-label="Main navigation"><a href="/">Back to sample profile</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="wallet-heading">
+        <p class="kicker">Your identity. Your earnings.</p>
+        <h1 id="wallet-heading">Two wallets, <em>one artist.</em></h1>
+        <p class="sub">MetaMask will control your ENS identity. HashPack will prove control of your Hedera payout account.</p>
+        <p class="draft-notice">Connecting shares your selected address with this page. It does not verify a claim, register a name, request a signature, or send a payment.</p>
+      </section>
+      <section class="card" aria-labelledby="ethereum-heading">
+        <p class="eyebrow">01 / Your ENS identity</p>
+        <h2 id="ethereum-heading">MetaMask</h2>
+        <p class="draft-notice">Use the MetaMask browser extension with Ethereum mainnet. Your selected account stays in this page only.</p>
+        <label for="ethereum-provider">Detected MetaMask extension</label>
+        <select id="ethereum-provider" disabled><option value="">No extension detected</option></select>
+        <div class="editor-actions">
+          <button id="connect-ethereum" class="primary-button" type="button" disabled>Connect MetaMask</button>
+          <button id="forget-ethereum" type="button" disabled>Forget this selection</button>
+        </div>
+        <p id="ethereum-status" class="editor-status" role="status">The connection controls are unavailable until their local script loads.</p>
+        <dl id="ethereum-details" hidden>
+          <dt>Selected address — unverified</dt><dd id="ethereum-address"></dd>
+          <dt>Reported network</dt><dd id="ethereum-network"></dd>
+        </dl>
+        <p class="small">Forgetting clears this page’s selection. To revoke website access, disconnect this site inside MetaMask.</p>
+      </section>
+      <section aria-labelledby="hedera-heading">
+        <div class="card">
+          <p class="eyebrow">02 / Your Hedera payouts</p>
+          <h2 id="hedera-heading">HashPack</h2>
+          <p class="draft-notice">Connect a native Hedera testnet account with HashPack. Pairing uses WalletConnect’s relay; session details stay in this tab. No message will be signed during connection.</p>
+          <div class="editor-actions">
+            <button id="connect-hedera" class="primary-button" type="button" disabled>Connect HashPack</button>
+            <button id="forget-hedera" type="button" disabled>Cancel / disconnect</button>
+          </div>
+          <p id="hedera-status" class="editor-status" role="status">Loading wallet configuration…</p>
+          <div id="hedera-pairing" hidden>
+            <img id="hedera-qr" width="280" height="280" alt="HashPack pairing QR code" hidden>
+            <button id="copy-pairing" type="button">Copy pairing link</button>
+            <p class="small">Scan or paste this link only into your HashPack wallet. Do not share it with anyone else.</p>
+            <p id="pairing-copy-status" class="small" role="status"></p>
+          </div>
+          <label for="hedera-account">Testnet payout account — unverified</label>
+          <select id="hedera-account" disabled><option value="">No account selected</option></select>
+        </div>
+      </section>
+      <p class="draft-notice">Claim verification will require both wallets to sign the same claim details. Your ENS name will remain under artist control; OSO must not be able to revoke or reassign it. Registration is not available yet.</p>
+      <noscript><p class="draft-notice">JavaScript is required for wallet connection. No wallet request has been made.</p></noscript>
+    </main>
+    <footer class="wrap">
+      <p>Fork the First Artist · Open Source Orchestra</p>
+      <p>WalletConnect · Portions © 2025 Reown, Inc. All Rights Reserved.</p>
+      <p id="wallet-notices" hidden><a href="/walletconnect-license.txt">WalletConnect license</a> · <a href="/qrcode-license.txt">QR renderer license</a> · <a href="/hashpack-runtime.mjs.LEGAL.txt">Bundle notices</a></p>
+    </footer>
+  </body>
+</html>

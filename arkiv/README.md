@@ -4,7 +4,7 @@ Checked 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 
 Target: **Build on Arkiv (existing projects)**, the $4,000 Continuity category ($3,000 / $1,000). This category accepts a new Arkiv integration into an existing product. Eligibility depends on acceptance into the event's Continuity batch. [Official requirements](https://ethglobal.com/events/mumbai/prizes/arkiv).
 
-Required evidence: real current-testnet writes, a feature reading those entities, public writer addresses and a reproducible query, schema/feedback documentation, and the criterion files linked below. The SDK alone or an unread log is insufficient. The repository must be public/open-source and distinguish prior work and AI assistance. Qualification is **not yet demonstrated**.
+Required evidence: real current-testnet writes, a feature reading those entities, public writer addresses and a reproducible query, schema/feedback documentation, and the criterion files linked below. The SDK alone or an unread log is insufficient. The repository must be public/open-source and distinguish prior work and AI assistance. **Synthetic live evidence is now recorded below; final prize qualification still depends on Continuity acceptance, deployment/review of the user-facing viewer, and the complete submission.**
 
 - [schema.md](schema.md): queryable fields, ownership, expiry, encryption.
 - [friction.md](friction.md): observed integration friction and pending verification.
@@ -34,13 +34,27 @@ arkiv.schema = str('oso.claims.v1') AND $owner = addr(OWNER) AND $creator = addr
 
 Read it through `arkiv_query` on the documented Rabdi RPC. `claims/src/arkiv.mjs` also builds this query with the SDK rather than interpolating user input.
 
-## Evidence status
+## Verified synthetic live evidence — 6 Nov 2026, 18:05–18:19 UTC
 
-- Writer address: **pending local signer configuration and successful check**.
-- Entity key and issue/revoke transaction hashes: **pending live verification**.
-- Read/status demo: **offline tests pass; live run pending**.
-- Artist-facing claim UI/HCS/ENS activation: **not implemented by this migration**.
+- Network: **Rabdi testnet**, chain `7794095`; schema `oso.claims.v1`; namespace `oso-mumbai-synthetic-8e9d4dec`.
+- Writer: **`0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2`** (dedicated throwaway test writer).
+- Synthetic invite: **`55a4a16c-45c5-4bf4-9853-620a49b1cb26`**; current readonly entity **`0x11b5bb0e5e2771ab7363d506ea2334a336f42ad3271bb22a32aabdda170fa267`**.
+- [Issue transaction `0xf5ac4a…09dd8`](https://rabdi.explorer.arkiv.network/tx/0xf5ac4a62b1af1bdc066c46c825e325cd4485d377b951d8c777450e5771b09dd8): success `0x1`, block `301610`.
+- [Revoke transaction `0x88fa77…4c75`](https://rabdi.explorer.arkiv.network/tx/0x88fa7783995c065bf2088aea99e812bed3391b5d91c98b88aed1448b0b2e4c75): success `0x1`, block `301613`.
+- `npm run steward -- check` and `npm run test:claims:arkiv` passed: **write, read, revoke, idempotency, stale-batch rejection**. The operational decrypted read returned `state: revoked`.
+- Exactly **two audit entities** exist (issue + revoke). Idempotent retry and rejected stale batch created no transaction/audit entity. Public `kind = claim` count is **zero**.
+- A real Chromium page at `https://artist.opensourceorchestra.org` successfully ran the keyless `arkiv_query` cross-origin: HTTP 200, one matching entity, safe metadata only. No browser encryption/access key or ciphertext was used.
 
-Run `npm run test:claims:arkiv` after local configuration. It writes synthetic encrypted invitations, checks read/revocation and stale-batch rejection, and emits public evidence without bearer tokens. Record real output here only after success. Do not submit this checklist as proof of completed qualification.
+The [`/arkiv` viewer](../frontend/public/arkiv.html) performs that current public query on demand and links the successful transactions. It deliberately does **not** infer the encrypted `revoked` label from public metadata; that label is established by the trusted CLI. This is synthetic proof, not artist activation.
 
-Arkiv adds a fourth possible partner alongside ENS, Hedera, and 0G. The final three-partner selection remains to be decided; no dashboard selection was changed. Swarm is not integrated or targeted by this change.
+Exact public query:
+
+```text
+arkiv.schema = str('oso.claims.v1') AND $owner = addr(0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2) AND $creator = addr(0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2) AND namespace = str('oso-mumbai-synthetic-8e9d4dec') AND kind = str('invite') AND id = str('55a4a16c-45c5-4bf4-9853-620a49b1cb26')
+```
+
+RPC: `https://rpc.rabdi.db-chain.testnet.arkiv.network`, method `arkiv_query`. Use the safe projection in [`arkiv-query.mjs`](../frontend/public/arkiv-query.mjs); limit `0x2`. The keyless endpoint is rate-limited, so the viewer queries only on a manual click and never substitutes cached success.
+
+Full verification boundaries and public entity/audit identifiers are in `/shared/ethglobal-mumbai-2026/ARKIV-LIVE-PROOF.md` (team evidence archive). No secrets or ciphertext are included there.
+
+**Still pending:** public deployment/review of the viewer, real two-wallet claim redemption, artist activation, HCS/ENS binding, and final Continuity/dashboard acceptance. Arkiv is one of the recommended three partners (Hedera + 0G + Arkiv); no dashboard selection was changed by this work. Swarm is not integrated or targeted.

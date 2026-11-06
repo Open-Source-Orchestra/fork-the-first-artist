@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A live public-metadata read of Fork the First Artist's synthetic Arkiv invitation proof.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <script type="module" src="/arkiv.mjs"></script>
+    <title>Live Arkiv proof · Fork the First Artist</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the live proof</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/">Artist preview</a><a href="/draft">Local draft</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="proof-heading">
+        <p class="kicker">Arkiv Rabdi testnet · chain 7794095</p>
+        <h1 id="proof-heading">Read the entity, <em>not a screenshot.</em></h1>
+        <p class="sub">This panel queries Arkiv's current public state only when you ask. No access key, encryption key, ciphertext, bearer token, or real artist data is sent to the browser.</p>
+        <p class="draft-notice">Synthetic fixture only. The trusted steward CLI verified the encrypted invitation as <strong>revoked</strong> at 2026-11-06 18:16:34 UTC. Public metadata cannot reveal that encrypted status; this panel independently verifies the current readonly entity, writer, scope, and expiry block.</p>
+      </section>
+
+      <section class="card" aria-labelledby="live-heading">
+        <p class="eyebrow">01 / Current public state</p>
+        <h2 id="live-heading">One manual read, no polling</h2>
+        <div class="editor-actions"><button id="read-arkiv" class="primary-button" type="button" disabled>Read current Arkiv entity</button></div>
+        <p id="read-status" class="editor-status" role="status">Loading the public proof configuration…</p>
+        <dl id="entity-details" hidden>
+          <dt>Query block</dt><dd id="query-block"></dd>
+          <dt>Current entities</dt><dd id="entity-count"></dd>
+          <dt>Entity key</dt><dd><code id="entity-key"></code></dd>
+          <dt>Created at block</dt><dd id="created-block"></dd>
+          <dt>Expires at block</dt><dd id="expires-block"></dd>
+          <dt>Readonly</dt><dd id="readonly"></dd>
+        </dl>
+      </section>
+
+      <section class="card" aria-labelledby="transactions-heading">
+        <p class="eyebrow">02 / Successful transactions</p>
+        <h2 id="transactions-heading">Issue and revoke</h2>
+        <p><a id="issue-link" href="https://rabdi.explorer.arkiv.network/" rel="noopener noreferrer" target="_blank">Issue transaction ↗</a> · block 301610 · status 0x1</p>
+        <p><a id="revoke-link" href="https://rabdi.explorer.arkiv.network/" rel="noopener noreferrer" target="_blank">Revoke transaction ↗</a> · block 301613 · status 0x1</p>
+        <p>Exactly two audit entities were found after the write, revoke, idempotent retry, and rejected stale batch. Public <code>kind = claim</code> count is zero: no artist was claimed or activated.</p>
+      </section>
+
+      <section class="card" aria-labelledby="query-heading">
+        <p class="eyebrow">03 / Reproduce</p>
+        <h2 id="query-heading">Exact keyless query</h2>
+        <p>Endpoint: <code>https://rpc.rabdi.db-chain.testnet.arkiv.network</code></p>
+        <pre><code id="query-text">Loading…</code></pre>
+        <p>Trusted operational read: <code>npm run steward -- invite-status --invite 55a4a16c-45c5-4bf4-9853-620a49b1cb26</code></p>
+        <p class="small">The keyless endpoint is rate-limited. If it is unavailable, retry later or use the transaction links and CLI. This page does not auto-refresh or bypass rate limits.</p>
+      </section>
+    </main>
+    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra · synthetic Rabdi evidence</p><a href="https://github.com/Open-Source-Orchestra/fork-the-first-artist" rel="noopener noreferrer">Public source ↗</a></footer>
+  </body>
+</html>

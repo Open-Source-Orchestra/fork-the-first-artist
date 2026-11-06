@@ -1,13 +1,25 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 // Exact routes keep repository files, credentials and runtime data out
 // of the response path. This is a loopback-only preview, not a backend or deploy target.
 const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
+  ['/home', 'home.html', 'text/html; charset=utf-8'],
+  ['/circle.css', 'circle.css', 'text/css; charset=utf-8'],
+  ['/circle.mjs', 'circle.mjs', 'text/javascript; charset=utf-8'],
+  ['/circle-state.mjs', 'circle-state.mjs', 'text/javascript; charset=utf-8'],
+  ['/circle/artists.mjs', 'circle/artists.mjs', 'text/javascript; charset=utf-8'],
   ['/draft', 'draft.html', 'text/html; charset=utf-8'],
   ['/wallets', 'wallets.html', 'text/html; charset=utf-8'],
+  ['/arkiv', 'arkiv.html', 'text/html; charset=utf-8'],
+  ['/arkiv.mjs', 'arkiv.mjs', 'text/javascript; charset=utf-8'],
+  ['/arkiv-query.mjs', 'arkiv-query.mjs', 'text/javascript; charset=utf-8'],
+  ['/arkiv-proof.json', 'arkiv-proof.json', 'application/json; charset=utf-8'],
+  ['/arkiv.css', 'arkiv.css', 'text/css; charset=utf-8'],
+  ['/steward', 'steward.html', 'text/html; charset=utf-8'],
+  ['/steward.mjs', 'steward.mjs', 'text/javascript; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
   ['/draft.mjs', 'draft.mjs', 'text/javascript; charset=utf-8'],
   ['/profile-draft.mjs', 'profile-draft.mjs', 'text/javascript; charset=utf-8'],
@@ -15,6 +27,8 @@ const assets = new Map(await Promise.all([
   ['/ethereum-wallet.mjs', 'ethereum-wallet.mjs', 'text/javascript; charset=utf-8'],
   ['/hedera-wallet.mjs', 'hedera-wallet.mjs', 'text/javascript; charset=utf-8'],
   ['/hashpack-ui.mjs', 'hashpack-ui.mjs', 'text/javascript; charset=utf-8'],
+  ...(await readdir(new URL('./public/circle/img/', import.meta.url))).filter((f) => /^[a-z0-9-]+\.jpg$/.test(f))
+    .map((f) => [`/circle/img/${f}`, `circle/img/${f}`, 'image/jpeg']),
 ].map(async ([route, file, type]) => [route, {
   body: await readFile(new URL(`./public/${file}`, import.meta.url)),
   type,
@@ -45,7 +59,13 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const walletPolicy = route === '/wallets'
       ? " connect-src 'self' wss://relay.walletconnect.com wss://relay.walletconnect.org https://verify.walletconnect.com https://verify.walletconnect.org; frame-src https://verify.walletconnect.com https://verify.walletconnect.org;"
       : '';
-    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy);
+    const arkivPolicy = route === '/arkiv'
+      ? " connect-src 'self' https://rpc.rabdi.db-chain.testnet.arkiv.network;"
+      : '';
+    const stewardPolicy = route === '/steward'
+      ? " connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev;"
+      : '';
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy);
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

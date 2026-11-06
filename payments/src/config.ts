@@ -31,7 +31,11 @@ export interface SplitBps {
   agent: number;
 }
 
-/** The three spend ceilings enforced by the meter, in USD. */
+/**
+ * The three spend ceilings enforced by the meter, in units of the configured
+ * asset (USDC ≈ USD; HBAR when `HEDERA_ASSET=0.0.0`). The `Usd` field names are
+ * kept for wire/env compatibility.
+ */
 export interface Budget {
   /** hard ceiling for the demo, across all calls */
   totalUsd: number;
@@ -47,9 +51,16 @@ export interface Config {
   /** CAIP-2 style network id, e.g. `hedera:testnet` */
   network: string;
   facilitatorUrl: string;
-  asset: { id: string; decimals: number };
-  /** `artist` is where fan money lands; `compute` is the agent's 3.69% wallet */
-  accounts: { artist: string; compute: string };
+  /**
+   * The settlement asset. `0.0.0` is native HBAR (8 decimals, tinybars) — no
+   * token association or USDC faucet needed. `symbol` is display-only and drives
+   * every human label, so a HBAR deployment never prints "USDC".
+   */
+  asset: { id: string; decimals: number; symbol: string };
+  /** `artist` receives fan payments; `compute` pays for inference; `meter` operates the meter */
+  accounts: { artist: string; compute: string; meter: string };
+  /** `/ask` payee: `artist` (default) or the artist's `steward` compute account. See paywall.ts. */
+  askPayee: 'artist' | 'steward';
   agentPrivateKey?: string;
   hcsSpendTopicId?: string;
   split: SplitBps;
@@ -65,6 +76,8 @@ export interface Config {
     trustMode: string;
   };
   stewardUrl: string;
+  /** Optional shared service credential; required by the agent for non-loopback binds. */
+  stewardServiceToken?: string;
   /** where the local spend ledger lives (jsonl). State, not source — gitignored. */
   ledgerPath: string;
 }
@@ -137,6 +150,32 @@ export function atomicToDecimal(atomic: bigint, decimals: number): string {
   return `${neg ? '-' : ''}${whole}.${frac}`;
 }
 
+/** Native HBAR in x402/hedera (`HBAR_ASSET_ID` in @x402/hedera 2.30). */
+export const HBAR_ASSET_ID = '0.0.0';
+export const HBAR_DECIMALS = 8;
+/**
+ * 0.0.429274 is testnet USDC, taken from @x402/hedera's DEFAULT_ASSETS in the
+ * shipped package — NOT from the docs, which said 0.0.6001. See PLAN.md.
+ */
+export const TESTNET_USDC = '0.0.429274';
+
+/** Per-asset defaults, all decimal strings/numbers in units of that asset. */
+const USDC_DEFAULTS = { ask: '0.10', meter: '0.002', budgetTotal: 5, budgetHourly: 0.05, budgetPerCall: 0.01 };
+const HBAR_DEFAULTS = { ask: '1', meter: '0.01', budgetTotal: 10, budgetHourly: 1, budgetPerCall: 0.05 };
+
+/** Display symbol for an asset id. An explicit `HEDERA_ASSET_SYMBOL` wins. */
+export function assetSymbol(assetId: string, explicit?: string): string {
+  if (explicit) return explicit.toUpperCase();
+  if (assetId === HBAR_ASSET_ID) return 'HBAR';
+  if (assetId === TESTNET_USDC || assetId === '0.0.456858') return 'USDC';
+  return 'TOKEN';
+}
+
+/** `"1.00000000 HBAR"` — the only formatter labels should use. */
+export function formatAsset(atomic: bigint, asset: { decimals: number; symbol: string }): string {
+  return `${atomicToDecimal(atomic, asset.decimals)} ${asset.symbol}`;
+}
+
 /**
  * Build the effective config for this process.
  *
@@ -151,20 +190,33 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     throw new Error(`PAYMENTS_MODE must be "dev" or "live", got ${JSON.stringify(mode)}`);
   }
 
-  const decimals = num('HEDERA_ASSET_DECIMALS', 6);
+  const assetId = env('HEDERA_ASSET') ?? TESTNET_USDC;
+  const isHbar = assetId === HBAR_ASSET_ID;
+  const decimals = num('HEDERA_ASSET_DECIMALS', isHbar ? HBAR_DECIMALS : 6);
+  if (isHbar && decimals !== HBAR_DECIMALS) {
+    // A wrong decimals value would mis-price every payment by orders of magnitude.
+    throw new Error(`HEDERA_ASSET=0.0.0 (HBAR) has ${HBAR_DECIMALS} decimals, got HEDERA_ASSET_DECIMALS=${decimals}`);
+  }
+  const symbol = assetSymbol(assetId, env('HEDERA_ASSET_SYMBOL'));
+  const d = isHbar ? HBAR_DEFAULTS : USDC_DEFAULTS;
+  // Asset-neutral PRICE_ASK / PRICE_METER win; otherwise the symbol-specific
+  // legacy names (PRICE_ASK_USDC, PRICE_ASK_HBAR, ...). A stale PRICE_ASK_USDC is
+  // deliberately ignored when the asset is HBAR: it would be priced in the wrong unit.
+  const price = (kind: 'ASK' | 'METER', fallback: string): string =>
+    env(`PRICE_${kind}`) ?? env(`PRICE_${kind}_${symbol}`) ?? fallback;
 
   const base: Config = {
     mode,
     port: num('PORT', 8402),
     network: env('HEDERA_NETWORK') ?? 'hedera:testnet',
     facilitatorUrl: env('FACILITATOR_URL') ?? 'https://x402.org/facilitator',
-    // 0.0.429274 is testnet USDC, taken from @x402/hedera's DEFAULT_ASSETS in the
-    // shipped package — NOT from the docs, which said 0.0.6001. See PLAN.md.
-    asset: { id: env('HEDERA_ASSET') ?? '0.0.429274', decimals },
+    asset: { id: assetId, decimals, symbol },
     accounts: {
       artist: env('HEDERA_ARTIST_ACCOUNT_ID') ?? '',
       compute: env('HEDERA_COMPUTE_ACCOUNT_ID') ?? '',
+      meter: env('HEDERA_METER_ACCOUNT_ID') ?? '',
     },
+    askPayee: (env('ASK_PAYEE') ?? 'artist') as Config['askPayee'],
     agentPrivateKey: env('HEDERA_AGENT_PRIVATE_KEY'),
     hcsSpendTopicId: env('HCS_SPEND_TOPIC_ID'),
     split: {
@@ -172,13 +224,13 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       agent: num('SPLIT_AGENT_BPS', 369),
     },
     prices: {
-      askAtomic: decimalToAtomic(env('PRICE_ASK_USDC') ?? '0.10', decimals),
-      meterAtomic: decimalToAtomic(env('PRICE_METER_USDC') ?? '0.002', decimals),
+      askAtomic: decimalToAtomic(price('ASK', d.ask), decimals),
+      meterAtomic: decimalToAtomic(price('METER', d.meter), decimals),
     },
     budget: {
-      totalUsd: num('BUDGET_TOTAL_USD', 5),
-      hourlyUsd: num('BUDGET_HOURLY_USD', 0.05),
-      maxPerCallUsd: num('BUDGET_MAX_PER_CALL_USD', 0.01),
+      totalUsd: num('BUDGET_TOTAL_USD', d.budgetTotal),
+      hourlyUsd: num('BUDGET_HOURLY_USD', d.budgetHourly),
+      maxPerCallUsd: num('BUDGET_MAX_PER_CALL_USD', d.budgetPerCall),
     },
     upstream: {
       baseUrl: (env('UPSTREAM_BASE_URL') ?? 'https://router-api.0g.ai/v1').replace(/\/+$/, ''),
@@ -187,6 +239,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       trustMode: env('UPSTREAM_TRUST_MODE') ?? 'verified',
     },
     stewardUrl: (env('STEWARD_URL') ?? 'http://localhost:8403').replace(/\/+$/, ''),
+    stewardServiceToken: env('STEWARD_SERVICE_TOKEN'),
     ledgerPath: env('LEDGER_PATH') ?? 'data/spend-log.jsonl',
   };
 
@@ -200,12 +253,17 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     );
   }
 
+  if (cfg.askPayee !== 'artist' && cfg.askPayee !== 'steward') {
+    throw new Error(`ASK_PAYEE must be "artist" or "steward", got ${JSON.stringify(cfg.askPayee)}`);
+  }
+
   // dev keeps its zero-config promise: nothing settles on chain, so placeholder
   // accounts are honest here. They are never used for a real transfer — the
   // mock gate below never leaves the process.
   if (cfg.mode === 'dev') {
     if (!cfg.accounts.artist) cfg.accounts.artist = '0.0.5555';
     if (!cfg.accounts.compute) cfg.accounts.compute = '0.0.6666';
+    if (!cfg.accounts.meter) cfg.accounts.meter = '0.0.7777';
   }
 
   // live must fail fast and loudly, with the missing variable names, rather than
@@ -214,11 +272,29 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     const missing = [
       ['HEDERA_ARTIST_ACCOUNT_ID', cfg.accounts.artist],
       ['HEDERA_COMPUTE_ACCOUNT_ID', cfg.accounts.compute],
+      ['HEDERA_METER_ACCOUNT_ID', cfg.accounts.meter],
+      ['UPSTREAM_API_KEY', cfg.upstream.apiKey],
     ].filter(([, v]) => !v);
     if (missing.length) {
       throw new Error(
         `PAYMENTS_MODE=live needs ${missing.map(([k]) => k).join(', ')} — see .env.example`,
       );
+    }
+    if (cfg.accounts.artist === cfg.accounts.compute) {
+      throw new Error(
+        'HEDERA_ARTIST_ACCOUNT_ID must differ from HEDERA_COMPUTE_ACCOUNT_ID (the steward forwards to a distinct artist)',
+      );
+    }
+    if (cfg.accounts.meter === cfg.accounts.compute) {
+      throw new Error(
+        'HEDERA_METER_ACCOUNT_ID must differ from HEDERA_COMPUTE_ACCOUNT_ID (no self-payment)',
+      );
+    }
+    // HCS is an optional audit sink and must not block base settlement. When the
+    // operator enables it by configuring a topic, however, its signing key is
+    // required up front rather than failing every audit write after settlement.
+    if (cfg.hcsSpendTopicId && !cfg.agentPrivateKey) {
+      throw new Error('HCS_SPEND_TOPIC_ID requires HEDERA_AGENT_PRIVATE_KEY');
     }
   }
 

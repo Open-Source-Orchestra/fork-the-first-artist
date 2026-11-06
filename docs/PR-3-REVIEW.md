@@ -26,7 +26,7 @@ The comment says payments verifies requests before the agent answers, but `/ask`
 
 Fix direction: establish an authenticated service-to-service contract or an explicitly enforced private-network boundary. CORS is not authentication. Coordinate the caller change with the payments teammate; adding an agent-only shared-secret check would otherwise break the current payments call.
 
-Owner: agent implementation plus payment integration contract. Status: open; deployment/authentication choice required.
+Owner: agent implementation plus payment integration contract. **Fixed in the demo-readiness integration:** loopback is the default bind, non-loopback requires `STEWARD_SERVICE_TOKEN`, configured tokens protect `/ask` with timing-safe bearer comparison, provider/model/tools are server-locked, public metadata is sanitized, and payments sends the bearer header. Regressions verify unauthorized calls cannot invoke a provider and the authenticated contract works.
 
 ### R3 — Failed settlement produces a successful paid response
 
@@ -36,7 +36,7 @@ The live gate can return `success: false` without throwing. Both handlers contin
 
 Fix direction: branch on verified settlement success before recording paid amounts or claiming success. Define how pending/ambiguous settlement is reconciled, and test a facilitator response with `success: false` as well as transport errors.
 
-Owner: payments teammate. Status: open.
+Owner: payments teammate. **Fixed in `fix/demo-payments` and integrated:** explicit failure returns `502 SETTLEMENT_FAILED`; transport/missing-transaction ambiguity returns `502 SETTLEMENT_UNCONFIRMED`. Neither produces paid content, proof, receipt headers, or a paid ledger entry. Manual reconciliation is still required for ambiguous settlement.
 
 ### R4 — A caller chooses the artist's payout destination
 
@@ -46,7 +46,7 @@ The request's `?payTo=` overrides the configured artist account. The server does
 
 Fix direction: derive the recipient server-side from the verified artist identity. Reject conflicting client-supplied destinations. Test that a different recipient cannot receive an accepted payment for the configured artist.
 
-Owner: payments teammate, with claim/ENS contract supplied by non-payment implementation. Status: open.
+Owner: payments teammate, with claim/ENS contract supplied by non-payment implementation. **Fixed for the single-artist demo:** recipients come only from server configuration; conflicting `?payTo=` is rejected and tested. Binding that configured account to a verified artist claim/ENS record remains future work.
 
 ### R5 — The spending ceiling does not cover every paid call
 
@@ -56,7 +56,7 @@ The steward checks affordability before entering the tool loop, then makes addit
 
 Fix direction: define authoritative per-call pricing, reserve budget before each paid call, prevent overrides from raising operator limits, record already-incurred costs on failure paths, and cover concurrent requests. Do not claim that the current checks enforce the $5 demo limit under these conditions.
 
-Owner: agent budget logic; payments teammate owns meter reservations and settlement accounting. Follow-up: commit `04` prevents overrides raising configured limits, rejects invalid numeric inputs, and freezes configured caps. Remaining accounting/reservation findings are open and require agreement on the pricing/reservation contract.
+Owner: agent budget logic; payments teammate owns meter reservations and settlement accounting. **Demo-readiness integration:** fixed per-call pricing, pre-call checks for tool/repair turns, immediate accounting on later failures, per-question caps, complete per-call provenance, and process-local reservations are implemented; payments forwards all call proofs. Ledger unreadable/corrupt history now fails closed in both packages. **Still open:** atomic cross-process/host reservations and reconciliation of ambiguous provider/payment outcomes.
 
 ### R6 — Payment revenue is counted as inference spend
 
@@ -66,15 +66,15 @@ Locations: `payments/src/spend-log.ts:180`, `payments/src/meter.ts:113`.
 
 Fix direction: calculate compute expenditure separately from artist revenue and scope it to the correct compute wallet/artist. Test a fan payment followed by another metered call.
 
-Owner: payments teammate. Status: open.
+Owner: payments teammate. **Fixed in `fix/demo-payments` and integrated:** meter ceilings use compute-only totals; fan revenue is reported separately. Regression coverage proves a fan payment does not exhaust the compute budget.
 
 ## Additional integration gaps
 
 - Split amounts returned by the API are local arithmetic, not verified recipient transfers. The default asset is not modified by this code, and the custom-fee token script has not been executed. Do not equate a split preview with proof that both accounts received their share.
-- Both ledgers catch all read failures and use an empty history; malformed lines are skipped. Missing-file initialization needs to be distinguished from unreadable/corrupt history so spending does not resume against an unknown balance.
+- **Fixed:** only a missing ledger initializes empty history; unreadable, malformed, or semantically invalid ledger data fails closed rather than resetting effective spend. Recovery still requires a deliberate valid backup/repair.
 - The claim, invite, wallet-signature, HCS claim-event, and ENS-activation workflows are absent. The HCS spend log is not an implementation of the identity/consent claim log.
 - The checked-in artist profile contains demo identity, song, and consent data. Its presence is not evidence of an actual signed claim or permission to publish it.
-- `agent/README.md` is still the short scaffold. The new agent API and setup instructions need a package-level explanation as fixes land.
+- **Fixed:** `agent/README.md` now documents the authenticated API, configuration, budget/provenance behavior, fixture boundaries, and remaining distributed-settlement risks.
 
 ## Independently observed validation
 

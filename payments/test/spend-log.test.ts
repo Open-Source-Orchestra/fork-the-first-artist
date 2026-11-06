@@ -12,7 +12,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { loadConfig } from '../src/config.ts';
@@ -52,6 +52,8 @@ test('ledger: one paid call writes exactly one line, and totals are a reduce ove
     assert.equal(totals.calls, 2);
     // 0.1 + 0.002, rounded to 6 dp
     assert.equal(totals.totalUsd, 0.102);
+    assert.equal(totals.computeTotalUsd, 0.002);
+    assert.equal(totals.revenueTotalUsd, 0.1);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -71,6 +73,8 @@ test('ledger: a degraded (template) answer is recorded but adds no spend', async
     const totals = await ledger.totals();
     assert.equal(totals.calls, 1);
     assert.equal(totals.totalUsd, 0);
+    assert.equal(totals.computeTotalUsd, 0);
+    assert.equal(totals.revenueTotalUsd, 0);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -95,6 +99,8 @@ test('ledger: the hourly window only counts entries inside it', async () => {
     const totals = await ledger.totals(now);
     assert.equal(totals.totalUsd, 0.052); // both count toward the total
     assert.equal(totals.lastHourUsd, 0.002); // only the recent one counts toward the hour
+    assert.equal(totals.computeTotalUsd, 0.052);
+    assert.equal(totals.computeLastHourUsd, 0.002);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -119,12 +125,102 @@ test('ledger: dev HCS ids are deterministic and obviously synthetic', async () =
   }
 });
 
+test('ledger: live mode without optional HCS records null, not a mock audit id', async () => {
+  const { dir } = await freshCfg();
+  try {
+    const cfg = loadConfig({
+      mode: 'live',
+      ledgerPath: join(dir, 'live-spend-log.jsonl'),
+      accounts: { artist: '0.0.1111', compute: '0.0.2222', meter: '0.0.3333' },
+      agentPrivateKey: undefined,
+      hcsSpendTopicId: undefined,
+      upstream: {
+        baseUrl: 'http://upstream.invalid',
+        apiKey: 'test-only',
+        model: 'test-model',
+        trustMode: 'verified',
+      },
+    });
+    const ledger = new SpendLog(cfg);
+    const entry = await ledger.append({
+      kind: 'meter',
+      txId: '0.0.2222@1770000000.000000000',
+      priceAtomic: '2000',
+      priceUsd: '0.002',
+    });
+    assert.equal(entry.hcsTxId, null);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('ledger: a missing file is an empty ledger, not a crash', async () => {
   const { cfg, dir } = await freshCfg();
   try {
     const ledger = new SpendLog(cfg);
     const totals = await ledger.totals();
-    assert.deepEqual(totals, { totalUsd: 0, lastHourUsd: 0, calls: 0 });
+    assert.deepEqual(totals, {
+      totalUsd: 0,
+      lastHourUsd: 0,
+      computeTotalUsd: 0,
+      computeLastHourUsd: 0,
+      revenueTotalUsd: 0,
+      revenueLastHourUsd: 0,
+      calls: 0,
+    });
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('ledger: unreadable history fails closed instead of becoming an empty balance', async () => {
+  const { cfg, dir } = await freshCfg();
+  try {
+    // A directory at the ledger path produces EISDIR even when tests run as root,
+    // unlike permission-bit checks.
+    await mkdir(cfg.ledgerPath);
+    const ledger = new SpendLog(cfg);
+    await assert.rejects(ledger.totals(), /unreadable/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('ledger: malformed JSON fails closed and cannot be appended over', async () => {
+  const { cfg, dir } = await freshCfg();
+  try {
+    const valid = JSON.stringify({
+      at: new Date().toISOString(),
+      kind: 'meter',
+      txId: 'mock-good',
+      priceAtomic: '2000',
+      priceUsd: '0.002',
+    });
+    const damaged = `${valid}\n{"kind":"meter"\n`;
+    await writeFile(cfg.ledgerPath, damaged, 'utf8');
+    const ledger = new SpendLog(cfg);
+
+    await assert.rejects(ledger.totals(), /corrupt at line 2: invalid JSON/);
+    await assert.rejects(
+      ledger.append({ kind: 'meter', txId: 'mock-new', priceAtomic: '2000', priceUsd: '0.002' }),
+      /corrupt at line 2/,
+    );
+    assert.equal(await readFile(cfg.ledgerPath, 'utf8'), damaged, 'damaged history is not silently replaced');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('ledger: syntactically valid but unusable entries fail closed', async () => {
+  const { cfg, dir } = await freshCfg();
+  try {
+    await writeFile(
+      cfg.ledgerPath,
+      `${JSON.stringify({ at: new Date().toISOString(), kind: 'meter', txId: 'mock-bad', priceAtomic: '2000', priceUsd: 'unknown' })}\n`,
+      'utf8',
+    );
+    const ledger = new SpendLog(cfg);
+    await assert.rejects(ledger.totals(), /corrupt at line 1: invalid entry/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

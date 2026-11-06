@@ -54,7 +54,7 @@ test('config: ships a valid default provider catalog', () => {
   assert.equal(p.kind, 'inference');
   // the demo path: 0G is reached through the paid meter, not directly
   assert.equal(p.transport, 'x402-meter');
-  assert.deepEqual(p.extensions, { verify_tee: true });
+  assert.deepEqual(p.extensions, { verify_tee: true, chat_template_kwargs: { enable_thinking: false } });
   assert.equal(p.headers?.['X-0G-Provider-Trust-Mode'], 'verified');
 
   // fallback must be OFF for the demo: 0G must be the only inference path on stage
@@ -120,6 +120,44 @@ test('config: env tightens a budget without editing the committed config', () =>
   }
 });
 
+test('config: 0G network, model, trust, URL, and transport overrides take effect', () => {
+  const keys = [
+    'ZEROG_NETWORK',
+    'ZEROG_BASE_URL',
+    'ZEROG_MODEL',
+    'ZEROG_TRUST_MODE',
+    'INFERENCE_TRANSPORT',
+  ] as const;
+  const before = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  for (const key of keys) delete process.env[key];
+  try {
+    process.env.ZEROG_NETWORK = 'testnet';
+    process.env.ZEROG_MODEL = '0gm-1.0';
+    process.env.ZEROG_TRUST_MODE = 'verified';
+    process.env.INFERENCE_TRANSPORT = 'direct';
+    const selected = loadAgentConfig().providers['0g']!;
+    assert.equal(selected.baseUrl, 'https://router-api-testnet.integratenetwork.work/v1');
+    assert.equal(selected.defaultModel, '0gm-1.0');
+    assert.equal(selected.transport, 'direct');
+    assert.equal(selected.headers?.['X-0G-Provider-Trust-Mode'], 'verified');
+
+    process.env.ZEROG_BASE_URL = 'https://operator-override.example/v1';
+    assert.equal(loadAgentConfig().providers['0g']!.baseUrl, 'https://operator-override.example/v1');
+
+    process.env.ZEROG_NETWORK = 'preview';
+    assert.throws(() => loadAgentConfig(), /ZEROG_NETWORK must be mainnet or testnet/);
+    process.env.ZEROG_NETWORK = 'testnet';
+    process.env.INFERENCE_TRANSPORT = 'typo';
+    assert.throws(() => loadAgentConfig(), /INFERENCE_TRANSPORT must be direct or x402-meter/);
+  } finally {
+    for (const key of keys) {
+      const value = before[key];
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
+
 test('providerAvailability: a missing key is reported, not hidden', () => {
   const cfg = loadAgentConfig();
   const before = process.env.OPENAI_API_KEY;
@@ -163,10 +201,43 @@ test('registry: a configured provider with no key refuses to run — never a sil
   }
 });
 
+test('registry: the configured Gemini key selects the Google adapter', () => {
+  const before = process.env.GEMINI_API_KEY;
+  process.env.GEMINI_API_KEY = 'test-only';
+  try {
+    const registry = new ProviderRegistry(loadAgentConfig(), {});
+    assert.ok(registry.get('gemini') instanceof GoogleProvider);
+  } finally {
+    if (before === undefined) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = before;
+  }
+});
+
 test('registry: forceFake is the only way to get the offline provider', () => {
   const cfg = loadAgentConfig();
   const registry = new ProviderRegistry(cfg, { forceFake: true });
   assert.ok(registry.get('0g') instanceof FakeProvider);
+});
+
+test('registry: meter calls use their fixed per-call price, not token fallback accounting', () => {
+  const previous = process.env.METER_PRICE_PER_CALL_USD;
+  process.env.METER_PRICE_PER_CALL_USD = '0.002';
+  try {
+    const registry = new ProviderRegistry(loadAgentConfig(), {
+      payer: {
+        kind: 'mock',
+        fetch: async () => {
+          throw new Error('price selection must not make a network call');
+        },
+      },
+    });
+    const provider = registry.get('0g');
+    assert.equal(provider.estimateCost(baseReq), 0.002);
+    assert.equal(provider.costOf?.({ inputTokens: 1, outputTokens: 1 }), 0.002);
+  } finally {
+    if (previous === undefined) delete process.env.METER_PRICE_PER_CALL_USD;
+    else process.env.METER_PRICE_PER_CALL_USD = previous;
+  }
 });
 
 // --------------------------------------------------------------------------- adapters
@@ -362,6 +433,7 @@ test('openai adapter on the meter transport: provenance comes from x_meter and b
     transport: 'x402-meter',
     capabilities: ['json'],
     priceUsdPerMTok: { input: 0.2, output: 0.8 },
+    fixedPricePerCallUsd: 0.002,
     meter: { url: 'https://meter.local/v1/chat/completions', payer },
     fetchImpl: impl,
   });
@@ -373,4 +445,6 @@ test('openai adapter on the meter transport: provenance comes from x_meter and b
   assert.equal(out.provenance.requestId, '0g-req-xyz');
   assert.equal(out.provenance.teeVerified, true);
   assert.equal(out.provenance.hcsTxId, '0.0.5678@1762400000.000000002');
+  assert.equal(p.estimateCost(baseReq), 0.002);
+  assert.equal(p.costOf(out.usage), 0.002);
 });

@@ -74,15 +74,16 @@ async function makeSteward(opts: {
       maxUsdTotal: opts.budget?.maxUsdTotal ?? 5,
     },
   };
+  const budget = new Budget(cfg.budget, join(dir, 'budget.jsonl'));
   const steward = new Steward({
     config: cfg,
     artist: opts.artist ?? DEMO_ARTIST,
-    budget: new Budget(cfg.budget, join(dir, 'budget.jsonl')),
+    budget,
     tools: defaultTools(),
     // duck-typed registry: the steward only ever calls .get(id)
     providers: { get: () => opts.provider } as never,
   });
-  return { steward, dir };
+  return { steward, dir, budget };
 }
 
 test('steward: runs the tool loop, then answers, with provenance attached', async () => {
@@ -96,19 +97,19 @@ test('steward: runs the tool loop, then answers, with provenance attached', asyn
       usage: { inputTokens: 80, outputTokens: 10 },
       provenance: { requestId: 'req-1', teeVerified: true, paymentTxId: '0.0.1234-1' },
     },
-    reply('Shaka plays Monsoon Ragas.', { requestId: 'req-1', teeVerified: true, paymentTxId: '0.0.1234-1' }),
+    reply('Demo Artist plays Demo Song.', { requestId: 'req-2', teeVerified: true, paymentTxId: '0.0.1234-2' }),
   ]);
-  const { steward, dir } = await makeSteward({ provider });
+  const { steward, dir, budget } = await makeSteward({ provider });
 
   try {
     const out = await steward.run({
-      instruction: 'what does shaka play?',
+      instruction: 'what does demo artist play?',
       tools: ['get_artist_profile', 'get_songs'],
     });
 
     assert.equal(out.ok, true);
     if (!out.ok) return;
-    assert.equal(out.reply.text, 'Shaka plays Monsoon Ragas.');
+    assert.equal(out.reply.text, 'Demo Artist plays Demo Song.');
     assert.equal(out.toolCalls.length, 2);
     assert.equal(out.toolCalls[0].name, 'get_artist_profile');
     assert.equal(out.toolCalls[1].ok, true);
@@ -121,11 +122,20 @@ test('steward: runs the tool loop, then answers, with provenance attached', asyn
     assert.ok(secondTurnRoles.includes('assistant'));
 
     // provenance survives the loop
-    assert.equal(out.provenance.requestId, 'req-1');
+    assert.equal(out.provenance.requestId, 'req-2');
     assert.equal(out.provenance.teeVerified, true);
-    assert.equal(out.provenance.paymentTxId, '0.0.1234-1');
+    assert.equal(out.provenance.paymentTxId, '0.0.1234-2');
+    assert.deepEqual(
+      out.provenance.calls?.map((call) => [call.sequence, call.phase, call.requestId, call.paymentTxId]),
+      [
+        [1, 'initial', 'req-1', '0.0.1234-1'],
+        [2, 'tool', 'req-2', '0.0.1234-2'],
+      ],
+      'one fan question must retain every meter call, not just the compatibility summary',
+    );
     assert.equal(out.provider, '0g');
     assert.ok(out.costUsd > 0);
+    assert.equal((await budget.totals()).calls, 2, 'each provider call is recorded immediately');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -177,7 +187,7 @@ test('steward: unaffordable request degrades to a template reply, no model call'
     if (!out.ok) return;
     assert.equal(out.degradation, 'template-reply');
     assert.equal(out.costUsd, 0);
-    assert.match(out.reply.text, /Shaka/);
+    assert.match(out.reply.text, /Demo Artist/);
     assert.equal(provider.calls.length, 0, 'a request we cannot afford must not hit the network');
   } finally {
     await rm(dir, { recursive: true, force: true });
@@ -194,6 +204,19 @@ test('steward: missing or non-boolean consent never reaches the provider', async
     assert.equal(out.ok, false);
     if (out.ok) throw new Error('unconsented request succeeded');
     assert.equal(out.error.code, 'NO_CONSENT');
+    assert.equal(provider.calls.length, 0);
+  }
+});
+
+test('steward: invalid request budget overrides never reach the provider', async (t) => {
+  for (const maxUsd of [-0.001, NaN, Infinity]) {
+    const provider = new ScriptedProvider([reply('must not be generated')]);
+    const { steward, dir } = await makeSteward({ provider });
+    t.after(() => rm(dir, { recursive: true, force: true }));
+    await assert.rejects(
+      steward.run({ instruction: 'hello', budget: { maxUsd } }),
+      /finite non-negative number/,
+    );
     assert.equal(provider.calls.length, 0);
   }
 });
@@ -251,6 +274,7 @@ test('steward: structured output is validated, and one repair turn is allowed', 
     assert.deepEqual(out.reply.data, { text: 'fixed' });
     assert.equal(out.reply.text, 'fixed');
     assert.equal(provider.calls.length, 2);
+    assert.deepEqual(out.provenance.calls?.map((call) => call.phase), ['initial', 'schema-repair']);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -323,6 +347,82 @@ test('steward: the meter refusing on budget degrades, it does not error', async 
     if (!out.ok) return;
     assert.equal(out.degradation, 'template-reply');
     assert.equal(out.costUsd, 0);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('steward: the next tool call is budget-gated and earlier spend survives the refusal', async () => {
+  const provider = new ScriptedProvider([
+    {
+      text: '',
+      toolCalls: [{ id: 'c1', name: 'get_artist_profile', input: {} }],
+      usage: { inputTokens: 100, outputTokens: 20 },
+      provenance: { requestId: 'paid-call-1', paymentTxId: 'payment-1' },
+    },
+    reply('must not be generated'),
+  ]);
+  const { steward, dir, budget } = await makeSteward({
+    provider,
+    budget: { maxUsdPerRequest: 0.0005 },
+  });
+  try {
+    const out = await steward.run({ instruction: 'use a tool', tools: ['get_artist_profile'] });
+    assert.equal(out.ok, false);
+    if (out.ok) return;
+    assert.equal(out.error.code, 'SPEND_CAP_EXCEEDED');
+    assert.equal(provider.calls.length, 1, 'the unaffordable second call must not reach the provider');
+    assert.equal((await budget.totals()).totalUsd, 0.00012, 'the first paid call is not erased');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('steward: schema repair is budget-gated and the initial call remains accounted', async () => {
+  const provider = new ScriptedProvider([reply('not json'), reply('{"text":"must not run"}')]);
+  const { steward, dir, budget } = await makeSteward({
+    provider,
+    budget: { maxUsdPerRequest: 0.0005 },
+  });
+  const output = {
+    jsonSchema: { type: 'object' },
+    parse: (value: unknown) => {
+      if (typeof (value as { text?: unknown })?.text !== 'string') throw new Error('expected text');
+      return value as { text: string };
+    },
+  };
+  try {
+    const out = await steward.run({ instruction: 'json please', output });
+    assert.equal(out.ok, false);
+    if (out.ok) return;
+    assert.equal(out.error.code, 'SPEND_CAP_EXCEEDED');
+    assert.equal(provider.calls.length, 1, 'repair cannot consume budget beyond the run ceiling');
+    assert.equal((await budget.totals()).totalUsd, 0.00012);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('steward: a later provider failure does not erase earlier paid calls', async () => {
+  const provider = new ScriptedProvider([
+    {
+      text: '',
+      toolCalls: [{ id: 'c1', name: 'get_artist_profile', input: {} }],
+      usage: { inputTokens: 100, outputTokens: 20 },
+      provenance: { requestId: 'paid-before-failure', paymentTxId: 'payment-before-failure' },
+    },
+    // The second chat throws because the script has no second response.
+  ]);
+  const { steward, dir, budget } = await makeSteward({ provider });
+  try {
+    const out = await steward.run({ instruction: 'use a tool', tools: ['get_artist_profile'] });
+    assert.equal(out.ok, false);
+    if (out.ok) return;
+    assert.equal(out.error.code, 'PROVIDER_UNAVAILABLE');
+    assert.equal(provider.calls.length, 2);
+    const totals = await budget.totals();
+    assert.equal(totals.calls, 1);
+    assert.equal(totals.totalUsd, 0.00012);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

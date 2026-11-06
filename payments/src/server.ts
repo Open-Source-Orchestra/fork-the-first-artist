@@ -25,7 +25,7 @@
  */
 import { createServer, type IncomingMessage, type Server } from 'node:http';
 import { pathToFileURL } from 'node:url';
-import { loadConfig, loadDotEnv, atomicToDecimal, type Config } from './config.ts';
+import { loadConfig, loadDotEnv, atomicToDecimal, formatAsset, type Config } from './config.ts';
 import { createGate, type Gate } from './gate/index.ts';
 import { SpendLog } from './spend-log.ts';
 import { handleMeter, meterInfo, METER_PATH } from './meter.ts';
@@ -90,6 +90,8 @@ export async function createApp(cfg: Config): Promise<App> {
               gate: gate.kind,
               network: cfg.network,
               asset: cfg.asset.id,
+              assetSymbol: cfg.asset.symbol,
+              assetDecimals: cfg.asset.decimals,
               split: cfg.split,
               uptimeSec: Math.round(process.uptime()),
             });
@@ -138,12 +140,13 @@ export async function createApp(cfg: Config): Promise<App> {
             const atomic = BigInt(Math.round(Number(amount) * 10 ** cfg.asset.decimals));
             const s = splitAtomic(atomic, cfg.split);
             sendJson(res, 200, {
-              human: describeSplit(s, cfg.asset.decimals),
+              human: describeSplit(s, cfg.asset.decimals, cfg.asset.symbol),
               totalAtomic: s.total.toString(),
               artistAtomic: s.artist.toString(),
               agentAtomic: s.agent.toString(),
               artistPct: cfg.split.artist / 100,
               agentPct: cfg.split.agent / 100,
+              splitVerified: false,
             });
             return;
           }
@@ -218,7 +221,10 @@ function discovery(cfg: Config): Record<string, unknown> {
     service: 'Open Source Orchestra — artist steward rails',
     network: cfg.network,
     asset: cfg.asset.id,
+    assetSymbol: cfg.asset.symbol,
+    assetDecimals: cfg.asset.decimals,
     split: { artist: cfg.split.artist / 100, agent: cfg.split.agent / 100 },
+    splitVerified: false,
     resources: {
       [ASK_PATH]: {
         priceAtomic: cfg.prices.askAtomic.toString(),
@@ -229,7 +235,7 @@ function discovery(cfg: Config): Record<string, unknown> {
       [METER_PATH]: {
         priceAtomic: cfg.prices.meterAtomic.toString(),
         priceUsd: atomicToDecimal(cfg.prices.meterAtomic, cfg.asset.decimals),
-        payTo: cfg.accounts.compute || null,
+        payTo: cfg.accounts.meter || null,
         description: `pay-per-call inference (${cfg.upstream.model})`,
       },
     },
@@ -248,8 +254,8 @@ export async function start(): Promise<void> {
       mode: cfg.mode,
       gate: app.gate.kind,
       network: cfg.network,
-      ask: `${atomicToDecimal(cfg.prices.askAtomic, cfg.asset.decimals)} USDC`,
-      meter: `${atomicToDecimal(cfg.prices.meterAtomic, cfg.asset.decimals)} USDC`,
+      ask: formatAsset(cfg.prices.askAtomic, cfg.asset),
+      meter: formatAsset(cfg.prices.meterAtomic, cfg.asset),
     });
   });
 }

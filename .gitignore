@@ -5,10 +5,12 @@
 # This negation has to come AFTER the ignore rule above, or git has already
 # discarded the path by the time it reads it.
 !.env.example
+!.env.*.example
 
 # --- dependencies ---
 node_modules/
 frontend/generated/
+.audit-results/
 
 # --- keys ---
 *.key
@@ -25,3 +27,6 @@ agent/data/*.jsonl
 # (the original squashed commit is preserved here for auditing, never pushed)
 .backup/
 pi-session-*.html
+
+# live-e2e run dirs / scratch
+.tmp/

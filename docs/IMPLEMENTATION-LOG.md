@@ -239,3 +239,82 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - **Live Rabdi verification has not run:** the local signer and access-key fields were still empty at the final configuration-presence check. Offline fake transports/batch models are not reported as chain evidence. No entity, transaction, writer address, or prize qualification was fabricated.
 
 Remaining: configure test wallet/access key and run the opt-in live script; implement wallet proof/redemption, consent, service freeze enforcement, retention renewal/recovery, and artist-facing activation. Host/origin, ENS parent, and Reown setup remain pending. Arkiv expiry is not erasure, application state remains operator-owned, and cross-process signer nonce coordination is not implemented. No payment changes, push, merge, or deployment occurred.
+
+## 14 — Close demo-critical agent trust, payment, and accounting gaps
+
+Date: 6 November 2026 (UTC). Author: configured Git identity `ohana-sysadmin`. AI assistance: Kimi (Moonshot AI).
+
+### Behavior and boundaries
+
+- Based on `origin/main` `8fe84bdf227b636bda69534c939815040c9b6a6f` in a dedicated clone and `fix/demo-agent` branch. No payment source files were edited.
+- Bind the HTTP service to `127.0.0.1` by default with configurable `HOST`. Refuse non-loopback startup without `STEWARD_SERVICE_TOKEN`; when configured, require a SHA-256-normalized `timingSafeEqual` bearer check before reading `/ask` bodies or invoking the steward. Require JSON content type, remove wildcard CORS, lock provider/model/tools to server configuration, preserve health/agent-card, and omit budget ceilings and credential-variable names from public metadata.
+- Reserve every initial/tool/schema-repair call, enforce a cumulative per-question cap, immediately record each completed call, and retain earlier spend on later refusal/failure. Add fixed per-call meter pricing via `METER_PRICE_PER_CALL_USD` and `provenance.calls[]` for every payment/request ID. Reservations explicitly coordinate only one Budget instance; no cross-process atomicity is claimed. Unknown usage/settlement after an unusable provider response is not invented.
+- Replace the fan demo's unconditional mock header with `createPayer()` and the real 402/sign/retry handshake. Live requires distinct `HEDERA_FAN_ACCOUNT_ID`/`HEDERA_FAN_PRIVATE_KEY` and rejects missing/mock credentials without borrowing agent compute credentials. Dev remains explicitly mock. Split output is arithmetic-preview-only and multi-call evidence is not collapsed into a false 1:1 claim.
+- Replace real-person/placeholder artist facts with the synthetic `Demo Artist`/`Demo Song` fixture. Use a neutral deterministic smoke prompt and package-local dotenv loading.
+- Implement advertised `ZEROG_NETWORK`, `ZEROG_BASE_URL`, `ZEROG_MODEL`, `ZEROG_TRUST_MODE`, and `INFERENCE_TRANSPORT` overrides. Testnet selects `baseUrlTestnet`; the prior model default remains for compatibility and is not represented as live catalog validation.
+
+### Validation
+
+- Clean `npm ci --ignore-scripts`: passed, installing the locked optional x402/Hedera declarations. The install report retained 3 moderate and 1 high dependency advisories; no force-fix or dependency rewrite was attempted.
+- `npm test` from `agent/`: **70 passed, 0 failed**, including unauthorized-no-provider-call, allowed bearer, override locking, media-type boundary, loopback/non-loopback behavior, fan/compute credential separation, fixed meter pricing, concurrent in-process reservations, tool/repair cutoffs, failure-path accounting, per-call provenance, and all 0G override paths. No live provider or chain calls occurred.
+- `npm run typecheck` from `agent/`: passed with the complete source/test/script program.
+- Real loopback server + fake-provider smoke: unauthenticated `/ask` 401, authorized request 200, synthetic agent-card, four calls/four provenance entries/four zero-cost ledger entries. External provider used: false.
+- `git diff --check` passed and the changed-path review confirmed no files outside `agent/` and `docs/`, with no `payments/` changes.
+
+### Remaining risks and integration contract
+
+Payments must send `Authorization: Bearer <STEWARD_SERVICE_TOKEN>` when the token is enabled and should forward `provenance.calls` as `proof.upstream.calls`; this branch deliberately leaves that integration to the payments owner. Multiple processes/hosts need an external atomic reservation/ledger protocol. Ambiguous failed-call settlement, unreadable/corrupt ledger recovery, live catalog availability, actual Hedera/0G settlement, on-chain split verification, claims/activation, dependency advisory remediation, and deployment remain unverified or open. No PR, approval, merge, deployment, live provider call, or spend was performed by this entry.
+## 15 — Repair the public circle for the frontend demo
+
+Date: 6 November 2026. Author: configured Git identity `ohana-sysadmin`. AI assistance: Taurus `sysadmin 🫡`.
+
+### Behavior and scope
+
+- Based on `design-circle` at `68184677584916941535fdca909e14ada8fe5e31`; changed only frontend code/tests, root/frontend documentation, and the browser-test scripts/dependencies. No `payments/` or `agent/` files changed.
+- Replaced overlapping 3D-transformed seat buttons with a 2D desktop ring and normal-flow small-screen layout. Restored native list/button semantics, visible search naming, early DOM/tab order, `aria-pressed`, polite result counts, semantic hiding, and unobstructed CTA targets. Native dialog Escape/close/focus behavior remains intact.
+- Added a single combined day/query filter state and complete reset paths. Replaced scalar `day` data with explicit `days` arrays for genuine daily/multi-day and undated artists.
+- Replaced claim/every-cent copy with honest local-draft and 3.69% compute-share language. Circle CTAs resolve only an exact public roster slug to a public name, prefill nothing else, and remove the transient query. Unknown/arbitrary URL values are not rendered.
+- Added a static 40-name/set no-JS list and project links. Corrected source provenance to disclose the real public biographies/photos imported by PR #2 while preserving maker-rights/license and activation-consent boundaries.
+- Documented that the current GitHub Pages deployment does not reproduce the local security headers; no host-header fix or deployment is claimed. See [FRONTEND-DEMO-READINESS.md](FRONTEND-DEMO-READINESS.md).
+
+### Validation
+
+- `npm run test:frontend`: **27 passed, 0 failed**. New self-contained tests cover roster invariants, combined/reset filters, multi-day/undated data, exact slug handoff, native/static HTML, no-JS fallback, and routes.
+- Optional pinned Playwright/axe browser suite: **11 passed, 0 failed**. All **120/120 seat centers** hit their own buttons at 1280×800, 375×812, and 320×568; no wrong-seat interception or horizontal overflow. CTA, keyboard/dialog, filter combinations/reset, no-JS, and safe CTA handoff checks passed.
+- Twelve axe scans across four public routes × three viewports reported **0 violations** under the configured WCAG 2/2.1/2.2 A/AA rules. Browser listeners reported no page/console/local-request errors.
+- Real wallet pairing/extensions, claims, activation, backend/payment integration, deployment, and host-header remediation remain unverified or unimplemented as explicitly listed in the readiness record. No artist was activated.
+
+## 16 — Close the payment facilitator path and prove Arkiv live
+
+Date: 6 November 2026 (UTC). Authors: `ohana-sysadmin` and synthetic test wallets. AI assistance: Taurus `sysadmin 🫡`; source/payment base by the named human contributors.
+
+### Payment and service integration
+
+- `fix/demo-payments@ce5e34c` made challenge requirements canonical, including facilitator `extra.feePayer`, across challenge/verify/settle. An offline contract test runs the real Hedera gate against a mocked facilitator for both resource paths.
+- Explicit settlement failure and uncertain/missing-transaction results no longer return paid content/proof or append paid ledger entries. Caller `?payTo=` cannot redirect the configured artist recipient. Compute spending excludes fan revenue; per-call ceilings and distinct compute→meter recipients are enforced. Only `ENOENT` creates an empty ledger; unreadable/malformed/invalid history fails closed. Dev TEE claims are null. The incomplete custom-token script is disabled before any chain action.
+- Payments now reads `STEWARD_SERVICE_TOKEN`, authenticates its steward call, ignores attempted caller provider/model/tool selection, and forwards `provenance.calls[]` as `proof.upstream.calls`. Documentation closes R2/R3/R4/R6 and records the remaining distributed-reservation and reconciliation boundaries.
+- The exact shipped `payments/.env.example` now parses with exact atomic prices (inline value comments moved to separate lines) and has a regression test. Gemini's `sdk: google` key now matches its registry adapter. `/agent-card` returns `403 NO_CONSENT` without exposing an unconsented artist's name/bio/songs; a private-fixture regression proves no leakage. `docs/ECONOMICS.md` records actual per-call break-even arithmetic and bootstrap/unspent-funds policy requirements.
+
+### Real Arkiv evidence and user-facing read
+
+- Dedicated synthetic Rabdi writer `0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2`, chain `7794095`, namespace `oso-mumbai-synthetic-8e9d4dec`, invitation `55a4a16c-45c5-4bf4-9853-620a49b1cb26`.
+- Issue `0xf5ac4a62b1af1bdc066c46c825e325cd4485d377b951d8c777450e5771b09dd8` (block 301610) and revoke `0x88fa7783995c065bf2088aea99e812bed3391b5d91c98b88aed1448b0b2e4c75` (block 301613) both returned status `0x1`. The live repository test passed write/read/revoke/idempotency/stale-write rejection. Exactly two audit entities exist; public claim count is zero.
+- `/arkiv` performs a manual keyless current-entity read with no encryption/access key, ciphertext, or polling. Real browser responses use an array of `{name,type,value}` attributes; the parser validates them strictly and never infers encrypted status. The trusted CLI separately returned `revoked`. Real reads were verified at 375px without overflow, including final integrated block 302024. Exact query and evidence: `arkiv/README.md`.
+
+### Integrated verification
+
+- Clean dependency install completed after moving temporary data/cache off the small root overlay; this was an environment fix, not an application workaround.
+- **173/173 tests passed:** payments 56, agent 72, frontend 33, claims 12. Payments and agent typechecks passed. HashPack runtime/license build passed. The two new static-build tests cover public routes/assets/disabled wallets and refusal to erase an unmarked output.
+- Optional Playwright suite: **11/11 passed**, 120/120 seat centers correct, 12 axe scans with zero violations. Final integrated Arkiv browser read: HTTP/query success at block 302024, one readonly entity, no console errors.
+- `frontend/scripts/build-static.mjs` produced the separate review deployment at https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ with wallets disabled. All primary routes/assets returned 200; its public `/arkiv` read succeeded at block 302205 with no console errors or 375px overflow. Production artist domain and main branch remained unchanged.
+- Still not proven: real Hedera settlement, real 0G inference, HCS, on-chain split, Reown wallet pairing, claims/ENS activation, production hosting. Hedera accounts remained unfunded and 0G credentials were blocked by official CAPTCHA/team-credit provisioning; no mock was substituted for live evidence.
+
+## 17 — Add a replay-safe narrow Cloudflare host
+
+Date: 6 November 2026 (UTC). Author: `ohana-sysadmin`; independent adversarial review included. AI assistance disclosed in the branch history.
+
+- `cloudflare/` implements an optional narrow Worker: `POST /ask` for one x402-protected 0G artist answer, `POST /demo` for a dedicated autonomous fan payer, and `GET /health`. It uses canonical feePayer requirements, a server-only artist payout, bounded 0G input/output, strict status/model/finish handling, and fail-closed settlement.
+- A Durable Object stores payment-claim hashes so concurrent/sequential replay cannot repeat 0G compute before settlement; signed payloads and a spend ledger are not stored. Verification preserves `ZG-Res-Key`, request/provider/model/chat IDs and clearly labels TEE as Router-reported unless independently verified.
+- Exact-origin CORS, public demo rate/concurrency limits, tiny-price configuration checks, `nodejs_compat`, and `global_fetch_strictly_public` are present. Public rate limits are isolate-local; there is **no durable global \$5 ledger**. Only a tiny dedicated fan test balance is allowed.
+- Verification: **25/25 Worker tests**, strict TypeScript, Wrangler dry-run with SQLite Durable Object binding (4606.58 KiB / 621.59 KiB gzip), zero npm audit vulnerabilities, and local health/CORS smoke. Root verification is now **198/198 tests** (56 payments, 72 agent, 33 frontend, 12 claims, 25 Worker) plus all three typechecks.
+- Not deployed and still gated: real 0G key/model response, real Hedera funding/settlement, cold SDK signing, self-fetch, deployed Durable Object behavior, and custom domain. No paid plan/setting was enabled. This narrow slice does not implement split/HCS/ENS/claims or the agent-pays-0G loop. Setup: `docs/HOSTING.md`.

@@ -2,15 +2,20 @@
   "name": "fork-the-first-artist-frontend",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.18" },
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
-    "build:wallet": "node scripts/build-wallet.mjs"
+    "build:wallet": "node scripts/build-wallet.mjs",
+    "test:browser": "node --test browser/circle.browser.test.mjs"
   },
   "dependencies": {
     "@walletconnect/sign-client": "2.26.0",
     "qrcode": "1.5.4"
   },
   "devDependencies": {
-    "esbuild": "0.28.2"
+    "axe-core": "4.14.0",
+    "esbuild": "0.28.2",
+    "playwright": "1.60.0"
   }
 }

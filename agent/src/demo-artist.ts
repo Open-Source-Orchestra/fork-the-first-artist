@@ -1,5 +1,5 @@
 /**
- * The demo artist — Shaka, the first human artist on these rails.
+ * An explicitly fictional artist for offline tests and local demos.
  *
  * This constant exists so tests and scripts do not each hard-code a profile, and so
  * there is exactly one place to change the demo. It mirrors `data/artist.json`, which
@@ -17,10 +17,8 @@
 import type { ArtistProfile } from './types.ts';
 
 export const DEMO_ARTIST: ArtistProfile = {
-  name: 'Shaka',
-  bio: 'Mumbai-based percussionist and vocalist. Built the Open Source Orchestra and is the first artist on these rails — fork him in one click.',
-  songs: ['Monsoon Ragas', 'Bandra Night Bus', 'Salt on the Line'],
-  ensName: 'shaka.oso.eth',
-  hederaAccount: '0.0.0000',
+  name: 'Demo Artist',
+  bio: 'Fictional profile for local/demo tests only; no real artist activation or verified claim.',
+  songs: ['Demo Song'],
   consent: true,
 };

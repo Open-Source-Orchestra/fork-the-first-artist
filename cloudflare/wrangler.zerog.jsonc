@@ -1,0 +1,13 @@
+{
+  "name": "oso-zerog-steward",
+  "main": "src/zerog-public.ts",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "vars": {
+    "UPSTREAM_BASE_URL": "https://router-api.0g.ai/v1",
+    "UPSTREAM_MODEL": "0gm-1.0-35b-a3b",
+    "UPSTREAM_TRUST_MODE": "verified",
+    "DEMO_MAX_OUTPUT_TOKENS": "768"
+  }
+}

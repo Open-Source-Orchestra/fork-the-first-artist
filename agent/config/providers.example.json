@@ -27,7 +27,8 @@
         "X-0G-Provider-Trust-Mode": "verified"
       },
       "extensions": {
-        "verify_tee": true
+        "verify_tee": true,
+        "chat_template_kwargs": { "enable_thinking": false }
       },
       "provenance": {
         "requestIdPath": "x_0g_trace.request_id",
@@ -72,7 +73,7 @@
     "gemini": {
       "kind": "inference",
       "label": "Google Gemini",
-      "sdk": "@google/genai",
+      "sdk": "google",
       "baseUrl": "https://generativelanguage.googleapis.com",
       "envKey": "GEMINI_API_KEY",
       "defaultModel": "gemini-2.5-flash",
@@ -129,7 +130,7 @@
 
   "budget": {
     "$comment": "Caps gate the QUOTE, before payment (payment is collected before inference). See §6.",
-    "maxUsdPerRequest": 0.002,
+    "maxUsdPerRequest": 0.01,
     "maxUsdPerHour": 0.05,
     "maxUsdTotal": 5.0,
     "degradation": ["cheaper-model", "shorter-max-tokens", "template-reply"]

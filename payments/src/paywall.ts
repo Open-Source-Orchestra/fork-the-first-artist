@@ -15,12 +15,11 @@
  *
  * ## Where the money goes
  *
- * `payTo` comes from the artist's own ENS text record (`?payTo=`), falling back to
- * the configured artist account. It is **never** an account of ours. The 3.69%
- * agent share is recorded in the ledger here and, in a mainnet-shaped deployment,
- * is enforced by an HTS fractional custom fee on the asset — see
- * `scripts/create-tip-token.ts`. One x402 `exact` payment is one transfer to one
- * `payTo`, so the split cannot happen during settlement.
+ * `payTo` comes only from the server-configured artist account. Callers cannot
+ * redirect the artist's payout with a query parameter. It is **never** an account
+ * of ours. The 3.69% agent share is only a local preview, explicitly marked
+ * `splitVerified: false` in the response and ledger. One x402 `exact` payment is
+ * one transfer to one `payTo`; default USDC does not perform the previewed split.
  *
  * ## The degraded-answer rule
  *
@@ -29,11 +28,26 @@
  * would take 0.10 USDC in exchange for a canned card.
  */
 import type { Config } from './config.ts';
-import type { Gate, PaymentRequirementsView } from './gate/index.ts';
+import type { Gate } from './gate/index.ts';
 import type { SpendLog } from './spend-log.ts';
 import { atomicToDecimal } from './config.ts';
 import { splitAtomic, describeSplit } from './split.ts';
 import { header, log, sendJson, type Ctx } from './http.ts';
+import { settleConfirmed } from './settlement.ts';
+
+/**
+ * Who the fan's single x402 transfer goes to.
+ *
+ * - `artist` (default): straight to the artist; the 3.69% is a preview only.
+ * - `steward`: to the artist's own steward (compute) account, which then runs
+ *   the post-settlement split (`hedera-steward/`, by Utkarsh Tiwari): 96.31% is
+ *   forwarded on-chain to the artist and 3.69% stays to fund the steward's 0G
+ *   compute. Still never an OSO account. The split only counts as verified once
+ *   the steward's forward transfer is confirmed on the mirror node.
+ */
+export function askPayTo(cfg: Config): string {
+  return cfg.askPayee === 'steward' ? cfg.accounts.compute : cfg.accounts.artist;
+}
 
 export interface PaywallDeps {
   cfg: Config;
@@ -64,6 +78,15 @@ export interface StewardReply {
     teeVerified?: boolean | null;
     paymentTxId?: string;
     hcsTxId?: string;
+    calls?: {
+      sequence: number;
+      phase: string;
+      requestId?: string;
+      teeVerified?: boolean | null;
+      paymentTxId?: string;
+      hcsTxId?: string;
+      costUsd?: number;
+    }[];
   };
   toolCalls?: unknown[];
   /** `'template-reply'` etc. — a non-LLM answer, which must never be charged */
@@ -72,26 +95,6 @@ export interface StewardReply {
 }
 
 export const ASK_PATH = '/ask';
-
-/**
- * The priced resource, with `payTo` resolved to the artist.
- *
- * Deliberately a separate function from `gate.challenge()`: this object is what we
- * hand to `verify()` and `settle()`, and it must be **the identical value** in all
- * three calls or the facilitator will reject the payment as mismatched.
- */
-function requirementsFor(cfg: Config, resource: string, payTo: string): PaymentRequirementsView {
-  return {
-    scheme: 'exact',
-    network: cfg.network,
-    amount: cfg.prices.askAtomic.toString(),
-    asset: cfg.asset.id,
-    payTo,
-    resource,
-    description: 'ask the artist steward a question',
-    maxTimeoutSeconds: 180,
-  };
-}
 
 export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
   const { cfg, gate, spendLog } = deps;
@@ -112,30 +115,47 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
   }
 
   // ---------------------------------------------------------------- payee
-  // The fan's client may name the payee explicitly (it reads it from the artist's
-  // ENS record). Falling back to config keeps a single-artist demo simple.
-  const payTo = ctx.url.searchParams.get('payTo') ?? cfg.accounts.artist;
+  // The artist payout destination is server-controlled. A matching value is
+  // tolerated for older clients, but every conflicting value is rejected before
+  // verification so no signature can be gathered for a redirected payout.
+  const configuredPayTo = askPayTo(cfg);
+  const requestedPayTo = ctx.url.searchParams.getAll('payTo');
+  if (requestedPayTo.some((value) => value !== configuredPayTo)) {
+    sendJson(ctx.res, 400, {
+      error: 'PAY_TO_NOT_ALLOWED',
+      message: 'payTo is derived from the configured artist account and cannot be overridden',
+      settled: false,
+    });
+    return;
+  }
+  const payTo = configuredPayTo;
   if (!payTo) {
     sendJson(ctx.res, 500, {
       error: 'NO_PAYEE',
-      message: 'HEDERA_ARTIST_ACCOUNT_ID not configured',
+      message:
+        cfg.askPayee === 'steward'
+          ? 'ASK_PAYEE=steward needs HEDERA_COMPUTE_ACCOUNT_ID'
+          : 'HEDERA_ARTIST_ACCOUNT_ID not configured',
     });
     return;
   }
 
   // ---------------------------------------------------------------- payment
-  const requirements = requirementsFor(cfg, resource, payTo);
+  // Challenge first: the gate adds facilitator-specific fields such as feePayer.
+  // Reuse this exact object for verify and settle or the facilitator rejects it.
+  const description = 'ask the artist steward a question';
+  const challenge = await gate.challenge({
+    resource,
+    amountAtomic: cfg.prices.askAtomic,
+    payTo,
+    description,
+  });
+  const requirements = challenge.body.accepts[0]!;
   const paymentHeader = header(ctx.req, 'x-payment');
   const verified = await gate.verify({ paymentHeader, requirements });
   if (!verified.ok) {
     // Not an error: quoting the price IS the protocol. The gate's rejection reason
     // is folded into the challenge so a client sees *why* it must (re)pay.
-    const challenge = await gate.challenge({
-      resource,
-      amountAtomic: cfg.prices.askAtomic,
-      payTo,
-      description: requirements.description,
-    });
     sendJson(
       ctx.res,
       challenge.status,
@@ -190,11 +210,13 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
   }
 
   // ---------------------------------------------------------------- settle
-  const settlement = await gate.settle({ handle: verified.handle, requirements });
-  // `unsent-` is self-labelling: if settle somehow produced no id, the ledger says
-  // so instead of inventing something that looks like a transaction.
-  const txId = settlement.txId ?? `unsent-${Date.now().toString(36)}`;
-  const split = splitAtomic(cfg.prices.askAtomic, cfg.split);
+  const confirmed = await settleConfirmed(gate, { handle: verified.handle, requirements });
+  if (!confirmed.ok) {
+    sendJson(ctx.res, 502, confirmed.body);
+    return;
+  }
+  const { settlement, txId } = confirmed;
+  const splitPreview = splitAtomic(cfg.prices.askAtomic, cfg.split);
 
   const entry = await spendLog.append({
     kind: 'ask',
@@ -205,8 +227,9 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
     upstreamRequestId: stewarded.provenance?.requestId,
     teeVerified: stewarded.provenance?.teeVerified ?? null,
     model: stewarded.model,
-    artistAtomic: split.artist.toString(),
-    agentAtomic: split.agent.toString(),
+    artistAtomic: splitPreview.artist.toString(),
+    agentAtomic: splitPreview.agent.toString(),
+    splitVerified: false,
   });
 
   // x402's settlement receipt, base64 in a response header, so a client can read
@@ -231,12 +254,24 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
       usage: stewarded.usage,
       costUsd: stewarded.costUsd,
       degradation: stewarded.degradation,
-      split: {
-        totalAtomic: split.total.toString(),
-        artistAtomic: split.artist.toString(),
-        agentAtomic: split.agent.toString(),
-        human: describeSplit(split, cfg.asset.decimals),
+      // Local arithmetic only. Default USDC has no repo-configured fractional fee,
+      // so this is never presented as proof of two recipient transfers.
+      splitPreview: {
+        totalAtomic: splitPreview.total.toString(),
+        artistAtomic: splitPreview.artist.toString(),
+        agentAtomic: splitPreview.agent.toString(),
+        human: describeSplit(splitPreview, cfg.asset.decimals, cfg.asset.symbol),
       },
+      splitVerified: false,
+      payee: cfg.askPayee,
+      ...(cfg.askPayee === 'steward'
+        ? {
+            stewardSplit: {
+              status: 'pending-post-settlement',
+              note: 'paid to the artist steward account; run hedera-steward to forward the artist share on-chain',
+            },
+          }
+        : {}),
       proof: {
         paymentTxId: txId,
         network: settlement.network ?? cfg.network,
@@ -251,6 +286,7 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
           teeVerified: stewarded.provenance?.teeVerified ?? null,
           provider: stewarded.provider ?? null,
           model: stewarded.model ?? null,
+          calls: stewarded.provenance?.calls ?? [],
         },
         hashScan:
           settlement.network === 'hedera:mainnet'
@@ -276,9 +312,11 @@ async function callSteward(
   payment: { payer?: string },
   doFetch: typeof fetch,
 ): Promise<StewardReply> {
+  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  if (cfg.stewardServiceToken) headers.authorization = `Bearer ${cfg.stewardServiceToken}`;
   const res = await doFetch(`${cfg.stewardUrl}/ask`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers,
     // the payer id is forwarded so the steward's own logs can correlate the two
     // services for one fan question
     body: JSON.stringify({ instruction, payment }),

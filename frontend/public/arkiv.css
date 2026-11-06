@@ -1,0 +1,18 @@
+/* Long public keys and the exact query must remain readable without widening the page. */
+main, section, .card, dl, dd { min-width: 0; }
+pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  background: rgba(12, 7, 24, .72);
+  border-radius: 8px;
+  padding: 14px;
+}
+code { overflow-wrap: anywhere; }
+#entity-details code { word-break: break-all; }
+@media (max-width: 480px) {
+  .card { padding: 20px 16px; }
+  .wrap { padding-left: 16px; padding-right: 16px; }
+  pre { padding: 10px; font-size: .72rem; }
+}

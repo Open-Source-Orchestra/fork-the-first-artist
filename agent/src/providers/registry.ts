@@ -103,7 +103,21 @@ export class ProviderRegistry {
         : undefined,
       capabilities: p.capabilities,
       priceUsdPerMTok: price,
+      fixedPricePerCallUsd: useMeter ? meterPricePerCall() : undefined,
       fetchImpl: this.runtime.fetchImpl,
     });
   }
+}
+
+/**
+ * The payments meter charges per call, not per token. Keep this value in lockstep
+ * with payments/ PRICE_METER_USDC; token prices are only a direct-provider fallback.
+ */
+function meterPricePerCall(): number {
+  const raw = process.env.METER_PRICE_PER_CALL_USD ?? '0.002';
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error('METER_PRICE_PER_CALL_USD must be a finite non-negative number');
+  }
+  return value;
 }

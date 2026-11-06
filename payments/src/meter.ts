@@ -4,8 +4,8 @@
  * ## Why it exists
  *
  * The artist's steward must **pay for its own thinking**, per request, from its own
- * 3.69% wallet, with no human top-up. This endpoint is the thing it pays. One
- * component serves both sponsors at once:
+ * compute wallet, with no human approving each call. This endpoint is the thing
+ * it pays. One component serves both sponsors at once:
  *
  * | Sponsor | What this endpoint gives them |
  * |---|---|
@@ -33,10 +33,11 @@
  * ladder turns it into a template reply and the fan is not charged either.
  */
 import type { Config } from './config.ts';
-import type { Gate, PaymentRequirementsView } from './gate/index.ts';
+import type { Gate } from './gate/index.ts';
 import type { SpendLog } from './spend-log.ts';
 import { atomicToDecimal } from './config.ts';
 import { header, log, parseJson, sendJson, type Ctx } from './http.ts';
+import { settleConfirmed } from './settlement.ts';
 
 export interface MeterDeps {
   cfg: Config;
@@ -67,31 +68,14 @@ export function meterInfo(cfg: Config): MeterInfo {
     priceUsd: atomicToDecimal(cfg.prices.meterAtomic, cfg.asset.decimals),
     asset: cfg.asset.id,
     network: cfg.network,
-    // the 3.69% wallet — this endpoint is paid to the AGENT, not the artist
-    payTo: cfg.accounts.compute || '0.0.0000',
+    // The meter operator is paid by the agent's separate compute wallet.
+    payTo: cfg.accounts.meter || '0.0.0000',
     budget: cfg.budget,
     upstream: {
       baseUrl: cfg.upstream.baseUrl,
       model: cfg.upstream.model,
       trustMode: cfg.upstream.trustMode,
     },
-  };
-}
-
-function requirementsFor(
-  cfg: Config,
-  resource: string,
-  description: string,
-): PaymentRequirementsView {
-  return {
-    scheme: 'exact',
-    network: cfg.network,
-    amount: cfg.prices.meterAtomic.toString(),
-    asset: cfg.asset.id,
-    payTo: cfg.accounts.compute || '0.0.0000',
-    resource,
-    description,
-    maxTimeoutSeconds: 180,
   };
 }
 
@@ -112,39 +96,53 @@ export async function handleMeter(ctx: Ctx, deps: MeterDeps): Promise<void> {
   const totals = await spendLog.totals();
   const priceUsd = Number(atomicToDecimal(cfg.prices.meterAtomic, cfg.asset.decimals));
 
-  if (totals.totalUsd + priceUsd > cfg.budget.totalUsd) {
+  if (priceUsd > cfg.budget.maxPerCallUsd) {
+    sendJson(ctx.res, 403, {
+      error: 'SPEND_CAP_EXCEEDED',
+      code: 'SPEND_CAP_EXCEEDED',
+      scope: 'per-call',
+      priceUsd,
+      capUsd: cfg.budget.maxPerCallUsd,
+      hint: 'meter price exceeds the configured per-call budget — fix the operator configuration',
+    });
+    return;
+  }
+  if (totals.computeTotalUsd + priceUsd > cfg.budget.totalUsd) {
     sendJson(ctx.res, 403, {
       error: 'SPEND_CAP_EXCEEDED',
       code: 'SPEND_CAP_EXCEEDED',
       scope: 'total',
-      spentUsd: totals.totalUsd,
+      spentUsd: totals.computeTotalUsd,
       capUsd: cfg.budget.totalUsd,
       hint: 'steward is out of compute budget — degrade to a template reply',
     });
     return;
   }
-  if (totals.lastHourUsd + priceUsd > cfg.budget.hourlyUsd) {
+  if (totals.computeLastHourUsd + priceUsd > cfg.budget.hourlyUsd) {
     sendJson(ctx.res, 403, {
       error: 'SPEND_CAP_EXCEEDED',
       code: 'SPEND_CAP_EXCEEDED',
       scope: 'hourly',
-      spentLastHourUsd: totals.lastHourUsd,
+      spentLastHourUsd: totals.computeLastHourUsd,
       capUsd: cfg.budget.hourlyUsd,
     });
     return;
   }
 
   // ---------------------------------------------------------------- payment
-  const requirements = requirementsFor(cfg, resource, `inference call (${cfg.upstream.model})`);
+  const description = `inference call (${cfg.upstream.model})`;
+  // Challenge first: the gate adds facilitator-specific fields such as feePayer.
+  // Reuse this exact object for verify and settle or the facilitator rejects it.
+  const challenge = await gate.challenge({
+    resource,
+    amountAtomic: cfg.prices.meterAtomic,
+    payTo: cfg.accounts.meter,
+    description,
+  });
+  const requirements = challenge.body.accepts[0]!;
   const paymentHeader = header(ctx.req, 'x-payment');
   const verified = await gate.verify({ paymentHeader, requirements });
   if (!verified.ok) {
-    const challenge = await gate.challenge({
-      resource,
-      amountAtomic: cfg.prices.meterAtomic,
-      payTo: cfg.accounts.compute,
-      description: requirements.description,
-    });
     sendJson(
       ctx.res,
       challenge.status,
@@ -178,8 +176,12 @@ export async function handleMeter(ctx: Ctx, deps: MeterDeps): Promise<void> {
   }
 
   // ---------------------------------------------------------------- settle
-  const settlement = await gate.settle({ handle: verified.handle, requirements });
-  const txId = settlement.txId ?? `unsent-${Date.now().toString(36)}`;
+  const confirmed = await settleConfirmed(gate, { handle: verified.handle, requirements });
+  if (!confirmed.ok) {
+    sendJson(ctx.res, 502, confirmed.body);
+    return;
+  }
+  const { settlement, txId } = confirmed;
 
   const entry = await spendLog.append({
     kind: 'meter',
@@ -264,6 +266,13 @@ async function callUpstream(
     // ask 0G for a TEE attestation. The flag is meaningless to any other
     // provider, which is why the meter is 0G-shaped rather than generic.
     verify_tee: true,
+    // 0gm-1.0-35b-a3b is a thinking model: without this it spends the whole
+    // max_tokens budget on hidden reasoning and returns finish_reason=length with
+    // empty content. A caller that explicitly sets the flag keeps its value.
+    chat_template_kwargs: {
+      enable_thinking: false,
+      ...((body.chat_template_kwargs as Record<string, unknown> | undefined) ?? {}),
+    },
   };
 
   const res = await doFetch(`${cfg.upstream.baseUrl}/chat/completions`, {
@@ -312,7 +321,7 @@ function devUpstream(
 ): {
   payload: Record<string, unknown>;
   requestId: string;
-  teeVerified: boolean;
+  teeVerified: null;
   costRaw: string;
   model: string;
 } {
@@ -324,7 +333,9 @@ function devUpstream(
   return {
     model,
     requestId: `dev-req-${Math.random().toString(36).slice(2, 12)}`,
-    teeVerified: true,
+    // No attestation happened in the offline stand-in. `null` means unreported;
+    // claiming `true` here would fabricate 0G provenance.
+    teeVerified: null,
     costRaw: '0.00004',
     payload: {
       id: `chatcmpl-dev-${Date.now().toString(36)}`,
@@ -345,7 +356,7 @@ function devUpstream(
       x_0g_trace: {
         request_id: `dev-req-${Date.now().toString(36)}`,
         provider: '0xdev',
-        tee_verified: true,
+        tee_verified: null,
         billing: { total_cost: '0.00004' },
       },
     },

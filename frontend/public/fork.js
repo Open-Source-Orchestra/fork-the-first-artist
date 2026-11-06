@@ -110,7 +110,8 @@ function mountPanel() {
       <h4 id="fork-arkiv-h">🗝 Invitations on Arkiv <span class="fork-badge live">written · Rabdi testnet</span></h4>
       <p>An artist's invitation into the circle is an <b>encrypted Arkiv entity</b> that can be issued, read and revoked — no personal data on chain. The page below queries Arkiv live from your browser.</p>
       <dl class="fork-kv" id="fork-arkiv-kv"><dt>state</dt><dd>loading…</dd></dl>
-      <div class="links"><a class="pill violet" href="/arkiv">live Arkiv read →</a><a class="pill" href="${REPO}/tree/main/claims" target="_blank" rel="noopener">claims code ↗</a></div>
+      <p style="margin-top:8px">The circle's <b>trust ledger</b> lives there too: every steward invitation, artist consent and approval is a public Arkiv entity whose signature your browser re-verifies.</p>
+      <div class="links"><a class="pill violet" href="/trust">trust ledger · live →</a><a class="pill violet" href="/arkiv">live Arkiv read →</a><a class="pill" href="${REPO}/tree/main/claims" target="_blank" rel="noopener">claims code ↗</a></div>
     </section>
 
     <section class="fork-tile" aria-labelledby="fork-ens-h">

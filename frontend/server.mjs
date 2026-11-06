@@ -42,9 +42,10 @@ const assets = new Map(await Promise.all([
   ['/steward', 'steward.html', 'text/html; charset=utf-8'],
   // The circle's chain of trust: steward desk (invite/approve/grant), invited artist consent, ENS signing kit.
   ['/admin', 'admin.html', 'text/html; charset=utf-8'],
+  ['/trust', 'trust.html', 'text/html; charset=utf-8'],
   ['/consent', 'consent.html', 'text/html; charset=utf-8'],
   ['/ens-sign', 'ens-sign.html', 'text/html; charset=utf-8'],
-  ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'wallet-connect.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
+  ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'wallet-connect.mjs', 'trust-ledger.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
   ['/trust.css', 'trust.css', 'text/css; charset=utf-8'],
   ['/steward.mjs', 'steward.mjs', 'text/javascript; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
@@ -91,7 +92,7 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
       : '';
     const trustPolicy = route === '/admin' || route === '/consent'
       ? " connect-src 'self';"
-      : '';
+      : route === '/trust' ? " connect-src 'self' https://rpc.rabdi.db-chain.testnet.arkiv.network;" : '';
     const stewardPolicy = route === '/steward'
       ? " connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev;"
       : '';

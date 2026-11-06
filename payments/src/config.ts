@@ -48,8 +48,8 @@ export interface Config {
   network: string;
   facilitatorUrl: string;
   asset: { id: string; decimals: number };
-  /** `artist` is where fan money lands; `compute` is the agent's 3.69% wallet */
-  accounts: { artist: string; compute: string };
+  /** `artist` receives fan payments; `compute` pays for inference; `meter` operates the meter */
+  accounts: { artist: string; compute: string; meter: string };
   agentPrivateKey?: string;
   hcsSpendTopicId?: string;
   split: SplitBps;
@@ -164,6 +164,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     accounts: {
       artist: env('HEDERA_ARTIST_ACCOUNT_ID') ?? '',
       compute: env('HEDERA_COMPUTE_ACCOUNT_ID') ?? '',
+      meter: env('HEDERA_METER_ACCOUNT_ID') ?? '',
     },
     agentPrivateKey: env('HEDERA_AGENT_PRIVATE_KEY'),
     hcsSpendTopicId: env('HCS_SPEND_TOPIC_ID'),
@@ -206,6 +207,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
   if (cfg.mode === 'dev') {
     if (!cfg.accounts.artist) cfg.accounts.artist = '0.0.5555';
     if (!cfg.accounts.compute) cfg.accounts.compute = '0.0.6666';
+    if (!cfg.accounts.meter) cfg.accounts.meter = '0.0.7777';
   }
 
   // live must fail fast and loudly, with the missing variable names, rather than
@@ -214,11 +216,24 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     const missing = [
       ['HEDERA_ARTIST_ACCOUNT_ID', cfg.accounts.artist],
       ['HEDERA_COMPUTE_ACCOUNT_ID', cfg.accounts.compute],
+      ['HEDERA_METER_ACCOUNT_ID', cfg.accounts.meter],
+      ['UPSTREAM_API_KEY', cfg.upstream.apiKey],
     ].filter(([, v]) => !v);
     if (missing.length) {
       throw new Error(
         `PAYMENTS_MODE=live needs ${missing.map(([k]) => k).join(', ')} — see .env.example`,
       );
+    }
+    if (cfg.accounts.meter === cfg.accounts.compute) {
+      throw new Error(
+        'HEDERA_METER_ACCOUNT_ID must differ from HEDERA_COMPUTE_ACCOUNT_ID (no self-payment)',
+      );
+    }
+    // HCS is an optional audit sink and must not block base settlement. When the
+    // operator enables it by configuring a topic, however, its signing key is
+    // required up front rather than failing every audit write after settlement.
+    if (cfg.hcsSpendTopicId && !cfg.agentPrivateKey) {
+      throw new Error('HCS_SPEND_TOPIC_ID requires HEDERA_AGENT_PRIVATE_KEY');
     }
   }
 

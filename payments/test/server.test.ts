@@ -59,9 +59,9 @@ test('server: /.well-known/x402 advertises both prices and the right payees', as
     const res = await fetch(`${base}/.well-known/x402`);
     const body = (await res.json()) as Record<string, any>;
     assert.equal(body.x402Version, 2);
-    // the fan pays the artist; the agent pays itself
+    // the fan pays the artist; the agent's compute wallet pays the meter operator
     assert.equal(body.resources['/ask'].payTo, cfg.accounts.artist);
-    assert.equal(body.resources['/meter/v1/chat/completions'].payTo, cfg.accounts.compute);
+    assert.equal(body.resources['/meter/v1/chat/completions'].payTo, cfg.accounts.meter);
     assert.equal(body.resources['/ask'].priceAtomic, '100000');
     assert.equal(body.resources['/meter/v1/chat/completions'].priceAtomic, '2000');
     // discovery must never leak a key
@@ -82,6 +82,7 @@ test('server: /split-preview computes the advertised split for any amount', asyn
     assert.equal(body.agentAtomic, '36900');
     assert.equal(body.artistPct, 96.31);
     assert.equal(body.agentPct, 3.69);
+    assert.equal(body.splitVerified, false);
   } finally {
     await stop();
   }

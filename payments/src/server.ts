@@ -144,6 +144,7 @@ export async function createApp(cfg: Config): Promise<App> {
               agentAtomic: s.agent.toString(),
               artistPct: cfg.split.artist / 100,
               agentPct: cfg.split.agent / 100,
+              splitVerified: false,
             });
             return;
           }
@@ -219,6 +220,7 @@ function discovery(cfg: Config): Record<string, unknown> {
     network: cfg.network,
     asset: cfg.asset.id,
     split: { artist: cfg.split.artist / 100, agent: cfg.split.agent / 100 },
+    splitVerified: false,
     resources: {
       [ASK_PATH]: {
         priceAtomic: cfg.prices.askAtomic.toString(),
@@ -229,7 +231,7 @@ function discovery(cfg: Config): Record<string, unknown> {
       [METER_PATH]: {
         priceAtomic: cfg.prices.meterAtomic.toString(),
         priceUsd: atomicToDecimal(cfg.prices.meterAtomic, cfg.asset.decimals),
-        payTo: cfg.accounts.compute || null,
+        payTo: cfg.accounts.meter || null,
         description: `pay-per-call inference (${cfg.upstream.model})`,
       },
     },

@@ -213,7 +213,9 @@ export function createHederaGate(cfg: Config): Gate {
 
       const out = await post<{
         success: boolean;
-        transaction: string;
+        // A malformed or ambiguous facilitator response may omit this even when
+        // success is true; the settlement guard must not invent a replacement.
+        transaction?: string;
         network: string;
         payer?: string;
         errorReason?: string;

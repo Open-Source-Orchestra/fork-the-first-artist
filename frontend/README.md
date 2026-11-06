@@ -1,5 +1,7 @@
 # Frontend — public artist circle and local previews
 
+**Front door (`/`) = the Open Source Orchestra garden circle** (3D, Three.js) with the *Fork the First Artist* layer (`fork.js`): a ribbon and panel with the live 0G steward ask, the settled Hedera x402 proof, the Arkiv proof and the ENS state, plus a per-artist fork card (`<name>.osoartist.eth`, 96.31% / 3.69% / OSO 0%) in each artist's detail panel. The simplified accessible circle described below now lives at **`/list`**. Provenance: [SOURCE.md](SOURCE.md#garden-circle-front-door--garden-front-door).
+
 A buildless HTML/CSS/JavaScript frontend with a 40-artist public-preview circle, a separate sample artist home, a local draft editor, and separate unverified wallet adapters. The circle adapts the public OSO garden design/data; `/home` retains the `oso-storytelling/nodes/shaka` layout foundation. Public artist data is preview-only: this frontend does not establish consent, claim a seat, activate an artist, or simulate a successful payment. OSO takes zero cut; the planned steward compute share is 3.69%.
 
 ## Run locally

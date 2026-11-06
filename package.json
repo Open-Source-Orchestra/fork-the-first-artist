@@ -18,6 +18,7 @@
     "test:frontend": "node --test frontend/test/*.test.mjs",
     "test:frontend:browser": "npm --prefix frontend run test:browser",
     "build:wallet": "npm --prefix frontend run build:wallet",
+    "build:static": "node frontend/scripts/build-static.mjs",
     "test:claims": "npm --prefix claims test",
     "steward": "npm --prefix claims run steward --",
     "test:claims:arkiv": "npm --prefix claims run test:arkiv"

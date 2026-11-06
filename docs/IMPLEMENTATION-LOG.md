@@ -304,6 +304,7 @@ Date: 6 November 2026 (UTC). Authors: `ohana-sysadmin` and synthetic test wallet
 ### Integrated verification
 
 - Clean dependency install completed after moving temporary data/cache off the small root overlay; this was an environment fix, not an application workaround.
-- **171/171 tests passed:** payments 56, agent 72, frontend 31, claims 12. Payments and agent typechecks passed. HashPack runtime/license build passed.
+- **173/173 tests passed:** payments 56, agent 72, frontend 33, claims 12. Payments and agent typechecks passed. HashPack runtime/license build passed. The two new static-build tests cover public routes/assets/disabled wallets and refusal to erase an unmarked output.
 - Optional Playwright suite: **11/11 passed**, 120/120 seat centers correct, 12 axe scans with zero violations. Final integrated Arkiv browser read: HTTP/query success at block 302024, one readonly entity, no console errors.
+- `frontend/scripts/build-static.mjs` produced the separate review deployment at https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ with wallets disabled. All primary routes/assets returned 200; its public `/arkiv` read succeeded at block 302205 with no console errors or 375px overflow. Production artist domain and main branch remained unchanged.
 - Still not proven: real Hedera settlement, real 0G inference, HCS, on-chain split, Reown wallet pairing, claims/ENS activation, production hosting. Hedera accounts remained unfunded and 0G credentials were blocked by official CAPTCHA/team-credit provisioning; no mock was substituted for live evidence.

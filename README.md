@@ -3,7 +3,8 @@
 
 **Product goal:** give each consenting musician an **ENS name**, an **x402 payment rail on Hedera**, and an **AI steward using 0G Private Computer**. Fans pay the artist directly; the intended **96.31% / 3.69%** split assigns a small share toward agent compute. **OSO takes zero cut, zero profit, no token.**
 
-- 🌺 Public preview: https://artist.opensourceorchestra.org/
+- 🌺 Current production preview: https://artist.opensourceorchestra.org/ (older static sample)
+- ✅ Integrated review preview: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ (repaired circle + live Arkiv read; no production merge)
 - 📋 Status: https://opensourceorchestra.org/ethglobalmumbai/
 - 🎬 [Video script](docs/DEMO-SCRIPT.md) · [Submission draft/checklist](docs/SUBMISSION.md)
 - 🔗 [Hedera transaction proof](docs/TX-PROOF.md) · [Arkiv evidence](arkiv/README.md)

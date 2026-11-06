@@ -23,6 +23,14 @@ The local circle now passes its dependency-free regressions and real-browser aud
 | Provenance says no real bios/photos imported | `frontend/SOURCE.md` distinguishes the original sample foundation from the later real public circle import, preserves license/maker-rights boundaries, and states that public availability is not activation consent. |
 | Existing 20 tests missed frontend behavior | **27/27** unit/data/HTTP tests plus **11/11** browser tests, including 12 axe scans. |
 
+## Hosted review preview + static build — integrated update
+
+Integrated static review: **https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/**. This is separate from the production artist domain and does not imply a PR merge or production deployment.
+
+`node frontend/scripts/build-static.mjs OUTPUT_DIR [--wallet-runtime] [--cname=example.org]` creates `/home`, `/draft`, `/wallets`, and `/arkiv` route directories, copies only public assets, refuses to clean an unmarked output, and writes disabled wallet configuration unless deliberately built otherwise. Two regressions cover routes/assets/disabled config and refusal to erase an unmarked directory. Integrated frontend suite: **33/33** (27 circle repair + 4 Arkiv + 2 static-build tests).
+
+Hosted checks on 6 Nov: `/`, `/home/`, `/draft/`, `/wallets/`, `/arkiv/`, config/modules/photos all returned 200; wallet config remained `{projectId:"",runtimeReady:false,enabled:false}`. A real `/arkiv` read from this public origin confirmed one readonly entity at block **302205**, with no console errors or 375px overflow. No wallet runtime or secret was published.
+
 ## Reproduce
 
 From the repository root with Node.js 22.18 or newer:
@@ -61,4 +69,4 @@ The JSON contains each viewport's 40 individual center hits and every axe result
 4. **No full-project certification:** payments/agent/claims behavior and real ENS/Hedera/0G/Arkiv integrations were outside this repair and were not retested here.
 5. **Content governance:** public source data may still need human freshness, permission, takedown, and license review. The exact upstream revision for PR #2's circle data/photos was not recorded and is not fabricated.
 
-No PR was opened, approved, or merged by this repair, and no deployment was performed.
+The original repair opened/approved/merged no PR and deployed nothing. The later integrated review preview is publicly hosted as documented above; production `artist.opensourceorchestra.org` remains unchanged, and PR #3 still requires human review/approval before merge or production deployment.

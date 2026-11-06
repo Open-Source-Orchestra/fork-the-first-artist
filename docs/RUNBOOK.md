@@ -117,7 +117,23 @@ as evidence for all of them.
 | steward answers `[dev-mock inference]` | `UPSTREAM_API_KEY` empty and `PAYMENTS_MODE=dev` | expected in dev; set the key for real answers |
 | `EADDRINUSE` | a previous run is alive | `netstat -ano \| grep 8402` then `taskkill //PID <pid> //F` (Windows) |
 
-## 4. What is real vs mocked — say this out loud on stage
+## 4. Build the static app without hand-copying routes
+
+```bash
+# Default: no wallet runtime, blank project ID, enabled=false
+npm run build:static -- /absolute/path/to/static-output
+
+# Production-shaped output after approval; does not push/deploy by itself
+npm run build:static -- /absolute/path/to/gh-pages --cname=artist.opensourceorchestra.org
+
+# Only after a real Reown setup: build runtime + include its license notices
+npm run build:wallet
+REOWN_PROJECT_ID=<32-hex-public-id> npm run build:static -- /absolute/path/to/gh-pages --wallet-runtime --cname=artist.opensourceorchestra.org
+```
+
+The builder creates `/home`, `/draft`, `/wallets`, and `/arkiv` route directories, includes only public files, and refuses to clean an output without its own `.fork-artist-static.json` marker. Never put `.env` or private configuration in the output. Static-host headers still need separate verification; this build does not claim to fix GitHub Pages headers or publish anything.
+
+## 5. What is real vs mocked — say this out loud on stage
 
 | Real | Mocked in dev mode |
 |---|---|

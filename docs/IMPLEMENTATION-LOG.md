@@ -239,3 +239,28 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - **Live Rabdi verification has not run:** the local signer and access-key fields were still empty at the final configuration-presence check. Offline fake transports/batch models are not reported as chain evidence. No entity, transaction, writer address, or prize qualification was fabricated.
 
 Remaining: configure test wallet/access key and run the opt-in live script; implement wallet proof/redemption, consent, service freeze enforcement, retention renewal/recovery, and artist-facing activation. Host/origin, ENS parent, and Reown setup remain pending. Arkiv expiry is not erasure, application state remains operator-owned, and cross-process signer nonce coordination is not implemented. No payment changes, push, merge, or deployment occurred.
+
+## 14 — Close demo-critical agent trust, payment, and accounting gaps
+
+Date: 6 November 2026 (UTC). Author: configured Git identity `ohana-sysadmin`. AI assistance: Kimi (Moonshot AI).
+
+### Behavior and boundaries
+
+- Based on `origin/main` `8fe84bdf227b636bda69534c939815040c9b6a6f` in a dedicated clone and `fix/demo-agent` branch. No payment source files were edited.
+- Bind the HTTP service to `127.0.0.1` by default with configurable `HOST`. Refuse non-loopback startup without `STEWARD_SERVICE_TOKEN`; when configured, require a SHA-256-normalized `timingSafeEqual` bearer check before reading `/ask` bodies or invoking the steward. Require JSON content type, remove wildcard CORS, lock provider/model/tools to server configuration, preserve health/agent-card, and omit budget ceilings and credential-variable names from public metadata.
+- Reserve every initial/tool/schema-repair call, enforce a cumulative per-question cap, immediately record each completed call, and retain earlier spend on later refusal/failure. Add fixed per-call meter pricing via `METER_PRICE_PER_CALL_USD` and `provenance.calls[]` for every payment/request ID. Reservations explicitly coordinate only one Budget instance; no cross-process atomicity is claimed. Unknown usage/settlement after an unusable provider response is not invented.
+- Replace the fan demo's unconditional mock header with `createPayer()` and the real 402/sign/retry handshake. Live requires distinct `HEDERA_FAN_ACCOUNT_ID`/`HEDERA_FAN_PRIVATE_KEY` and rejects missing/mock credentials without borrowing agent compute credentials. Dev remains explicitly mock. Split output is arithmetic-preview-only and multi-call evidence is not collapsed into a false 1:1 claim.
+- Replace real-person/placeholder artist facts with the synthetic `Demo Artist`/`Demo Song` fixture. Use a neutral deterministic smoke prompt and package-local dotenv loading.
+- Implement advertised `ZEROG_NETWORK`, `ZEROG_BASE_URL`, `ZEROG_MODEL`, `ZEROG_TRUST_MODE`, and `INFERENCE_TRANSPORT` overrides. Testnet selects `baseUrlTestnet`; the prior model default remains for compatibility and is not represented as live catalog validation.
+
+### Validation
+
+- Clean `npm ci --ignore-scripts`: passed, installing the locked optional x402/Hedera declarations. The install report retained 3 moderate and 1 high dependency advisories; no force-fix or dependency rewrite was attempted.
+- `npm test` from `agent/`: **70 passed, 0 failed**, including unauthorized-no-provider-call, allowed bearer, override locking, media-type boundary, loopback/non-loopback behavior, fan/compute credential separation, fixed meter pricing, concurrent in-process reservations, tool/repair cutoffs, failure-path accounting, per-call provenance, and all 0G override paths. No live provider or chain calls occurred.
+- `npm run typecheck` from `agent/`: passed with the complete source/test/script program.
+- Real loopback server + fake-provider smoke: unauthenticated `/ask` 401, authorized request 200, synthetic agent-card, four calls/four provenance entries/four zero-cost ledger entries. External provider used: false.
+- `git diff --check` passed and the changed-path review confirmed no files outside `agent/` and `docs/`, with no `payments/` changes.
+
+### Remaining risks and integration contract
+
+Payments must send `Authorization: Bearer <STEWARD_SERVICE_TOKEN>` when the token is enabled and should forward `provenance.calls` as `proof.upstream.calls`; this branch deliberately leaves that integration to the payments owner. Multiple processes/hosts need an external atomic reservation/ledger protocol. Ambiguous failed-call settlement, unreadable/corrupt ledger recovery, live catalog availability, actual Hedera/0G settlement, on-chain split verification, claims/activation, dependency advisory remediation, and deployment remain unverified or open. No PR, approval, merge, deployment, live provider call, or spend was performed by this entry.

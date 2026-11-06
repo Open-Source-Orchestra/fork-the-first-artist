@@ -44,14 +44,16 @@ export interface PayerOptions {
   /** hard client-side ceiling per payment, USD (default $1) */
   maxAmountPerPayment?: string;
   timeoutMs?: number;
+  /** Set false for live callers so a missing key can never degrade to mock. */
+  allowMock?: boolean;
 }
 
 /**
  * Create the wallet.
  *
- * @returns `{ kind: 'mock' }` when no `HEDERA_AGENT_PRIVATE_KEY` is configured - the
- *          meter must then be in `PAYMENTS_MODE=dev` to accept it. This is what makes
- *          the whole loop runnable offline with zero credentials.
+ * @returns `{ kind: 'mock' }` only when mock is allowed and no private key is
+ *          configured. `allowMock: false` (and PAYMENTS_MODE=live by default)
+ *          fails closed instead of silently turning a live payment into a mock.
  */
 export async function createPayer(opts: PayerOptions = {}): Promise<Payer> {
   const accountId = opts.accountId ?? process.env.HEDERA_AGENT_ACCOUNT_ID ?? '';
@@ -59,6 +61,10 @@ export async function createPayer(opts: PayerOptions = {}): Promise<Payer> {
   const network = opts.network ?? process.env.HEDERA_NETWORK ?? 'hedera:testnet';
 
   if (!privateKey) {
+    const allowMock = opts.allowMock ?? process.env.PAYMENTS_MODE !== 'live';
+    if (!allowMock) {
+      throw new Error('a live payer requires an explicit private key; mock payment is disabled');
+    }
     // Dev payer: no key, no chain. The meter must be in PAYMENTS_MODE=dev too.
     return {
       kind: 'mock',
@@ -70,6 +76,8 @@ export async function createPayer(opts: PayerOptions = {}): Promise<Payer> {
       },
     };
   }
+
+  if (!accountId) throw new Error('accountId is required when a payer private key is configured');
 
   const client = await buildX402Client({ accountId, privateKey, network, maxAmountPerPayment: opts.maxAmountPerPayment });
 

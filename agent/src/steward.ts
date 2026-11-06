@@ -10,15 +10,15 @@
  * order is the design:
  *
  * ```
- *   consent -> provider -> affordability -> tool loop -> schema -> record spend
+ *   consent -> provider -> reserve -> call -> record each call -> tool loop -> schema
  * ```
  *
  * ## The two orderings that carry guarantees
  *
- * 1. **Affordability runs BEFORE the first network call.** A request we cannot pay
- *    for never touches a provider, so it cannot cost anything. The caller gets a
- *    template reply with `degradation: 'template-reply'` instead of an error — the
- *    fan never sees a 500 and the agent never overspends.
+ * 1. **Affordability runs BEFORE every provider call.** Each tool and repair turn
+ *    reserves budget too, and every completed call is recorded immediately. A
+ *    refusal before any paid work produces a template reply; after paid work it
+ *    fails honestly without erasing the earlier ledger entries.
  * 2. **A degraded reply is a successful result, not an error.** It is `ok: true` with
  *    `degradation` set and `costUsd: 0`. That is what lets the paywall serve it *free*
  *    (see `payments/src/paywall.ts`): the agent spent nothing, so the fan pays
@@ -42,12 +42,14 @@ import type {
   ErrorCode,
   ModelProvider,
   NormalizedChatRequest,
+  NormalizedChatResponse,
   NormalizedMessage,
   Provenance,
+  ProvenanceCall,
   ProviderId,
   ToolCallRecord,
 } from './types.ts';
-import type { Budget } from './budget.ts';
+import type { Budget, BudgetReservation } from './budget.ts';
 import type { ToolRegistry } from './tools.ts';
 import { fencedData, systemPrompt } from './fence.ts';
 import type { ProviderRegistry } from './providers/registry.ts';
@@ -134,12 +136,13 @@ export class Steward implements AgentInterface {
       maxTokens: cfg.generation.maxTokens,
     };
 
+    const runState: { spentUsd: number; calls: ProvenanceCall[] } = { spentUsd: 0, calls: [] };
     const ladder = this.ladder(baseRequest, req);
-    const chosen = await this.pickAffordable(provider, ladder, req);
+    const chosen = await this.pickAffordable(provider, ladder, req, runState);
     if (!chosen) {
       return this.templateReply<T>(provider, model, artist, instruction, started);
     }
-    const { request, degradation } = chosen;
+    const { request, degradation, reservation } = chosen;
 
     // ---------------------------------------------------------------- tool loop
     const toolCalls: ToolCallRecord[] = [];
@@ -150,7 +153,14 @@ export class Steward implements AgentInterface {
 
     try {
       for (let turn = 0; turn <= cfg.generation.maxToolTurns; turn++) {
-        response = await provider.chat(current);
+        response = await this.chatWithBudget(
+          provider,
+          current,
+          req,
+          runState,
+          turn === 0 ? 'initial' : 'tool',
+          turn === 0 ? reservation : undefined,
+        );
         usage = {
           inputTokens: usage.inputTokens + response.usage.inputTokens,
           outputTokens: usage.outputTokens + response.usage.outputTokens,
@@ -172,14 +182,7 @@ export class Steward implements AgentInterface {
         };
       }
     } catch (err) {
-      const upstream = (err as { code?: string }).code;
-      // The meter refusing on budget is the SAME condition as our own budget
-      // check, just discovered one hop later: degrade, do not error.
-      if (upstream === 'SPEND_CAP_EXCEEDED') {
-        return this.templateReply<T>(provider, model, artist, instruction, started);
-      }
-      const code = upstream === 'PAYMENT_FAILED' ? 'PAYMENT_FAILED' : 'PROVIDER_UNAVAILABLE';
-      return fail(code, (err as Error).message, upstream === 'PROVIDER_UNAVAILABLE');
+      return this.providerFailure<T>(err, provider, model, artist, instruction, started, runState);
     }
 
     if (!response) return fail('PROVIDER_UNAVAILABLE', 'no response from provider', true);
@@ -198,7 +201,7 @@ export class Steward implements AgentInterface {
       } else {
         // one repair turn, then give up honestly
         try {
-          const repaired = await provider.chat({
+          const repairRequest: NormalizedChatRequest = {
             ...current,
             messages: [
               ...current.messages,
@@ -208,7 +211,14 @@ export class Steward implements AgentInterface {
                 content: `That was not valid JSON for the required schema (${parsed.error}). Reply with ONLY the JSON object.`,
               },
             ],
-          });
+          };
+          const repaired = await this.chatWithBudget(
+            provider,
+            repairRequest,
+            req,
+            runState,
+            'schema-repair',
+          );
           usage = {
             inputTokens: usage.inputTokens + repaired.usage.inputTokens,
             outputTokens: usage.outputTokens + repaired.usage.outputTokens,
@@ -221,14 +231,10 @@ export class Steward implements AgentInterface {
           data = second.value;
           text = (data as { text?: string })?.text ?? repaired.text;
         } catch (err) {
-          return fail('PROVIDER_UNAVAILABLE', (err as Error).message, true);
+          return this.providerFailure<T>(err, provider, model, artist, instruction, started, runState);
         }
       }
     }
-
-    // ---------------------------------------------------------------- spend
-    const costUsd = provider.costOf?.(usage) ?? provider.estimateCost(request);
-    await this.deps.budget.record({ kind: 'inference', spentUsd: costUsd, note: `${providerId}/${model}` });
 
     return {
       ok: true,
@@ -236,8 +242,8 @@ export class Steward implements AgentInterface {
       provider: providerId,
       model,
       usage,
-      costUsd: round6(costUsd),
-      provenance,
+      costUsd: round6(runState.spentUsd),
+      provenance: { ...provenance, calls: runState.calls },
       toolCalls,
       degradation,
       latencyMs: Date.now() - started,
@@ -245,6 +251,97 @@ export class Steward implements AgentInterface {
   }
 
   // ------------------------------------------------------------------ helpers
+
+  /**
+   * Reserve before every paid call and commit its cost immediately after a
+   * response arrives. A later tool/repair failure therefore cannot erase spend
+   * already incurred by earlier calls.
+   */
+  private async chatWithBudget(
+    provider: ModelProvider,
+    request: NormalizedChatRequest,
+    req: AgentRunRequest,
+    runState: { spentUsd: number; calls: ProvenanceCall[] },
+    phase: ProvenanceCall['phase'],
+    existingReservation?: BudgetReservation,
+  ): Promise<NormalizedChatResponse> {
+    let reservation = existingReservation;
+    if (!reservation) {
+      const verdict = await this.reserveForCall(provider, request, req, runState.spentUsd);
+      if (!verdict.ok) throw new SpendCapExceeded();
+      reservation = verdict.reservation;
+    }
+
+    try {
+      const response = await provider.chat(request);
+      const costUsd = provider.costOf?.(response.usage) ?? provider.estimateCost(request);
+      await reservation.commit({
+        kind: 'inference',
+        spentUsd: costUsd,
+        note: `${provider.id}/${request.model} ${phase} call ${runState.calls.length + 1}`,
+      });
+      runState.spentUsd += costUsd;
+      runState.calls.push({
+        sequence: runState.calls.length + 1,
+        phase,
+        requestId: response.provenance.requestId,
+        teeVerified: response.provenance.teeVerified,
+        paymentTxId: response.provenance.paymentTxId,
+        hcsTxId: response.provenance.hcsTxId,
+        costUsd: round6(costUsd),
+      });
+      return response;
+    } catch (err) {
+      // If no usable response arrived, actual upstream usage/settlement is
+      // unknown. Do not invent a cost; earlier committed calls remain recorded.
+      reservation.release();
+      throw err;
+    }
+  }
+
+  private async reserveForCall(
+    provider: ModelProvider,
+    request: NormalizedChatRequest,
+    req: AgentRunRequest,
+    spentUsd: number,
+  ) {
+    const override = req.budget?.maxUsd;
+    if (override !== undefined && (!Number.isFinite(override) || override < 0)) {
+      throw new TypeError('maxUsd must be a finite non-negative number');
+    }
+    const requestCap = Math.min(
+      override ?? this.deps.config.budget.maxUsdPerRequest,
+      this.deps.config.budget.maxUsdPerRequest,
+    );
+    const remainingRequestCap = Math.max(0, requestCap - spentUsd);
+    return this.deps.budget.reserve(provider.estimateCost(request), { maxUsd: remainingRequestCap });
+  }
+
+  private providerFailure<T>(
+    err: unknown,
+    provider: ModelProvider,
+    model: string,
+    artist: ArtistProfile,
+    instruction: string,
+    started: number,
+    runState: { spentUsd: number; calls: ProvenanceCall[] },
+  ): AgentResult<T> {
+    const upstream = (err as { code?: string }).code;
+    if (upstream === 'SPEND_CAP_EXCEEDED') {
+      // A refusal before any paid work can use the free template. After one or
+      // more paid calls, report failure instead of pretending the whole run was free.
+      if (runState.calls.length === 0) {
+        return this.templateReply<T>(provider, model, artist, instruction, started);
+      }
+      return fail(
+        'SPEND_CAP_EXCEEDED',
+        `compute budget exhausted after ${runState.calls.length} provider call(s); completed spend was recorded`,
+        false,
+      );
+    }
+    const code = upstream === 'PAYMENT_FAILED' ? 'PAYMENT_FAILED' : 'PROVIDER_UNAVAILABLE';
+    return fail(code, (err as Error).message, upstream === 'PROVIDER_UNAVAILABLE');
+  }
 
   /**
    * Build the two-message prompt: a system prompt with the rules, and one user turn
@@ -311,10 +408,14 @@ export class Steward implements AgentInterface {
     provider: ModelProvider,
     tiers: NormalizedChatRequest[],
     req: AgentRunRequest,
-  ): Promise<{ request: NormalizedChatRequest; degradation?: Degradation } | null> {
+    runState: { spentUsd: number; calls: ProvenanceCall[] },
+  ): Promise<{
+    request: NormalizedChatRequest;
+    degradation?: Degradation;
+    reservation: BudgetReservation;
+  } | null> {
     for (const request of tiers) {
-      const estimate = provider.estimateCost(request);
-      const verdict = await this.deps.budget.check(estimate, { maxUsd: req.budget?.maxUsd });
+      const verdict = await this.reserveForCall(provider, request, req, runState.spentUsd);
       if (verdict.ok) {
         const degradation =
           request.model !== provider.model
@@ -322,7 +423,7 @@ export class Steward implements AgentInterface {
             : request.maxTokens !== this.deps.config.generation.maxTokens
               ? ('shorter-max-tokens' as const)
               : undefined;
-        return { request, degradation };
+        return { request, degradation, reservation: verdict.reservation };
       }
     }
     return null;
@@ -471,4 +572,12 @@ function fail(
   retryable: boolean,
 ): { ok: false; error: { code: ErrorCode; message: string; retryable: boolean } } {
   return { ok: false, error: { code, message, retryable } };
+}
+
+class SpendCapExceeded extends Error {
+  readonly code = 'SPEND_CAP_EXCEEDED';
+
+  constructor() {
+    super('compute budget exhausted before the next provider call');
+  }
 }

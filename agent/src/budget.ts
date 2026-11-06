@@ -52,11 +52,32 @@ export type BudgetVerdict =
   | { ok: true; remainingUsd: number }
   | { ok: false; scope: 'request' | 'hourly' | 'total'; spentUsd: number; capUsd: number };
 
+export interface BudgetReservation {
+  readonly estimatedUsd: number;
+  /** Record the completed call's cost and release its estimate. */
+  commit(entry: Omit<BudgetEntry, 'at'> & { at?: string }): Promise<void>;
+  /** Release an unused estimate when no provider response was obtained. */
+  release(): void;
+}
+
+export type BudgetReservationVerdict =
+  | { ok: true; reservation: BudgetReservation }
+  | { ok: false; scope: 'request' | 'hourly' | 'total'; spentUsd: number; capUsd: number };
+
 export class Budget {
   readonly caps: Readonly<BudgetCaps>;
   private readonly path: string;
   /** parsed cache; invalidated on every `record()` so totals cannot go stale */
   private cache: BudgetEntry[] | null = null;
+  /**
+   * Estimates for calls currently in flight in this Budget instance.
+   *
+   * This closes the check-then-call gap for concurrent requests sharing one
+   * steward process. It is NOT a cross-process reservation: separate Budget
+   * instances and separate hosts cannot see each other's pending calls.
+   */
+  private readonly pending = new Map<symbol, { estimatedUsd: number; atMs: number }>();
+  private reservationQueue: Promise<void> = Promise.resolve();
 
   constructor(caps: BudgetCaps, path = process.env.BUDGET_LEDGER ?? 'data/budget.jsonl') {
     for (const key of ['maxUsdPerRequest', 'maxUsdPerHour', 'maxUsdTotal'] as const) {
@@ -134,22 +155,96 @@ export class Budget {
       return { ok: false, scope: 'request', spentUsd: estimatedUsd, capUsd: perRequest };
     }
     const t = await this.totals(overrides?.nowMs);
-    if (t.totalUsd + estimatedUsd > this.caps.maxUsdTotal) {
+    const nowMs = overrides?.nowMs ?? Date.now();
+    const pending = this.pendingTotals(nowMs);
+    if (t.totalUsd + pending.totalUsd + estimatedUsd > this.caps.maxUsdTotal) {
       return { ok: false, scope: 'total', spentUsd: t.totalUsd, capUsd: this.caps.maxUsdTotal };
     }
-    if (t.lastHourUsd + estimatedUsd > this.caps.maxUsdPerHour) {
+    if (t.lastHourUsd + pending.lastHourUsd + estimatedUsd > this.caps.maxUsdPerHour) {
       return { ok: false, scope: 'hourly', spentUsd: t.lastHourUsd, capUsd: this.caps.maxUsdPerHour };
     }
-    return { ok: true, remainingUsd: round6(this.caps.maxUsdTotal - t.totalUsd) };
+    return {
+      ok: true,
+      remainingUsd: round6(this.caps.maxUsdTotal - t.totalUsd - pending.totalUsd),
+    };
+  }
+
+  /**
+   * Atomically check and reserve an estimate within this Budget instance.
+   *
+   * The queue prevents two async callers in one process from both passing the
+   * same ledger total before either records its call. A committed reservation
+   * replaces its estimate with the actual per-call cost; an unused reservation
+   * must be released. Multiple processes still need an external transaction or
+   * locking protocol — appending JSONL is not a distributed reservation system.
+   */
+  async reserve(
+    estimatedUsd: number,
+    overrides?: { maxUsd?: number; nowMs?: number },
+  ): Promise<BudgetReservationVerdict> {
+    return this.exclusiveReservation(async () => {
+      const verdict = await this.check(estimatedUsd, overrides);
+      if (!verdict.ok) return verdict;
+
+      const id = Symbol('budget-reservation');
+      this.pending.set(id, { estimatedUsd, atMs: overrides?.nowMs ?? Date.now() });
+      let settled = false;
+      const release = (): void => {
+        if (settled) return;
+        settled = true;
+        this.pending.delete(id);
+      };
+      return {
+        ok: true,
+        reservation: {
+          estimatedUsd,
+          release,
+          commit: async (entry) => {
+            if (settled) throw new Error('budget reservation is already settled');
+            try {
+              await this.record(entry);
+            } finally {
+              release();
+            }
+          },
+        },
+      };
+    });
   }
 
   /** Append one spend line. `at` is optional so a test can backdate a fixture. */
   async record(entry: Omit<BudgetEntry, 'at'> & { at?: string }): Promise<void> {
+    requireAmount(entry.spentUsd, 'spentUsd');
     const full: BudgetEntry = { at: entry.at ?? new Date().toISOString(), ...entry } as BudgetEntry;
     await mkdir(dirname(this.path), { recursive: true }).catch(() => {});
     await appendFile(this.path, `${JSON.stringify(full)}\n`, 'utf8');
     // invalidate so the next check() sees this entry
     this.cache = null;
+  }
+
+  private pendingTotals(nowMs: number): { totalUsd: number; lastHourUsd: number } {
+    const hourAgo = nowMs - 3_600_000;
+    let totalUsd = 0;
+    let lastHourUsd = 0;
+    for (const reservation of this.pending.values()) {
+      totalUsd += reservation.estimatedUsd;
+      if (reservation.atMs >= hourAgo) lastHourUsd += reservation.estimatedUsd;
+    }
+    return { totalUsd, lastHourUsd };
+  }
+
+  private async exclusiveReservation<T>(work: () => Promise<T>): Promise<T> {
+    const previous = this.reservationQueue;
+    let unlock!: () => void;
+    this.reservationQueue = new Promise<void>((resolve) => {
+      unlock = resolve;
+    });
+    await previous;
+    try {
+      return await work();
+    } finally {
+      unlock();
+    }
   }
 }
 

@@ -26,7 +26,7 @@ The comment says payments verifies requests before the agent answers, but `/ask`
 
 Fix direction: establish an authenticated service-to-service contract or an explicitly enforced private-network boundary. CORS is not authentication. Coordinate the caller change with the payments teammate; adding an agent-only shared-secret check would otherwise break the current payments call.
 
-Owner: agent implementation plus payment integration contract. Status: open; deployment/authentication choice required.
+Owner: agent implementation plus payment integration contract. Follow-up on unmerged `fix/demo-agent`: loopback is the default bind, non-loopback requires `STEWARD_SERVICE_TOKEN`, configured tokens protect `/ask` with timing-safe bearer comparison, provider/model/tools are server-locked, and public metadata is sanitized. Payments must add `Authorization: Bearer <token>` before token-protected integration; no payment source was edited.
 
 ### R3 — Failed settlement produces a successful paid response
 
@@ -56,7 +56,7 @@ The steward checks affordability before entering the tool loop, then makes addit
 
 Fix direction: define authoritative per-call pricing, reserve budget before each paid call, prevent overrides from raising operator limits, record already-incurred costs on failure paths, and cover concurrent requests. Do not claim that the current checks enforce the $5 demo limit under these conditions.
 
-Owner: agent budget logic; payments teammate owns meter reservations and settlement accounting. Follow-up: commit `04` prevents overrides raising configured limits, rejects invalid numeric inputs, and freezes configured caps. Remaining accounting/reservation findings are open and require agreement on the pricing/reservation contract.
+Owner: agent budget logic; payments teammate owns meter reservations and settlement accounting. Follow-up: commit `04` prevents overrides raising configured limits, rejects invalid numeric inputs, and freezes configured caps. Unmerged `fix/demo-agent` adds fixed per-call meter pricing, pre-call checks for tool/repair turns, immediate per-call accounting on later failures, per-question cumulative caps, per-call provenance, and process-local reservations. Atomic cross-process reservations, ambiguous failed-call settlement, and unreadable/corrupt ledger recovery remain open and require agreement on the integration contract.
 
 ### R6 — Payment revenue is counted as inference spend
 

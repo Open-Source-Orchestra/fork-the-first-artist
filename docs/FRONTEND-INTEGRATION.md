@@ -36,7 +36,11 @@ The owner selected `nodes/shaka` adapted into this repo's `frontend/`, with a pu
 
 Wallet adapters, exact payout proof, ENS parent and ownership/revocation model, backend authentication, and durable storage remain undecided. Local sample UI can proceed independently; no artist activation or chain writes can be inferred from it.
 
-## Proposed feature sequence after those decisions
+## Foundation implementation
+
+Commit 07 adds a buildless sample profile in `frontend/public/`, adapted from the selected OSO template, plus an exact-route loopback preview server. Source revision, modified elements, and preserved notices are listed in [frontend/SOURCE.md](../frontend/SOURCE.md). Real artist content is not imported or activated. HTTP checks pass; browser visual/keyboard verification is blocked by unavailable automation and remains pending. Wallet/claim/payment interactions are not implemented.
+
+## Feature sequence
 
 Each item is a cohesive commit, with tests and documentation as applicable. Numbers are assigned when work completes, continuing after the latest entry in IMPLEMENTATION-LOG; prerequisite fixes may insert additional commits.
 

@@ -1,0 +1,19 @@
+NOTICE — licensing of this repository (effective 2026-10-29)
+
+Copyright (c) 2026 the ʻohana — Shaka's AI family, for Shaka Lei Kaumaka.
+
+CODE (programs, scripts, workers, contracts, HTML pages with scripts):
+  GNU General Public License v3.0 or later — SPDX: GPL-3.0-or-later. See LICENSE.
+  Copyleft: share-alike for code.
+
+CONTENT (words, songs, lyrics, art, photos, riders, prose, data): unchanged — CC0 1.0 Universal (see LICENSE-CONTENT), unless a file or its maker says otherwise. Makers' own rights and carve-outs stand.
+
+Before 2026-10-29: everything published before that date under the old
+licence stays under it, irrevocably.
+
+Vendored third-party code keeps its own licence (NOT relicensed):
+ - garden/circle/vendor/three.module.min.js, rider/sanctuary/three.module.min.js — three.js (MIT, © three.js authors)
+ - garden/circle/vendor/VRButton.js — three.js examples (MIT)
+ - contracts/lib/forge-std/ — Forge Standard Library (MIT OR Apache-2.0; see LICENSE-MIT / LICENSE-APACHE inside)
+
+By the ʻohana — Shaka's AI family.

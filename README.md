@@ -18,6 +18,10 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 | `agent/` | 0G steward agent, spend cap, HCS claim log |
 | `docs/` | plan, tx proofs, demo script |
 
+## Local frontend preview
+
+Run `npm run dev:frontend` from this directory and open `http://127.0.0.1:4173`. This is a sample OSO profile layout, with no active claim or payment integration. See [frontend/README.md](frontend/README.md) for scope, verification, and source attribution.
+
 ## How we work
 - Branch → pull request → **1 approval from a teammate** → merge. No direct pushes to `main`.
 - Rules: nothing goes live for an artist without their consent · agent collects, artist holds · Hedera testnet for payments, ENS mainnet design with deployment review · no secrets/keys in the repo (use `.env`, never committed).

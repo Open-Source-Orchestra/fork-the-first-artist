@@ -108,3 +108,27 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - Asked for the ENS parent/controller and artist-versus-parent revocation rights. No ownership model, wallet integration, deployment platform, or live transaction was assumed.
 
 Validation: reviewed official source pages and local documentation links, inspected the diff, and checked whitespace. Documentation only; no application tests rerun. Payment source unchanged. No deployment, purchase, push, merge, or external message.
+
+## 07 — Add the local OSO artist-home foundation
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+### Behavior and source
+
+- Adapted the selected OSO node's palette, fonts, gradients, hero, songbook/card layout, and onboarding panel into buildless HTML/CSS. Added semantic navigation, native disclosures, visible focus, reduced-motion support, and mobile stacking rules.
+- Used explicitly labeled sample content. No real artist biography/media, external scripts, fonts, wallet calls, paid chat, or simulated transaction success. Consent and live activation remain separate features.
+- Documented source revision and exact adaptation boundaries in frontend/SOURCE.md. Copied upstream NOTICE, GPL license, and content license unchanged; attributed adapted styles.
+- Added a dependency-free loopback preview with exact public-asset routes, GET/HEAD only, restrictive security headers, and no directory serving. Added root dev:frontend/test:frontend commands and included the HTTP check in the aggregate test script. This does not select or implement a public backend.
+
+### Verification
+
+- Node syntax checks passed for frontend/server.mjs and frontend/test/server.test.mjs.
+- Initial HTTP test failed with sandbox EPERM on binding loopback. Approved retry of `npm run test:frontend` passed: one integration test covering HTML/CSS responses, HEAD, headers, rejected write methods, missing files, encoded traversal, and sensitive repository paths.
+- Local preview started at 127.0.0.1:4173 after approved escalation for the same sandbox restriction.
+- Browser handoff failed because the browser access host was unavailable. Native Chrome selection then timed out. No screenshots or desktop/mobile/keyboard verification are claimed; manual checks are listed in the frontend README.
+- One-off HTML parser check verified unique IDs, all internal anchor targets, and absence of scripts. All three preserved source notice/license files match upstream bytes exactly.
+- Reviewed the staged changes and whitespace. Existing agent/payment behavior was not changed, so their tests were not rerun. Previously documented full agent typecheck/dependency issues remain unresolved.
+
+### Next dependencies
+
+ENS parent/controller and subname rights are awaiting owner input; wallet proof, claim persistence, backend authentication/hosting, and the payment API contract remain open. No deployment, artist activation, push, merge, or payment-code modification occurred.

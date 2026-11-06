@@ -8,11 +8,13 @@
   },
   "scripts": {
     "install:all": "npm --prefix payments install && npm --prefix agent install",
-    "test": "npm --prefix payments test && npm --prefix agent test",
+    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend",
     "typecheck": "npm --prefix payments run typecheck && npm --prefix agent run typecheck",
     "dev:payments": "npm --prefix payments start",
     "dev:agent": "npm --prefix agent start",
     "demo": "node agent/scripts/demo.ts",
-    "smoke": "node agent/scripts/smoke.ts"
+    "smoke": "node agent/scripts/smoke.ts",
+    "dev:frontend": "node frontend/server.mjs",
+    "test:frontend": "node --test frontend/test/*.test.mjs"
   }
 }

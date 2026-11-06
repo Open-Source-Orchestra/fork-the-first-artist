@@ -20,7 +20,7 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 
 ## Local frontend preview
 
-Run `npm run dev:frontend` from this directory and open `http://127.0.0.1:4173`. This is a sample OSO profile layout, with no active claim or payment integration. See [frontend/README.md](frontend/README.md) for scope, verification, and source attribution.
+Run `npm run dev:frontend` from this directory and open `http://127.0.0.1:4173`. Explore the sample OSO profile or open `/draft` to preview a name and bio in the current tab. Drafts are not saved or published; claim and payment integration are not active. See [frontend/README.md](frontend/README.md) for scope, verification, and source attribution.
 
 ## How we work
 - Branch → pull request → **1 approval from a teammate** → merge. No direct pushes to `main`.

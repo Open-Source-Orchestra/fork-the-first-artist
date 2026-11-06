@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/draft.mjs"></script>
+    <title>Draft your artist profile · Open Source Orchestra</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the editor</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Open Source Orchestra</a>
+      <nav aria-label="Main navigation"><a href="/">Back to sample profile</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="draft-heading">
+        <p class="kicker">Begin with your story</p>
+        <h1 id="draft-heading">Make a little <em>room for you.</em></h1>
+        <p class="sub">Try your artist name and bio before claiming your profile.</p>
+        <p id="privacy-note" class="draft-notice">This draft stays in this tab. Reloading or leaving the page clears it. Nothing is published, and no wallet is connected.</p>
+      </section>
+
+      <form id="draft-form" class="card editor-form" autocomplete="off" novalidate aria-describedby="privacy-note">
+        <fieldset id="editor-fields" disabled>
+          <legend>Your profile draft</legend>
+          <label for="draft-name">Artist name</label>
+          <p id="name-hint" class="field-hint">The name you want listeners to see. Up to 80 characters.</p>
+          <input id="draft-name" type="text" maxlength="80" required autocomplete="off" spellcheck="false" aria-describedby="name-hint name-error">
+          <p id="name-error" class="field-error" hidden></p>
+
+          <label for="draft-bio">Your story</label>
+          <p id="bio-hint" class="field-hint">Tell listeners about your music. Up to 1,200 characters.</p>
+          <textarea id="draft-bio" rows="7" maxlength="1200" required autocomplete="off" spellcheck="false" aria-describedby="bio-hint bio-error"></textarea>
+          <p id="bio-error" class="field-error" hidden></p>
+
+          <div class="editor-actions">
+            <button class="primary-button" type="submit">Preview my draft</button>
+            <button id="discard-draft" type="button">Discard draft</button>
+          </div>
+        </fieldset>
+      </form>
+      <p id="editor-status" class="editor-status" role="status">The editor is unavailable until its local script loads.</p>
+      <noscript><p class="draft-notice">Enable JavaScript to use the local draft editor. The form is disabled and will not submit your text.</p></noscript>
+
+      <section id="draft-preview" class="draft-preview" aria-labelledby="preview-heading" hidden>
+        <div class="sec-head">
+          <span class="num">Only in this tab</span>
+          <h2 id="preview-heading" tabindex="-1">Your profile <em>preview.</em></h2>
+        </div>
+        <article class="card">
+          <p class="preview-label">Draft · Not claimed</p>
+          <h3 id="preview-name" dir="auto"></h3>
+          <p id="preview-bio" dir="auto"></p>
+        </article>
+        <p class="draft-notice">This preview does not grant consent, verify identity, reserve an ENS name, or set a payout account.</p>
+      </section>
+    </main>
+    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra</p></footer>
+  </body>
+</html>

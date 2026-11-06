@@ -40,6 +40,8 @@ Wallet adapters, exact payout proof, ENS parent and exact permissions/renewal mo
 
 Commit 07 adds a buildless sample profile in `frontend/public/`, adapted from the selected OSO template, plus an exact-route loopback preview server. Source revision, modified elements, and preserved notices are listed in [frontend/SOURCE.md](../frontend/SOURCE.md). Real artist content is not imported or activated. HTTP checks pass; browser visual/keyboard verification is blocked by unavailable automation and remains pending. Wallet/claim/payment interactions are not implemented.
 
+Commit 09 adds `/draft`: name/bio validation, text-only preview, discard, and page-lifecycle cleanup. It uses no backend or browser storage and never creates consent/claim status. This is the local editing portion only; durable private drafts, uploads, and server validation are still pending. See the [frontend README](../frontend/README.md) for limits and manual verification.
+
 ## Feature sequence
 
 Each item is a cohesive commit, with tests and documentation as applicable. Numbers are assigned when work completes, continuing after the latest entry in IMPLEMENTATION-LOG; prerequisite fixes may insert additional commits.

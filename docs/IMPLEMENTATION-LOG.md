@@ -142,3 +142,25 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - Reviewed official ENSv2 registry, hierarchy, and resolver documentation. Parent checks and actual permission design remain pending; no permanent ownership or deployed guarantee is claimed.
 
 Validation: reviewed the documentation diff and relative references; whitespace check passed. Documentation-only change; no application tests rerun or chain operations performed.
+
+## 09 — Add a local artist draft editor
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+### Behavior and boundaries
+
+- Added `/draft` with name/bio inputs, explicit local-only disclosure, validation errors, text preview, and discard. The sample home links to it. Editing hides stale output; discard clears inputs/errors/preview. Initialization and page lifecycle handlers clear browser-restored values.
+- Added a field-whitelisting validator: 80/1,200 UTF-16-unit limits matching HTML capacity, required values, trimmed outer whitespace, normalized bio newlines, and unsupported-control rejection. International text and markup-looking strings remain literal text. Limits are local UI choices, not a finalized backend schema.
+- Rendering uses textContent. No browser persistence, network submission, URL-encoded draft, wallet connection, consent record, claim state, or payment destination is created. No photo storage/upload behavior was assumed.
+- Extended the preview server's exact allowlist for the editor and modules. CSP permits only same-origin scripts/styles and still denies native form submission and network connections. Inputs are disabled until handlers are installed and have no serialization names.
+- Documented source boundaries, local usage, validation behavior, and unverified browser checks. No new dependency or payment source change.
+
+### Validation
+
+- Node syntax checks passed for both browser modules and the preview server.
+- Five validator tests passed, including invalid inputs, boundary lengths, Unicode, control characters, extra authority fields, and markup-looking text. These are not a browser XSS test.
+- `npm run test:frontend` passed all six tests with approved loopback access. The HTTP test now verifies the new page/module routes, disabled initial fields, JavaScript MIME types, and CSP form/script rules alongside sensitive-path/write rejection.
+- A one-off HTML parser check passed for unique IDs, label/description targets, local routes/anchors, and no native input serialization on both pages.
+- Source reviewed for data sinks and lifecycle handling; staged whitespace checked. Browser interaction, mobile layout, error/focus announcements, and lifecycle behavior remain unverified because browser infrastructure failed during commit 07 and no recovery is established. Manual steps are in frontend/README.md; no replacement browser stack was installed.
+
+Next: await wallet-flow selection (MetaMask plus HashPack proposed), parent details when available, and backend/storage/authentication choices before implementing signed claims or publication. This feature does not complete the persistent-draft or claim stage. Existing agent typecheck/dependency limitations remain unchanged.

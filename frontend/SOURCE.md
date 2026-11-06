@@ -18,3 +18,7 @@ Real artist biography, photographs, songs, lyrics, media files, source `node.jso
 `server.mjs` and `test/server.test.mjs` are new work. The server serves an exact asset allowlist on loopback; it has no wallet, backend proxy, persistence, deployment, or payment behavior. Source code and notices are kept outside the served directory.
 
 This import is continuity provenance, not evidence of prior 0G/Hedera integration or proof that the source revision predates the event. Public submission must still disclose reused work and identify actual pre-event history where applicable.
+
+## Subsequent work — commit 09
+
+`public/draft.html`, `public/draft.mjs`, `public/profile-draft.mjs`, and `test/profile-draft.test.mjs` are new local-editor code. New form/preview styles extend the adapted stylesheet; the home page links to the editor. This does not import the upstream garden's signing or storage logic. The preview server now also serves the editor and its two modules from explicit routes. No new source-site content or vendor dependency was added.

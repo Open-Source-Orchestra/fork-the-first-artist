@@ -35,6 +35,17 @@ test('preview serves only public assets and refuses writes and repository paths'
   assert.match(css.headers['content-type'], /^text\/css/);
   assert.equal((await get('/', 'HEAD')).body, '');
 
+  const editor = await get('/draft');
+  assert.equal(editor.status, 200);
+  assert.match(editor.body, /id="editor-fields" disabled/);
+  assert.match(editor.headers['content-security-policy'], /script-src 'self'/);
+  assert.match(editor.headers['content-security-policy'], /form-action 'none'/);
+  for (const path of ['/draft.mjs', '/profile-draft.mjs']) {
+    const module = await get(path);
+    assert.equal(module.status, 200);
+    assert.match(module.headers['content-type'], /^text\/javascript/);
+  }
+
   for (const path of ['/.env', '/.git/config', '/../README.md', '/%2e%2e/README.md', '/public/../../.env', '/server.mjs', '//styles.css', '/missing']) {
     const response = await get(path);
     assert.equal(response.status, 404, path);

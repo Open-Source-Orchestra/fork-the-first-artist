@@ -6,7 +6,10 @@ import { pathToFileURL } from 'node:url';
 // of the response path. This is a loopback-only preview, not a backend or deploy target.
 const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
+  ['/draft', 'draft.html', 'text/html; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
+  ['/draft.mjs', 'draft.mjs', 'text/javascript; charset=utf-8'],
+  ['/profile-draft.mjs', 'profile-draft.mjs', 'text/javascript; charset=utf-8'],
 ].map(async ([route, file, type]) => [route, {
   body: await readFile(new URL(`./public/${file}`, import.meta.url)),
   type,
@@ -14,7 +17,7 @@ const assets = new Map(await Promise.all([
 
 export function createPreviewServer() {
   return createServer({ requestTimeout: 10_000, headersTimeout: 10_000 }, (req, res) => {
-    res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');
@@ -52,6 +55,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   });
   server.listen(port, '127.0.0.1', () => {
     console.log(`Artist home preview: http://127.0.0.1:${port}`);
-    console.log('Sample content only. Stop with Ctrl+C; restart after editing assets.');
+    console.log('Local preview only. Stop with Ctrl+C; restart after editing assets.');
   });
 }

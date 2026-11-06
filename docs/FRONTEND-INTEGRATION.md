@@ -22,21 +22,19 @@ Read: root README, CONTRIBUTING, GIFT, NOTICE, LICENSE-CONTENT, the license head
 
 ## Boundaries to preserve
 
-- Keep the existing visual language if the profile template is selected; no replacement framework has been selected or introduced.
-- Keep source attribution and notices with any copied code. The source NOTICE describes code as GPL-3.0-or-later and content separately; vendored assets retain their notices. No source content has been imported by this inspection commit.
-- Do not publish changes to the original website implicitly. The owner must select where integration work belongs; a merge there is a deployment.
+- Keep the existing visual language in the selected profile template; no replacement framework has been selected or introduced.
+- Keep source attribution and notices with any copied code. The source NOTICE describes code as GPL-3.0-or-later and content separately; vendored assets retain their notices. Commit 05 imported no source content; later imports must list their exact paths and modifications.
+- Do not publish changes to the original website implicitly. Integration belongs in this repository; a merge to the source website is a separate deployment.
 - Do not infer wallet control from garden keys or public profile JSON. The new claim flow must bind its wallet proof to the requested action and payout destination.
 - Do not reuse the source's artist list as automatically opted-in hackathon participants. Consent, invite redemption, and activation are separate requirements.
 - Preserve per-item visibility when adapting songs/media; only approved public facts belong in agent context.
 - Browser storage and editable URL parameters cannot be authoritative for recipients, spending limits, claims, or activation.
 
-## Decisions currently with the owner
+## Confirmed choices and remaining decisions
 
-1. Adapt the node profile into this repo's `frontend/`, adapt the 3D garden here, or modify `oso-storytelling` directly.
-2. Local demo first, a new public backend, or an existing deployment. The owner deferred the agent authentication choice until this inspection; it must now be settled with deployment.
-3. Supported wallet, payout identifier/account mapping, ENS parent, and ENS network. If these remain undecided, research and propose concrete supported options before coding their integration.
+The owner selected `nodes/shaka` adapted into this repo's `frontend/`, with a public demo backend whose host/runtime is not chosen. Preserve the existing buildless HTML/CSS/JS architecture for the local foundation. ENSv2 mainnet is approved for the design; Hedera stays on testnet. See [PRIZE-STRATEGY.md](PRIZE-STRATEGY.md).
 
-The owner's selected template and destination will determine the next feature commit. Do not import a whole live site or invent a new backend host while these decisions are pending.
+Wallet adapters, exact payout proof, ENS parent and ownership/revocation model, backend authentication, and durable storage remain undecided. Local sample UI can proceed independently; no artist activation or chain writes can be inferred from it.
 
 ## Proposed feature sequence after those decisions
 

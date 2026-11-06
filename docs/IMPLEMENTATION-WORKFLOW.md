@@ -1,6 +1,6 @@
 # Numbered implementation workflow
 
-Status: owner confirmed PR #3 as the implementation base and ownership of all non-payment work. Review payment code and report issues; the teammate owns payment fixes. Reuse the existing frontend before making stack decisions.
+Status: owner confirmed PR #3 as the implementation base and ownership of all non-payment work. Review payment code and report issues; the teammate owns payment fixes. Adapt the existing OSO node frontend in this repository. ENS mainnet is approved for the design; live deployment is not yet authorized.
 
 This document describes how we will implement and review the project. Product requirements remain in [PLAN.md](PLAN.md). A proposed stage below is not an approved architecture decision or a claim that a feature exists.
 
@@ -22,9 +22,9 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 |---|---|---|
 | Ownership: frontend/claims/ENS, PR review, or whole application | Avoid conflicting implementations of teammate-owned features | Confirmed: review PR #3; implement non-payment work; report payment issues to owner |
 | Base: current main or PR #3 | Determines APIs, package layout, and integration work | Confirmed: PR #3 without merging; local branch `work/pr3-integration` based on `855d08a` |
-| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Source inspected: static HTML/CSS/JS on GitHub Pages; template, integration destination, and backend deployment await owner selection |
+| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Confirmed: adapt nodes/shaka into frontend/ using static HTML/CSS/JS; public backend host/runtime remain undecided |
 | Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Requirements requested; pending |
-| ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | Unresolved in product plan |
+| ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | ENSv2 Ethereum mainnet design approved; parent and permissions pending |
 | Payment asset, decimals, facilitator, and split method | Needed to validate actual settlement and recipient amounts | Unresolved; inspect PR #3 before proposing choices |
 | Invite issuer, freeze authority, and authentication | Needed before implementing privileged claim operations | Unresolved |
 | Profile storage, photos, and public claim-log contents | Determines persistence, upload controls, and personal-data exposure | Unresolved |
@@ -34,6 +34,8 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 Ask decisions when their stage approaches. Record the owner's answer, date, rationale, and affected stages here before dependent implementation. Never put private keys, tokens, invitation secrets, or full environment values in documentation, commits, or chat.
 
 Owner decisions recorded on 6 November 2026: the source frontend is [oso-storytelling](https://github.com/shakaleikaumaka/oso-storytelling). After an initially rejected clone request, the owner authorized a retry. A partial clone and selective source checkout succeeded after two connection resets. See [FRONTEND-INTEGRATION.md](FRONTEND-INTEGRATION.md) for inspected features, reuse boundaries, pending decisions, and the next feature sequence. Commit `01` was carried onto the PR-based branch as `0174c3f`; the original planning branch remains available. No remote merge or push occurred.
+
+Updated owner decisions and verified partner requirements are recorded in [PRIZE-STRATEGY.md](PRIZE-STRATEGY.md). No prior 0G/Hedera integration evidence was supplied; 0G Continuity is excluded from current targets.
 
 ## Commit and review contract
 
@@ -78,7 +80,7 @@ The order below follows feature dependencies. Confirm ownership and architecture
 | D — Wallet proof | Server-issued signing challenge bound to invite, intended action, origin, payout destination, nonce, and expiry | Valid proof accepted; tampering, replay, expiry, wrong wallet, and concurrent consumption rejected |
 | E — Artist onboarding | Name, bio, photo handling, payout selection, consent, and wallet claim UI | Field validation and accessible errors; no activation without verified consent; successful claim flow tested |
 | F — HCS claim audit | Record approved public claim information and freeze events; define failure/retry behavior | Testnet receipt and documented proof; retries do not create inconsistent claim state; no private invite data logged |
-| G — ENS identity | Approved subname issuance and payout/agent/profile records, gated on the verified claim | Name validation and authorization tests; testnet/offchain resolution evidence; safe handling of retries and conflicts |
+| G — ENS identity | Approved subname issuance and payout/agent/profile records, gated on the verified claim | Name validation and authorization tests; Ethereum mainnet resolution evidence after deployment review; safe handling of retries and conflicts |
 | H — Agent activation | Bind the steward to the claimed artist and approved content; enforce provider readiness and compute budget | Artist isolation and budget tests; real provider request evidence; unavailable providers do not appear live |
 | I — Payment integration | Connect the approved x402 flow, recipient split, and inference funding; validate existing PR code if adopted | Integer amount tests; replay/concurrency/failure tests; settled testnet transaction with actual recipient amounts |
 | J — Fan experience | Public artist profile, supported paid interactions, wallet payment states, and transaction links | Successful payment journey plus rejected, failed, and pending states; no false success or duplicate charge |

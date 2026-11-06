@@ -97,3 +97,14 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 Validation: source commit and sparse-checkout status verified; relevant source references and local documentation links reviewed; staged whitespace checked. This documentation-only commit adds no executable behavior. Latest application result remains 51 passing agent tests and a passing targeted budget type check. Full package type checking and live integrations remain unverified/blocked as described above.
 
 No source-site files were edited, no artist content was imported or published, and no GitHub comments, pushes, reviews, or merges were performed.
+
+## 06 — Align prize targets and architecture with owner decisions
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+- Checked official Mumbai ENS/Hedera/0G prize pages and ETHGlobal's pre-existing work rules. Recorded source links, qualification gaps, evidence requirements, and proposed ownership boundaries in PRIZE-STRATEGY.md.
+- Owner approved ENS mainnet for the design while retaining Hedera testnet; deployment/gas review remains separate. Owner reports no prior 0G/Hedera integration evidence. Removed 0G Continuity from current targets and kept other unconfirmed eligibility explicit.
+- Recorded the previously selected nodes/shaka adaptation into frontend/ and the still-unselected backend host. Updated the root/package READMEs and current plans to remove contradictory testnet-only and destination-pending instructions.
+- Asked for the ENS parent/controller and artist-versus-parent revocation rights. No ownership model, wallet integration, deployment platform, or live transaction was assumed.
+
+Validation: reviewed official source pages and local documentation links, inspected the diff, and checked whitespace. Documentation only; no application tests rerun. Payment source unchanged. No deployment, purchase, push, merge, or external message.

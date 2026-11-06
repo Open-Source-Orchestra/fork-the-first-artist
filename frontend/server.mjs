@@ -40,11 +40,16 @@ const assets = new Map(await Promise.all([
   ['/arkiv-proof.json', 'arkiv-proof.json', 'application/json; charset=utf-8'],
   ['/arkiv.css', 'arkiv.css', 'text/css; charset=utf-8'],
   ['/steward', 'steward.html', 'text/html; charset=utf-8'],
+  // ⚡ tip the artist: judges trigger the real x402 loop on Hedera testnet (oso-tip-loop Worker).
+  ['/pay', 'pay.html', 'text/html; charset=utf-8'],
+  ['/pay.mjs', 'pay.mjs', 'text/javascript; charset=utf-8'],
+  ['/pay.css', 'pay.css', 'text/css; charset=utf-8'],
   // The circle's chain of trust: steward desk (invite/approve/grant), invited artist consent, ENS signing kit.
   ['/admin', 'admin.html', 'text/html; charset=utf-8'],
+  ['/trust', 'trust.html', 'text/html; charset=utf-8'],
   ['/consent', 'consent.html', 'text/html; charset=utf-8'],
   ['/ens-sign', 'ens-sign.html', 'text/html; charset=utf-8'],
-  ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'wallet-connect.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
+  ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'wallet-connect.mjs', 'trust-ledger.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
   ['/trust.css', 'trust.css', 'text/css; charset=utf-8'],
   ['/steward.mjs', 'steward.mjs', 'text/javascript; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
@@ -91,16 +96,19 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
       : '';
     const trustPolicy = route === '/admin' || route === '/consent'
       ? " connect-src 'self';"
-      : '';
+      : route === '/trust' ? " connect-src 'self' https://rpc.rabdi.db-chain.testnet.arkiv.network;" : '';
     const stewardPolicy = route === '/steward'
       ? " connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev;"
+      : '';
+    const payPolicy = route === '/pay'
+      ? " connect-src 'self' https://oso-tip-loop.shakaverse.workers.dev;"
       : '';
     // The garden circle front door carries inline style/script from the upstream OSO page and fetches
     // the live 0G steward + the garden's public keys; every other route keeps the strict policy.
     const gardenPolicy = route === '/'
       ? "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org; base-uri 'none'; form-action 'none'; frame-ancestors 'none';"
       : null;
-    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy + trustPolicy));
+    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy + trustPolicy + payPolicy));
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

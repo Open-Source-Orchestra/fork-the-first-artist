@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The circle's trust ledger: every steward invitation, artist consent and steward approval, read live from Arkiv and re-verified in your browser.">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <link rel="stylesheet" href="/trust.css">
+    <script type="module" src="/trust-ledger.mjs"></script>
+    <title>Trust ledger on Arkiv · Open Source Orchestra</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the ledger</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/">Artist circle</a><a href="/admin">Steward desk</a><a href="/arkiv">Arkiv proof</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="ledger-heading">
+        <p class="kicker">Arkiv · Rabdi testnet · read live from your browser</p>
+        <h1 id="ledger-heading">The circle's <em>trust ledger.</em></h1>
+        <p class="sub">Every invitation a steward signs, every artist's consent and every approval is stored on Arkiv as a public, read-only entity. This page queries Arkiv directly and <strong>re-verifies every signature here in your browser</strong> against the root steward (owner of osoartist.eth) and the stewards the root granted. The writer only stores; the signatures are the authority.</p>
+        <p class="draft-notice">Writer <code id="writer">…</code> · schema <code>oso.trust.v1</code> · <a href="/fork/stewards.json">stewards.json</a> · <a href="https://github.com/Open-Source-Orchestra/fork-the-first-artist/blob/main/docs/TRUST.md" target="_blank" rel="noopener">how the chain works ↗</a></p>
+      </section>
+      <section class="card" aria-labelledby="live-heading">
+        <p class="eyebrow">01 / The circle</p>
+        <h2 id="live-heading">Real invitations, consents and approvals</h2>
+        <p id="live-status" class="editor-status" role="status" aria-live="polite">Querying Arkiv…</p>
+        <ol id="live" class="ledger"></ol>
+      </section>
+      <section class="card" aria-labelledby="reh-heading">
+        <p class="eyebrow">02 / Rehearsal</p>
+        <h2 id="reh-heading">Rehearsal with throwaway keys</h2>
+        <p>Before any real artist, the full chain was written once with a synthetic artist (Mira Modal) and a throwaway root key, in a separate namespace — proof that the pipeline writes and reads on Arkiv. These signatures are valid but <strong>not</strong> from a trusted steward, and this page says so.</p>
+        <p id="reh-status" class="editor-status" role="status" aria-live="polite">Querying Arkiv…</p>
+        <ol id="reh" class="ledger"></ol>
+      </section>
+    </main>
+    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra · nothing here is cached: refresh to re-read Arkiv</p></footer>
+  </body>
+</html>

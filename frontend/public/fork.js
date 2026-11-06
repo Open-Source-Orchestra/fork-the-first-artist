@@ -15,6 +15,21 @@ const PROOF = {
   zeroGRequest: 'f8ff36e7-159e-408c-8e6a-6a0e419183a9',
 };
 
+// Stewards the public 0G Worker may speak for (it enforces the same allowlist server-side).
+const STEWARDS = {
+  'mira-modal': {
+    name: 'Mira Modal', short: 'Mira', tag: 'fictional',
+    who: '<b>Mira Modal, a fictional demo artist</b>. Every real artist\'s steward wakes only after that artist consents.',
+    chips: [["List Mira's songs", "List Mira's songs."], ['What does Mira make music from?', 'What does Mira make music from?'], ['Who is Mira?', 'Who is Mira Modal?']],
+  },
+  shaka: {
+    name: 'Shaka', short: 'Shaka', tag: 'real · asked for it',
+    who: '<b>Shaka</b>, a real artist and the project lead, who asked for his own steward. It is grounded <b>only on his public garden profile</b>; other artists\' stewards wake after their own consent.',
+    chips: [['What does Shaka play?', 'What does Shaka play?'], ["When is Shaka's talk?", "When is Shaka's talk?"], ['What is Shaka\'s headline?', 'What is the headline on Shaka\'s garden profile?']],
+  },
+};
+let steward = 'mira-modal';
+
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ensLabel = (slug) => String(slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '').slice(0, 40);
@@ -69,19 +84,22 @@ function mountPanel() {
 
     <section class="fork-tile teal" id="fork-ask-tile" aria-labelledby="fork-ask-h">
       <h4 id="fork-ask-h">🧠 Ask a steward · 0G Private Computer <span class="fork-badge wait" id="fork-zg-badge">checking…</span></h4>
-      <p>Real 0G inference, live in your browser — the answer arrives with its <b>0G request ID</b>. This public demo steward speaks for <b>Mira Modal, a fictional artist</b>; a real artist's steward wakes only after that artist consents.</p>
+      <p>Real 0G inference, live in your browser — the answer arrives with its <b>0G request ID</b>.</p>
+      <div class="fork-who" role="group" aria-label="whose steward is speaking">
+        <span class="lbl">steward for</span>
+        <button type="button" data-steward="mira-modal" aria-pressed="true">Mira <small>fictional</small></button>
+        <button type="button" data-steward="shaka" aria-pressed="false">Shaka <small>real</small></button>
+      </div>
+      <p class="fork-who-note" id="fork-who-note">This steward speaks for ${STEWARDS['mira-modal'].who}</p>
       <form class="fork-ask" id="fork-ask" autocomplete="off">
-        <div class="fork-chips" aria-label="example questions">
-          <button type="button" data-q="List Mira's songs.">List Mira's songs</button>
-          <button type="button" data-q="What does Mira make music from?">What does Mira make music from?</button>
-          <button type="button" data-q="How do fans support Mira?">How do fans support Mira?</button>
-        </div>
+        <div class="fork-chips" id="fork-chips" aria-label="example questions"></div>
         <label class="visually-hidden" for="fork-q">your question for the steward</label>
         <textarea class="search" id="fork-q" maxlength="280" placeholder="ask the steward anything about the artist (≤ 280 characters)" disabled></textarea>
         <div class="row2"><button class="big" type="submit" id="fork-ask-go" disabled>ask through 0G</button><a class="pill" href="/steward">full steward page →</a></div>
         <div class="fork-status" id="fork-ask-status" role="status" aria-live="polite"></div>
       </form>
       <div class="fork-answer" id="fork-answer" hidden>
+        <div class="said-who" id="fork-said-who"></div>
         <div class="said" id="fork-said" dir="auto"></div>
         <dl class="fork-kv">
           <dt>0G request</dt><dd id="fork-rid"></dd>
@@ -102,6 +120,7 @@ function mountPanel() {
         <dt>HCS split log</dt><dd><a href="${HASHSCAN}/topic/${PROOF.topic}" target="_blank" rel="noopener">topic ${PROOF.topic}</a></dd>
         <dt>0G request (bound)</dt><dd>${PROOF.zeroGRequest}</dd>
       </dl>
+      <div class="row2"><a class="big" id="fork-pay-go" href="/pay">⚡ tip the artist — run the real x402 loop on Hedera testnet</a></div>
       <div class="links"><a class="pill" href="${REPO}/blob/main/docs/TX-PROOF.md" target="_blank" rel="noopener">full proof ↗</a><a class="pill teal" href="${REPO}/tree/main/hedera-steward" target="_blank" rel="noopener">Hedera Agent Kit steward ↗</a></div>
       <p class="fork-honest">Synthetic demo accounts on testnet — no real artist was paid or activated.</p>
     </section>
@@ -110,7 +129,8 @@ function mountPanel() {
       <h4 id="fork-arkiv-h">🗝 Invitations on Arkiv <span class="fork-badge live">written · Rabdi testnet</span></h4>
       <p>An artist's invitation into the circle is an <b>encrypted Arkiv entity</b> that can be issued, read and revoked — no personal data on chain. The page below queries Arkiv live from your browser.</p>
       <dl class="fork-kv" id="fork-arkiv-kv"><dt>state</dt><dd>loading…</dd></dl>
-      <div class="links"><a class="pill violet" href="/arkiv">live Arkiv read →</a><a class="pill" href="${REPO}/tree/main/claims" target="_blank" rel="noopener">claims code ↗</a></div>
+      <p style="margin-top:8px">The circle's <b>trust ledger</b> lives there too: every steward invitation, artist consent and approval is a public Arkiv entity whose signature your browser re-verifies.</p>
+      <div class="links"><a class="pill violet" href="/trust">trust ledger · live →</a><a class="pill violet" href="/arkiv">live Arkiv read →</a><a class="pill" href="${REPO}/tree/main/claims" target="_blank" rel="noopener">claims code ↗</a></div>
     </section>
 
     <section class="fork-tile" aria-labelledby="fork-ens-h">
@@ -135,8 +155,26 @@ function mountPanel() {
   wireAsk();
 }
 
-function openFork(focusAsk = false) {
+function setSteward(slug) {
+  if (!Object.hasOwn(STEWARDS, slug)) slug = 'mira-modal';
+  steward = slug;
+  const s = STEWARDS[slug];
+  document.querySelectorAll('#fork [data-steward]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.steward === slug)));
+  const note = $('#fork-who-note');
+  if (note) note.innerHTML = `This steward speaks for ${s.who}`;
+  const chips = $('#fork-chips');
+  if (chips) chips.innerHTML = s.chips.map(([label, q]) => `<button type="button" data-q="${esc(q)}">${esc(label)}</button>`).join('');
+  const q = $('#fork-q');
+  if (q) q.placeholder = `ask ${s.short}'s steward anything (≤ 280 characters)`;
+  const h = $('#fork-ask-h');
+  if (h && h.firstChild) h.firstChild.nodeValue = `🧠 Ask ${s.short}'s steward · 0G Private Computer `;
+  const ans = $('#fork-answer');
+  if (ans) ans.hidden = true;
+}
+
+function openFork(focusAsk = false, who = null) {
   mountPanel();
+  if (who) setSteward(who);
   document.querySelectorAll('.panel.open').forEach((x) => { if (x.id !== 'fork') x.classList.remove('open'); });
   $('#fork').classList.add('open');
   if (focusAsk) setTimeout(() => { $('#fork-ask-tile').scrollIntoView({ behavior: 'smooth', block: 'start' }); const q = $('#fork-q'); if (q && !q.disabled) q.focus({ preventScroll: true }); }, 320);
@@ -146,7 +184,9 @@ function openFork(focusAsk = false) {
 let zgHealthy = false;
 async function wireAsk() {
   const form = $('#fork-ask'), q = $('#fork-q'), go = $('#fork-ask-go'), st = $('#fork-ask-status'), badge = $('#fork-zg-badge');
-  form.querySelectorAll('[data-q]').forEach((b) => b.addEventListener('click', () => { q.value = b.dataset.q; if (zgHealthy) form.requestSubmit(); }));
+  $('#fork-chips').addEventListener('click', (e) => { const b = e.target.closest('[data-q]'); if (!b) return; q.value = b.dataset.q; if (zgHealthy && !go.disabled) form.requestSubmit(); });
+  document.querySelectorAll('#fork [data-steward]').forEach((b) => b.addEventListener('click', () => setSteward(b.dataset.steward)));
+  setSteward(steward);
   try {
     const r = await fetch(`${WORKER}/health`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
     const h = await r.json();
@@ -164,13 +204,17 @@ async function wireAsk() {
     const instruction = q.value.trim();
     if (!zgHealthy) return;
     if (!instruction || instruction.length > 280) { st.textContent = 'Ask in 1–280 characters.'; return; }
+    const asked = steward;
     q.disabled = true; go.disabled = true; go.textContent = 'asking 0G…';
     $('#fork-answer').hidden = true;
     st.textContent = 'waiting for real 0G inference — usually a few seconds…';
     try {
-      const r = await fetch(`${WORKER}/ask`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ instruction }), signal: AbortSignal.timeout(75000) });
+      const r = await fetch(`${WORKER}/ask`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ instruction, artist: asked }), signal: AbortSignal.timeout(75000) });
       const b = await r.json();
-      if (!r.ok || !b.ok || !b.reply?.text || !b.proof?.requestId) throw new Error('degraded');
+      if (!r.ok || !b.ok || !b.reply?.text || !b.proof?.requestId || b.artist?.slug !== asked) throw new Error('degraded');
+      if (steward !== asked) { st.textContent = ''; return; } // switched stewards mid-flight: don't show the other steward's answer
+      const s = STEWARDS[asked];
+      $('#fork-said-who').textContent = `${s.name}'s steward (${b.artist.fictional ? 'fictional demo profile' : 'public garden profile only'}) said:`;
       $('#fork-said').textContent = b.reply.text;
       $('#fork-rid').textContent = b.proof.requestId;
       $('#fork-model').textContent = b.proof.model || b.proof.requestedModel || '—';
@@ -219,7 +263,8 @@ function artistBlock(slug, a) {
   const links = [];
   if (reg?.status === 'issued') links.push(`<a class="pill teal" href="https://app.ens.domains/${esc(ens)}" target="_blank" rel="noopener">🏷 ${esc(ens)} ↗</a>`);
   if (reg?.status !== 'issued' && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill" href="/admin?artist=${encodeURIComponent(slug)}">🌺 steward? invite ${esc(first)}</a>`);
-  links.push(`<button class="pill teal" type="button" data-fork-ask>🧠 ask a steward · live 0G</button>`);
+  if (Object.hasOwn(STEWARDS, slug) && slug !== 'mira-modal') links.push(`<button class="pill teal" type="button" data-fork-ask="${esc(slug)}">🧠 ask ${esc(STEWARDS[slug].short)}'s steward · live 0G</button>`);
+  else links.push(`<button class="pill teal" type="button" data-fork-ask="mira-modal">🧠 ask the demo steward · live 0G</button>`);
   links.push(`<button class="pill" type="button" data-fork-open>⚡ see a real x402 payment</button>`);
   if (/^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill violet" href="/draft?artist=${encodeURIComponent(slug)}">✏️ draft ${esc(first)}'s home</a>`);
   const card = document.createElement('section');
@@ -232,9 +277,11 @@ function artistBlock(slug, a) {
     <div class="fork-split" role="img" aria-label="96.31 percent to ${esc(a.name)}, 3.69 percent steward compute, 0 percent OSO"><span class="a">96.31% → ${esc(first)}</span><span class="c">3.69%</span></div>
     <div class="fork-split-legend"><span>every tip, paid with x402 on Hedera</span><span>steward compute · OSO 0%</span></div>
     <div class="links">${links.join('')}</div>
-    <p class="fine">Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key. ${esc(first)}: got an invitation link from a steward? Open it to sign.</p>`;
+    <p class="fine">${slug === 'shaka'
+      ? `Shaka asked for his own steward: it answers live through 0G, grounded <b>only</b> on his public garden profile. His name and payout still wait for his own signature, like everyone's.`
+      : `Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key. ${esc(first)}: got an invitation link from a steward? Open it to sign.`}</p>`;
   body.appendChild(card);
-  card.querySelector('[data-fork-ask]')?.addEventListener('click', () => openFork(true));
+  card.querySelector('[data-fork-ask]')?.addEventListener('click', (e) => openFork(true, e.currentTarget.dataset.forkAsk));
   card.querySelector('[data-fork-open]')?.addEventListener('click', () => openFork(false));
 }
 

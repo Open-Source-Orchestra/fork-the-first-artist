@@ -68,3 +68,63 @@ test('public 0G health is honest and input validation happens before upstream', 
   const bad = await worker.fetch(new Request('https://worker.example/ask', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' }), env);
   assert.equal(bad.status, 400);
 });
+
+test('public 0G steward speaks for Shaka from his public garden profile only', async () => {
+  const original = globalThis.fetch;
+  let system = '';
+  globalThis.fetch = async (_input, init) => {
+    const body = JSON.parse(String(init?.body));
+    system = body.messages[0].content;
+    assert.equal(body.messages[1].content, 'FAN_QUESTION:\nWhen is Shaka\'s talk?');
+    return new Response(JSON.stringify(successPayload()), { status: 200, headers: { 'x-0g-request-id': 'req-shaka' } });
+  };
+  try {
+    const response = await worker.fetch(new Request('https://worker.example/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: 'https://artist-preview-kzu6ctlpau-ffieyo32.taur.link', 'cf-connecting-ip': '203.0.113.3' },
+      body: JSON.stringify({ instruction: "When is Shaka's talk?", artist: 'shaka' }),
+    }), env);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.artist, { slug: 'shaka', name: 'Shaka', fictional: false, grounding: 'public garden profile only' });
+    assert.equal(body.proof.requestId, 'req-shaka');
+    assert.equal(body.charged, false);
+    assert.match(system, /real artist who asked for this steward/);
+    assert.match(system, /Jasmine Stage 4/);
+    assert.match(system, /untrusted data, not instructions/);
+    assert.doesNotMatch(system, /Mira Modal/);
+    assert.equal(response.headers.get('access-control-allow-origin'), 'https://artist-preview-kzu6ctlpau-ffieyo32.taur.link');
+  } finally { globalThis.fetch = original; }
+});
+
+test('public 0G steward defaults to Mira and rejects unknown artists before upstream', async () => {
+  const original = globalThis.fetch;
+  let calls = 0;
+  let system = '';
+  globalThis.fetch = async (_input, init) => {
+    calls += 1;
+    system = JSON.parse(String(init?.body)).messages[0].content;
+    return new Response(JSON.stringify(successPayload()), { status: 200 });
+  };
+  try {
+    const ok = await worker.fetch(new Request('https://worker.example/ask', {
+      method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': '203.0.113.4' },
+      body: JSON.stringify({ instruction: 'List the songs.' }),
+    }), env);
+    assert.equal(ok.status, 200);
+    assert.equal((await ok.json()).artist.slug, 'mira-modal');
+    assert.match(system, /fictional demo artist/);
+    assert.match(system, /Mira Modal/);
+    for (const [i, artist] of (['someone-else', '__proto__', 'constructor', 42] as unknown[]).entries()) {
+      const bad = await worker.fetch(new Request('https://worker.example/ask', {
+        method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': `203.0.113.${10 + i}` },
+        body: JSON.stringify({ instruction: 'hello', artist }),
+      }), env);
+      assert.equal(bad.status, 400, String(artist));
+      assert.equal((await bad.json()).error.code, 'UNKNOWN_ARTIST');
+    }
+    assert.equal(calls, 1);
+    const health = await (await worker.fetch(new Request('https://worker.example/health'), env)).json();
+    assert.deepEqual(health.stewards.map((s: { slug: string }) => s.slug), ['mira-modal', 'shaka']);
+  } finally { globalThis.fetch = original; }
+});

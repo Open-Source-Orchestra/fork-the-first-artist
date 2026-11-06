@@ -54,7 +54,7 @@ test('config: ships a valid default provider catalog', () => {
   assert.equal(p.kind, 'inference');
   // the demo path: 0G is reached through the paid meter, not directly
   assert.equal(p.transport, 'x402-meter');
-  assert.deepEqual(p.extensions, { verify_tee: true });
+  assert.deepEqual(p.extensions, { verify_tee: true, chat_template_kwargs: { enable_thinking: false } });
   assert.equal(p.headers?.['X-0G-Provider-Trust-Mode'], 'verified');
 
   // fallback must be OFF for the demo: 0G must be the only inference path on stage

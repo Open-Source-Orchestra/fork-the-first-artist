@@ -266,6 +266,13 @@ async function callUpstream(
     // ask 0G for a TEE attestation. The flag is meaningless to any other
     // provider, which is why the meter is 0G-shaped rather than generic.
     verify_tee: true,
+    // 0gm-1.0-35b-a3b is a thinking model: without this it spends the whole
+    // max_tokens budget on hidden reasoning and returns finish_reason=length with
+    // empty content. A caller that explicitly sets the flag keeps its value.
+    chat_template_kwargs: {
+      enable_thinking: false,
+      ...((body.chat_template_kwargs as Record<string, unknown> | undefined) ?? {}),
+    },
   };
 
   const res = await doFetch(`${cfg.upstream.baseUrl}/chat/completions`, {

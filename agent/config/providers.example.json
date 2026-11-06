@@ -27,7 +27,8 @@
         "X-0G-Provider-Trust-Mode": "verified"
       },
       "extensions": {
-        "verify_tee": true
+        "verify_tee": true,
+        "chat_template_kwargs": { "enable_thinking": false }
       },
       "provenance": {
         "requestIdPath": "x_0g_trace.request_id",

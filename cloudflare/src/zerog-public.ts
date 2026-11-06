@@ -1,4 +1,4 @@
-import { callZeroG, ZeroGError, type ZeroGConfig } from './zero-g.ts';
+import { callZeroG, DEFAULT_STEWARD, STEWARDS, ZeroGError, type ZeroGConfig } from './zero-g.ts';
 import { DemoLimiter } from './limiter.ts';
 
 interface ZeroGPublicEnv {
@@ -66,6 +66,7 @@ export default {
         inference: 'live 0G Private Computer',
         payment: false,
         selfFunding: false,
+        stewards: Object.values(STEWARDS).map((s) => ({ slug: s.slug, name: s.label, fictional: s.fictional })),
         rateLimit: 'best-effort isolate-local; tiny capped credit is the final ceiling',
       }, 200, origin);
     }
@@ -80,12 +81,24 @@ export default {
     try {
       const text = await request.text();
       if (text.length > 8_192) return json({ ok: false, error: { code: 'BODY_TOO_LARGE', message: 'question body is too large' } }, 413, origin);
-      const body = JSON.parse(text) as { instruction?: unknown };
-      if (typeof body.instruction !== 'string' || !body.instruction.trim() || body.instruction.trim().length > 280) {
+      const body = JSON.parse(text) as { instruction?: unknown; artist?: unknown } | null;
+      if (!body || typeof body !== 'object' || typeof body.instruction !== 'string' || !body.instruction.trim() || body.instruction.trim().length > 280) {
         return json({ ok: false, error: { code: 'BAD_REQUEST', message: 'instruction must be 1–280 characters' } }, 400, origin);
       }
-      const result = await callZeroG(body.instruction.trim(), config(env), fetch);
-      return json({ ok: true, reply: { text: result.answer }, usage: result.usage, charged: false, proof: result.provenance }, 200, origin);
+      const slug = body.artist === undefined || body.artist === null ? DEFAULT_STEWARD : body.artist;
+      const steward = typeof slug === 'string' && Object.hasOwn(STEWARDS, slug) ? STEWARDS[slug] : undefined;
+      if (!steward) {
+        return json({ ok: false, error: { code: 'UNKNOWN_ARTIST', message: `artist must be one of: ${Object.keys(STEWARDS).join(', ')}` } }, 400, origin);
+      }
+      const result = await callZeroG(body.instruction.trim(), config(env), fetch, steward);
+      return json({
+        ok: true,
+        artist: { slug: steward.slug, name: steward.label, fictional: steward.fictional, grounding: steward.fictional ? 'fictional demo profile' : 'public garden profile only' },
+        reply: { text: result.answer },
+        usage: result.usage,
+        charged: false,
+        proof: result.provenance,
+      }, 200, origin);
     } catch (error) {
       if (error instanceof SyntaxError) return json({ ok: false, error: { code: 'BAD_JSON', message: 'invalid JSON' } }, 400, origin);
       if (error instanceof ZeroGError) {

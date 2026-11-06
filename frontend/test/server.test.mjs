@@ -27,7 +27,13 @@ test('preview serves only public assets and refuses writes and repository paths'
   const home = await get('/');
   assert.equal(home.status, 200);
   assert.match(home.headers['content-type'], /^text\/html/);
-  assert.match(home.body, /Sample profile/);
+  assert.match(home.body, /Everyone plays/);
+  assert.match((await get('/home')).body, /Sample profile/);
+  const roster = await get('/circle/artists.mjs');
+  assert.equal(roster.status, 200);
+  assert.match(roster.body, /export const roster/);
+  assert.equal((await get('/circle/img/shaka.jpg')).status, 200);
+  assert.equal((await get('/circle/img/../artists.mjs')).status, 404);
   assert.match(home.headers['content-security-policy'], /default-src 'none'/);
   assert.equal(home.headers['x-content-type-options'], 'nosniff');
   const css = await get('/styles.css');

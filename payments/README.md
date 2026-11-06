@@ -172,15 +172,29 @@ See `.env.example` for the full list with defaults. The ones that matter:
 |---|---|---|
 | `PAYMENTS_MODE` | `dev` | `dev` or `live`. There is no `prod` — this is a testnet demo |
 | `HEDERA_NETWORK` | `hedera:testnet` | CAIP-2 style |
-| `HEDERA_ASSET` | `0.0.429274` | testnet USDC. Taken from `@x402/core`'s `DEFAULT_ASSETS`, **not** the docs |
+| `HEDERA_ASSET` | `0.0.429274` | testnet USDC. Taken from `@x402/core`'s `DEFAULT_ASSETS`, **not** the docs. `0.0.0` = native **HBAR** (see below) |
+| `HEDERA_ASSET_DECIMALS` | `6` (USDC) / `8` (HBAR) | HBAR must be 8 (tinybars); anything else refuses to start |
+| `HEDERA_ASSET_SYMBOL` | derived | display only: `HBAR` for `0.0.0`, `USDC` for testnet USDC |
+| `ASK_PAYEE` | `artist` | `steward` = fan pays the artist's steward/compute account, which forwards 96.31% on-chain (`hedera-steward/`) |
 | `FACILITATOR_URL` | `https://x402.org/facilitator` | public testnet facilitator |
 | `SPLIT_ARTIST_BPS` / `SPLIT_AGENT_BPS` | `9631` / `369` | must total 10000 or the process refuses to start |
-| `PRICE_ASK_USDC` | `0.10` | fan → artist, per question |
-| `PRICE_METER_USDC` | `0.002` | steward → meter, per inference call |
-| `BUDGET_TOTAL_USD` | `5` | demo budget |
-| `BUDGET_HOURLY_USD` | `0.05` | rolling ceiling |
+| `PRICE_ASK` (or `PRICE_ASK_<SYMBOL>`, e.g. `PRICE_ASK_USDC`) | `0.10` USDC / `1` HBAR | fan → artist, per question, in asset units |
+| `PRICE_METER` (or `PRICE_METER_<SYMBOL>`) | `0.002` USDC / `0.01` HBAR | steward → meter, per inference call |
+| `BUDGET_TOTAL_USD` | `5` USDC / `10` HBAR | demo budget, **in asset units** (name kept for compat) |
+| `BUDGET_HOURLY_USD` | `0.05` USDC / `1` HBAR | rolling ceiling, asset units |
 | `UPSTREAM_BASE_URL` | `https://router-api.0g.ai/v1` | 0G Compute Router |
 | `UPSTREAM_TRUST_MODE` | `verified` | asks 0G for a TEE attestation |
+
+### Native HBAR rail (no USDC association, no Circle faucet)
+
+`cp .env.hbar.example .env` switches the rail to native HBAR: `HEDERA_ASSET=0.0.0`,
+8 decimals, ask 1 HBAR, meter 0.01 HBAR. `@x402/hedera@2.30` signs `0.0.0` as a
+plain `TransferTransaction` HBAR transfer, and `https://x402.org/facilitator`
+advertises `hedera:testnet` `exact` with `feePayer 0.0.9185802`, so the fan only
+needs a funded account. HBAR is not a *default* x402 asset, so the payer
+(`agent/src/rails/payer.ts` → `spendControlsFor`) opts it in with an exact
+tinybar cap (`PAYER_MAX_PER_PAYMENT`, default 2 HBAR); without that entry the SDK
+refuses every HBAR quote. USDC remains the default and keeps its env names.
 
 ---
 

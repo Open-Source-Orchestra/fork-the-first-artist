@@ -5,6 +5,7 @@
 # This negation has to come AFTER the ignore rule above, or git has already
 # discarded the path by the time it reads it.
 !.env.example
+!.env.*.example
 
 # --- dependencies ---
 node_modules/

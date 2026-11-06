@@ -39,7 +39,8 @@ async function main(): Promise<void> {
     process.exitCode = 1;
     return;
   }
-  ok(`✔ payments  mode=${payments.mode} gate=${payments.gate} asset=${payments.asset}`);
+  const unit = typeof payments.assetSymbol === 'string' ? payments.assetSymbol : 'USDC';
+  ok(`✔ payments  mode=${payments.mode} gate=${payments.gate} asset=${payments.asset} (${unit})`);
 
   const stewardUrl = (payments.stewardUrl as string) ?? process.env.STEWARD_URL ?? 'http://localhost:8403';
   const steward = await health(stewardUrl);
@@ -150,10 +151,10 @@ async function main(): Promise<void> {
     .filter((e) => e.kind === 'meter')
     .reduce((n, e) => n + Number(e.priceUsd), 0);
   for (const e of ledger.entries) {
-    ok(`${e.kind.padEnd(5)} ${e.priceUsd} USDC  payer=${e.payer ?? '?'}  tx=${e.txId}  req=${e.upstreamRequestId ?? '?'}`);
+    ok(`${e.kind.padEnd(5)} ${e.priceUsd} ${unit}  payer=${e.payer ?? '?'}  tx=${e.txId}  req=${e.upstreamRequestId ?? '?'}`);
   }
-  ok(`\nthe agent paid ${agentSpend.toFixed(6)} USDC of its own money for inference`);
-  ok(`total through the rails: ${ledger.totals.totalUsd} USDC over ${ledger.totals.calls} calls`);
+  ok(`\nthe agent paid ${agentSpend.toFixed(8)} ${unit} of its own money for inference`);
+  ok(`total through the rails: ${ledger.totals.totalUsd} ${unit} over ${ledger.totals.calls} calls`);
 }
 
 await main();

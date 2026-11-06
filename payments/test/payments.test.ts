@@ -166,7 +166,7 @@ test('paywall: 402 without payment, then a paid answer with an unverified split 
     // the split is 96.31 / 3.69 of 0.10 USDC
     assert.equal(second.captured.body.splitPreview.artistAtomic, '96310');
     assert.equal(second.captured.body.splitPreview.agentAtomic, '3690');
-    assert.match(second.captured.body.splitPreview.human, /0\.096310 artist \/ 0\.003690 agent/);
+    assert.match(second.captured.body.splitPreview.human, /0\.096310 USDC artist \/ 0\.003690 USDC agent/);
     assert.equal(second.captured.body.splitVerified, false);
     assert.equal(second.captured.body.split, undefined);
 
@@ -701,6 +701,43 @@ test('live gate: paywall and meter reuse identical feePayer requirements for ver
     assert.equal((await spendLog.recent()).length, 2);
   } finally {
     globalThis.fetch = originalFetch;
+    await cleanup();
+  }
+});
+
+test('meter: HBAR asset quotes tinybars and disables 0G hidden thinking upstream', async () => {
+  let sent: Record<string, unknown> | undefined;
+  const capture = (async (_url: string, init?: RequestInit) => {
+    sent = JSON.parse(String(init?.body)) as Record<string, unknown>;
+    return new Response(
+      JSON.stringify({
+        object: 'chat.completion',
+        model: '0gm-1.0-35b-a3b',
+        choices: [{ message: { role: 'assistant', content: 'hi' }, finish_reason: 'stop' }],
+        x_0g_trace: { request_id: 'req-hbar', tee_verified: true },
+      }),
+      { status: 200 },
+    );
+  }) as unknown as typeof fetch;
+  const { cfg, gate, spendLog, cleanup } = await freshEnv({
+    asset: { id: '0.0.0', decimals: 8, symbol: 'HBAR' },
+    prices: { askAtomic: 100_000_000n, meterAtomic: 1_000_000n },
+    upstream: { baseUrl: 'http://upstream.invalid', apiKey: 'test-only', model: '0gm-1.0-35b-a3b', trustMode: 'verified' },
+  });
+  try {
+    const unpaid = meterCtx();
+    await handleMeter(unpaid.ctx, { cfg, gate, spendLog, fetchImpl: capture });
+    assert.equal(unpaid.captured.status, 402);
+    assert.equal(unpaid.captured.body.accepts[0].asset, '0.0.0');
+    assert.equal(unpaid.captured.body.accepts[0].amount, '1000000'); // 0.01 HBAR in tinybars
+
+    const paid = meterCtx({ 'x-payment': 'payer=0.0.6666' });
+    await handleMeter(paid.ctx, { cfg, gate, spendLog, fetchImpl: capture });
+    assert.equal(paid.captured.status, 200);
+    assert.deepEqual(sent?.chat_template_kwargs, { enable_thinking: false });
+    assert.equal(sent?.verify_tee, true);
+    assert.equal(paid.captured.body.x_meter.upstream.requestId, 'req-hbar');
+  } finally {
     await cleanup();
   }
 });

@@ -36,6 +36,13 @@ export async function createFanPayer(
     privateKey,
     network: env.HEDERA_FAN_NETWORK ?? env.HEDERA_NETWORK ?? 'hedera:testnet',
     allowMock: !live,
+    // HBAR (`0.0.0`) is not a default x402 asset: forward the asset + an exact
+    // per-payment cap so the SDK will sign it (see spendControlsFor).
+    ...(env.HEDERA_ASSET ? { asset: env.HEDERA_ASSET } : {}),
+    ...(env.HEDERA_ASSET_DECIMALS ? { assetDecimals: Number(env.HEDERA_ASSET_DECIMALS) } : {}),
+    ...(env.HEDERA_FAN_MAX_PER_PAYMENT ?? env.PAYER_MAX_PER_PAYMENT
+      ? { maxPerPaymentAsset: env.HEDERA_FAN_MAX_PER_PAYMENT ?? env.PAYER_MAX_PER_PAYMENT }
+      : {}),
   });
 
   if (live && payer.kind !== 'hedera') {

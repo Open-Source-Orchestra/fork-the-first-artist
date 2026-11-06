@@ -35,6 +35,20 @@ import { splitAtomic, describeSplit } from './split.ts';
 import { header, log, sendJson, type Ctx } from './http.ts';
 import { settleConfirmed } from './settlement.ts';
 
+/**
+ * Who the fan's single x402 transfer goes to.
+ *
+ * - `artist` (default): straight to the artist; the 3.69% is a preview only.
+ * - `steward`: to the artist's own steward (compute) account, which then runs
+ *   the post-settlement split (`hedera-steward/`, by Utkarsh Tiwari): 96.31% is
+ *   forwarded on-chain to the artist and 3.69% stays to fund the steward's 0G
+ *   compute. Still never an OSO account. The split only counts as verified once
+ *   the steward's forward transfer is confirmed on the mirror node.
+ */
+export function askPayTo(cfg: Config): string {
+  return cfg.askPayee === 'steward' ? cfg.accounts.compute : cfg.accounts.artist;
+}
+
 export interface PaywallDeps {
   cfg: Config;
   gate: Gate;
@@ -104,8 +118,9 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
   // The artist payout destination is server-controlled. A matching value is
   // tolerated for older clients, but every conflicting value is rejected before
   // verification so no signature can be gathered for a redirected payout.
+  const configuredPayTo = askPayTo(cfg);
   const requestedPayTo = ctx.url.searchParams.getAll('payTo');
-  if (requestedPayTo.some((value) => value !== cfg.accounts.artist)) {
+  if (requestedPayTo.some((value) => value !== configuredPayTo)) {
     sendJson(ctx.res, 400, {
       error: 'PAY_TO_NOT_ALLOWED',
       message: 'payTo is derived from the configured artist account and cannot be overridden',
@@ -113,11 +128,14 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
     });
     return;
   }
-  const payTo = cfg.accounts.artist;
+  const payTo = configuredPayTo;
   if (!payTo) {
     sendJson(ctx.res, 500, {
       error: 'NO_PAYEE',
-      message: 'HEDERA_ARTIST_ACCOUNT_ID not configured',
+      message:
+        cfg.askPayee === 'steward'
+          ? 'ASK_PAYEE=steward needs HEDERA_COMPUTE_ACCOUNT_ID'
+          : 'HEDERA_ARTIST_ACCOUNT_ID not configured',
     });
     return;
   }
@@ -242,9 +260,18 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
         totalAtomic: splitPreview.total.toString(),
         artistAtomic: splitPreview.artist.toString(),
         agentAtomic: splitPreview.agent.toString(),
-        human: describeSplit(splitPreview, cfg.asset.decimals),
+        human: describeSplit(splitPreview, cfg.asset.decimals, cfg.asset.symbol),
       },
       splitVerified: false,
+      payee: cfg.askPayee,
+      ...(cfg.askPayee === 'steward'
+        ? {
+            stewardSplit: {
+              status: 'pending-post-settlement',
+              note: 'paid to the artist steward account; run hedera-steward to forward the artist share on-chain',
+            },
+          }
+        : {}),
       proof: {
         paymentTxId: txId,
         network: settlement.network ?? cfg.network,

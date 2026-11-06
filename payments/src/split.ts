@@ -71,11 +71,12 @@ export function assertConserved(s: Split): void {
  *
  * Deliberately does not use `Number()` anywhere, so it cannot round a real amount.
  */
-export function describeSplit(s: Split, decimals: number): string {
+export function describeSplit(s: Split, decimals: number, symbol?: string): string {
   const fmt = (v: bigint): string => {
     // pad to at least `decimals + 1` so there is always a whole part to slice off
     const t = v.toString().padStart(decimals + 1, '0');
     return `${t.slice(0, t.length - decimals)}.${t.slice(t.length - decimals)}`;
   };
-  return `${fmt(s.total)} -> ${fmt(s.artist)} artist / ${fmt(s.agent)} agent`;
+  const unit = symbol ? ` ${symbol}` : '';
+  return `${fmt(s.total)}${unit} -> ${fmt(s.artist)}${unit} artist / ${fmt(s.agent)}${unit} agent`;
 }

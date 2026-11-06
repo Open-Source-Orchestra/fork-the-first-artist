@@ -132,3 +132,13 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 ### Next dependencies
 
 ENS parent/controller and subname rights are awaiting owner input; wallet proof, claim persistence, backend authentication/hosting, and the payment API contract remain open. No deployment, artist activation, push, merge, or payment-code modification occurred.
+
+## 08 — Record artist control and non-revocable ENS requirements
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+- Owner selected artist-controlled records with no OSO revocation/reassignment. Parent is not yet chosen and will be supplied later; no repeat request is needed now.
+- Updated current plans and ENS README with the decision, application-freeze boundary, and acceptance criteria for full hierarchy/admin/upgrade checks, isolated resolver records, and renewal/expiry disclosure.
+- Reviewed official ENSv2 registry, hierarchy, and resolver documentation. Parent checks and actual permission design remain pending; no permanent ownership or deployed guarantee is claimed.
+
+Validation: reviewed the documentation diff and relative references; whitespace check passed. Documentation-only change; no application tests rerun or chain operations performed.

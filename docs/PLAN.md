@@ -30,7 +30,7 @@ Two things to verify: **wallet** (they control the payout address) and **identit
 3. **Logged on Hedera** — the claim (inviter, artist, wallet, time) is written to a **Hedera Consensus Service (HCS) topic**: public, tamper-evident audit log.
 4. **Then activate** — ENS name + x402 rail + 0G steward agent switch on.
 
-Protections: no profile/name/agent exists until claimed · payouts only to the wallet that signed · steward can freeze a disputed claim (also logged on HCS) · agent uses only what the artist provides.
+Protections: no profile/name/agent exists until claimed · payouts only to the wallet that signed · steward can freeze OSO services for a disputed claim (also logged on HCS), but cannot revoke/reassign the artist’s ENS name or change their payout records · agent uses only what the artist provides.
 Later: social proof (code posted from known X/IG/SoundCloud), two-vouch co-sign, proof-of-personhood, existing ENS/socials.
 
 > "Artists are invited by people who know them, sign with their own wallet, and every claim is logged on Hedera — no impersonators, no middleman."
@@ -72,7 +72,7 @@ ENS: artist.<parent>.eth → text/addr records: hedera account, agent URL, profi
 - Sat morning: README, tx IDs, submit.
 
 ## Open questions
-- ENS mainnet parent, controlling signer, subname revocation/renewal rights, and artist/agent record permissions.
+- ENS mainnet parent (owner will supply), controlling signer, renewal/expiry policy, and exact artist/agent permissions. Confirmed: artist controls records; OSO cannot revoke/reassign names.
 - Which second artist forks live (consent required).
 - Split method: HTS custom fee vs small split contract.
 

@@ -24,7 +24,7 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 | Base: current main or PR #3 | Determines APIs, package layout, and integration work | Confirmed: PR #3 without merging; local branch `work/pr3-integration` based on `855d08a` |
 | Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Confirmed: adapt nodes/shaka into frontend/ using static HTML/CSS/JS; public backend host/runtime remain undecided |
 | Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Requirements requested; pending |
-| ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | ENSv2 Ethereum mainnet design approved; parent and permissions pending |
+| ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | ENSv2 mainnet; artist-controlled records and no OSO revocation/reassignment confirmed. Parent supplied later; exact permissions/renewal pending |
 | Payment asset, decimals, facilitator, and split method | Needed to validate actual settlement and recipient amounts | Unresolved; inspect PR #3 before proposing choices |
 | Invite issuer, freeze authority, and authentication | Needed before implementing privileged claim operations | Unresolved |
 | Profile storage, photos, and public claim-log contents | Determines persistence, upload controls, and personal-data exposure | Unresolved |

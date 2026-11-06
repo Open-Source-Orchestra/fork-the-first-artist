@@ -2,9 +2,21 @@
 
 Planned: ENSv2 on Ethereum mainnet, approved by the owner on 6 November 2026 for the integration design. This directory has no implementation yet.
 
-- Issue `artist.<parent>.eth` only after a verified claim and explicit consent.
-- Resolve the approved Hedera payout account, agent URL, and profile URL.
-- Specify artist, agent, parent-owner, renewal, and revocation permissions before coding issuance.
-- Parent name and controlling wallet are pending. Mainnet deployment and gas expenditure require a concrete review; no transactions have been sent.
+## Confirmed ownership requirement
 
-See [prize strategy](../docs/PRIZE-STRATEGY.md) and [implementation workflow](../docs/IMPLEMENTATION-WORKFLOW.md).
+Artists control their records. OSO must not be able to revoke or reassign their subnames. Any agent authority is limited to explicitly delegated non-payout records. A disputed-claim freeze affects OSO-hosted services, not ENS ownership or payout records.
+
+The parent name is not chosen; the owner will provide it later. Do not invent a parent, substitute a custodial namespace, or label a name as non-revocable before verification. Transferability, expiry/renewal policy, wallet adapters, and exact agent permissions remain unspecified.
+
+## Acceptance criteria before issuance
+
+- Verify the claim and explicit artist consent; bind both ENS authority and the Hedera payout destination to verified proofs.
+- Inspect the deployed registry implementations and authority along the full parent chain. Root-scoped permissions, their administrators, pointer changes, and upgrades must not give OSO an indirect revocation/reassignment route. Do not trust an arbitrary contract's `isEmancipated()` result by itself.
+- Verify artist control and record isolation in the resolver. No shared record bundle or default may redirect another artist's payout. Agent grants must not permit payout changes, relinking, upgrades, or privilege escalation.
+- Document expiry, renewal rights, parent expiry effects, and who can renew. Non-revocation does not imply a perpetual name; do not choose an expiry policy silently.
+- Demonstrate artist-authorized updates and rejected OSO/agent unauthorized operations, including indirect admin routes. Verify actual resolution for the approved payout, profile URL, and agent URL.
+- Prepare exact deployment/registration actions and estimated gas for review. Approval of the design does not execute those actions. No transactions have been sent.
+
+ENSv2's registry permissions and emancipation depend on implementation and hierarchy; its resolver supports permissioned record bundles. These criteria are our interpretation of the owner requirement applied to the official [registry](https://docs.ens.domains/ensv2/permissioned-registry/), [hierarchy](https://docs.ens.domains/ensv2/registry-hierarchy/), and [resolver](https://docs.ens.domains/ensv2/permissioned-resolver/) documentation, checked 6 November 2026.
+
+See [prize strategy](../docs/PRIZE-STRATEGY.md) and [implementation workflow](../docs/IMPLEMENTATION-WORKFLOW.md). AI assistance: Codex.

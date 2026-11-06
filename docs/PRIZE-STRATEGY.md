@@ -5,7 +5,7 @@ Checked 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 ## Confirmed owner decisions
 
 - Design ENS integration for Ethereum mainnet. This is design authorization, not permission to deploy, buy a name, or spend gas. Prepare concrete transactions and estimated costs before deployment review.
-- Keep Hedera payments on testnet. The backend host, wallet adapters, ENS parent, and name permissions are not chosen.
+- Keep Hedera payments on testnet. The backend host, wallet adapters, and ENS parent are not chosen. The owner will provide the parent later.
 - The owner reports no prior 0G or Hedera integration evidence. Do not describe OSO's existing frontend as evidence of either integration.
 - Adapt `oso-storytelling/nodes/shaka` into this repository's `frontend/`. Keep the source repository and its production website untouched.
 - Use PR #3 as the local implementation base without merging. Payments remain teammate-owned; review and report their defects.
@@ -26,11 +26,13 @@ Amounts below are category pools, not guaranteed awards. Partner eligibility for
 
 Sources: [ENS prizes](https://ethglobal.com/events/mumbai/prizes/ens), [Hedera prizes](https://ethglobal.com/events/mumbai/prizes/hedera), [0G prizes](https://ethglobal.com/events/mumbai/prizes/0g), [pre-existing work rules](https://ethglobal.com/rules).
 
-## Proposed ownership boundary — not yet approved
+## Ownership boundary — owner decision recorded 6 November 2026
 
 Separate the artist's ENS authority, verified Hedera payout account, and capped autonomous payer. Artist onboarding signatures must not become a requirement to approve every agent payment. Never use the artist's private key as a backend credential.
 
-Recommend artist-controlled records with narrowly delegated agent permissions that cannot alter payouts. Ask the owner whether the parent may revoke or reassign subnames. Application-level claim freezing is a separate decision from onchain name revocation. Do not promise permanent ownership before inspecting parent permissions, upgrade authority, expiry, and renewal behavior.
+Confirmed: artists control their records; OSO must not be able to revoke or reassign their subnames. Any agent delegation must be limited to specific non-payout records; exact grants remain to be specified. Application-level freezing may suspend OSO-hosted services, but must not revoke, transfer, redirect, or rewrite an artist’s ENS name.
+
+This is an implementation requirement, not an onchain guarantee already achieved. The parent is pending. Verify the full registry chain, effective/admin permissions, upgrades, resolver isolation, and expiry/renewal before issuance. Do not equate non-revocation with perpetual availability. See [ENS acceptance criteria](../ens/README.md).
 
 ENSv2 has separate registry and resolver permissions; an owner address alone does not describe every effective authority. References: [Permissioned Registry](https://docs.ens.domains/ensv2/permissioned-registry/), [Permissioned Resolver](https://docs.ens.domains/ensv2/permissioned-resolver/).
 

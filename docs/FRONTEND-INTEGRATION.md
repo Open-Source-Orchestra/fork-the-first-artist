@@ -34,7 +34,7 @@ Read: root README, CONTRIBUTING, GIFT, NOTICE, LICENSE-CONTENT, the license head
 
 The owner selected `nodes/shaka` adapted into this repo's `frontend/`, with a public demo backend whose host/runtime is not chosen. Preserve the existing buildless HTML/CSS/JS architecture for the local foundation. ENSv2 mainnet is approved for the design; Hedera stays on testnet. See [PRIZE-STRATEGY.md](PRIZE-STRATEGY.md).
 
-Wallet adapters, exact payout proof, ENS parent and ownership/revocation model, backend authentication, and durable storage remain undecided. Local sample UI can proceed independently; no artist activation or chain writes can be inferred from it.
+Wallet adapters, exact payout proof, ENS parent and exact permissions/renewal model, backend authentication, and durable storage remain undecided. Artists control records and OSO cannot revoke/reassign names; the parent will be supplied later. Local sample UI can proceed independently; no artist activation or chain writes can be inferred from it.
 
 ## Foundation implementation
 

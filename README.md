@@ -17,7 +17,7 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 
 ## How we work
 - Branch → pull request → **1 approval from a teammate** → merge. No direct pushes to `main`.
-- Rules: artist collects nothing they didn't consent to · agent collects, artist holds · testnet for the demo · no secrets/keys in the repo (use `.env`, never committed).
+- Rules: nothing goes live for an artist without their consent · agent collects, artist holds · testnet for the demo · no secrets/keys in the repo (use `.env`, never committed).
 - Post progress in the team Telegram; the status page is updated from there.
 
 ## Continuity

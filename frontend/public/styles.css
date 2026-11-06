@@ -103,6 +103,10 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .editor-status { font-family: var(--sans); font-size: .85rem; color: var(--cream-dim); margin-top: 20px; }
 .draft-preview h3 { overflow-wrap: anywhere; font-size: 2rem; margin: 24px 0 18px; }
 #preview-bio { white-space: pre-wrap; overflow-wrap: anywhere; }
+select { display: block; width: 100%; margin-top: 10px; background: var(--night); color: var(--cream); border: 1px solid var(--gold-soft); border-radius: 8px; padding: 12px; font: 1rem var(--sans); }
+dl { margin: 24px 0; font-family: var(--sans); font-size: .85rem; }
+dt { color: var(--gold); margin-top: 14px; }
+dd { margin: 4px 0 0; overflow-wrap: anywhere; }
 
 @media (max-width: 600px) {
   .wrap { padding-left: 20px; padding-right: 20px; }

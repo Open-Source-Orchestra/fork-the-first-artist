@@ -40,7 +40,8 @@ test('preview serves only public assets and refuses writes and repository paths'
   assert.match(editor.body, /id="editor-fields" disabled/);
   assert.match(editor.headers['content-security-policy'], /script-src 'self'/);
   assert.match(editor.headers['content-security-policy'], /form-action 'none'/);
-  for (const path of ['/draft.mjs', '/profile-draft.mjs']) {
+  assert.equal((await get('/wallets')).status, 200);
+  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/wallets.mjs', '/ethereum-wallet.mjs']) {
     const module = await get(path);
     assert.equal(module.status, 200);
     assert.match(module.headers['content-type'], /^text\/javascript/);

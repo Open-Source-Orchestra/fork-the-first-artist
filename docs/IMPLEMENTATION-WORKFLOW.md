@@ -22,8 +22,8 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 |---|---|---|
 | Ownership: frontend/claims/ENS, PR review, or whole application | Avoid conflicting implementations of teammate-owned features | Confirmed: review PR #3; implement non-payment work; report payment issues to owner |
 | Base: current main or PR #3 | Determines APIs, package layout, and integration work | Confirmed: PR #3 without merging; local branch `work/pr3-integration` based on `855d08a` |
-| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Confirmed: adapt nodes/shaka into frontend/ using static HTML/CSS/JS; public backend host/runtime remain undecided |
-| Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Requirements requested; pending |
+| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Confirmed: adapt nodes/shaka into frontend/ using static HTML/CSS/JS; persistent Node + PostgreSQL approved; backend host/domain remain undecided |
+| Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Confirmed: MetaMask for ENS mainnet authority and HashPack for native Hedera testnet account proof; one claim binds both |
 | ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | ENSv2 mainnet; artist-controlled records and no OSO revocation/reassignment confirmed. Parent supplied later; exact permissions/renewal pending |
 | Payment asset, decimals, facilitator, and split method | Needed to validate actual settlement and recipient amounts | Unresolved; inspect PR #3 before proposing choices |
 | Invite issuer, freeze authority, and authentication | Needed before implementing privileged claim operations | Unresolved |

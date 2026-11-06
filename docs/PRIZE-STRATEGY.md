@@ -5,7 +5,7 @@ Checked 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 ## Confirmed owner decisions
 
 - Design ENS integration for Ethereum mainnet. This is design authorization, not permission to deploy, buy a name, or spend gas. Prepare concrete transactions and estimated costs before deployment review.
-- Keep Hedera payments on testnet. The backend host, wallet adapters, and ENS parent are not chosen. The owner will provide the parent later.
+- Keep Hedera payments on testnet. MetaMask + HashPack and a persistent Node/PostgreSQL backend are approved. Backend host/domain and ENS parent are not chosen. The owner will provide the parent later; a Reown project ID will be created separately.
 - The owner reports no prior 0G or Hedera integration evidence. Do not describe OSO's existing frontend as evidence of either integration.
 - Adapt `oso-storytelling/nodes/shaka` into this repository's `frontend/`. Keep the source repository and its production website untouched.
 - Use PR #3 as the local implementation base without merging. Payments remain teammate-owned; review and report their defects.

@@ -164,3 +164,15 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - Source reviewed for data sinks and lifecycle handling; staged whitespace checked. Browser interaction, mobile layout, error/focus announcements, and lifecycle behavior remain unverified because browser infrastructure failed during commit 07 and no recovery is established. Manual steps are in frontend/README.md; no replacement browser stack was installed.
 
 Next: await wallet-flow selection (MetaMask plus HashPack proposed), parent details when available, and backend/storage/authentication choices before implementing signed claims or publication. This feature does not complete the persistent-draft or claim stage. Existing agent typecheck/dependency limitations remain unchanged.
+
+## 10 — Connect MetaMask without treating connection as ownership proof
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+- Owner approved MetaMask for ENS authority and HashPack for native Hedera payout proof. Subsequently approved a persistent Node + PostgreSQL backend; project ID will be created later. Recorded these decisions without inventing a host or parent.
+- Added `/wallets` and an EIP-6963 discovery/EIP-1193 connection adapter. Explicit click requests accounts; fresh reads select the address/network. Mainnet is required for the intended ENS flow, but even mainnet connections remain unverified. No signing, transaction, switch-chain, storage, or automatic permission request.
+- Clear identity on account/network events and disconnect. Ignore late results after forgetting/disconnection; prevent duplicate prompts while one attempt is active. Handle initial account events, mid-read changes, refusal, pending wallet requests, malformed replies, and missing providers. Do not render provider-supplied icons, HTML, or raw error messages.
+- Added seven mocked-provider/discovery regression tests. All 13 frontend tests passed, including the updated exact-route HTTP check, with approved loopback access. Module syntax and whitespace checks passed. Browser/real-extension verification remains unavailable, not claimed.
+- Checked official MetaMask/EIP docs, HashPack WalletConnect support, the connector's current README, and npm metadata. Hedera connector 2.1.3 recommends AppKit; DAppConnector is legacy. Initial npm metadata lookup failed on sandbox DNS; approved retry succeeded. No dependency installed in this commit.
+
+HashPack is accurately marked unavailable until its next feature. Payment code remains unchanged. No wallet prompt was operated by the agent, no signature/transaction was requested, and no deployment/push/merge occurred.

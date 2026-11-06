@@ -60,3 +60,17 @@ Syntax and HTTP checks pass. Browser automation was unavailable during implement
 Editor manual checks still pending: empty submission focuses the first invalid field; valid multiline text previews literally (including `<img src=x onerror=alert(1)>`); editing hides stale output; discard/reload/back navigation clears data; disabled JavaScript leaves fields disabled. Verify focus/error announcements, mobile layout, and that the network panel contains only local assets and no entered text. Unit tests and source inspection do not substitute for these browser checks.
 
 Wallet proof, consent submission, private profile persistence, ENS issuance, steward chat, and tipping remain unimplemented. Their contracts depend on the selected wallets, ENS parent/permissions, backend host/authentication, and payment teammate. See [integration plan](../docs/FRONTEND-INTEGRATION.md) and [prize strategy](../docs/PRIZE-STRATEGY.md).
+
+## Wallet connection — commit 10
+
+Open `/wallets`. MetaMask extension discovery uses EIP-6963 and only requests account access when you click **Connect MetaMask**. It reads the current account/network, requires Ethereum mainnet for the intended ENS flow, and never requests a signature, payment, or network switch. All displayed addresses remain unverified. Account/network changes clear the selection; stale asynchronous results cannot restore a forgotten or disconnected selection. Forgetting affects this page only, not the wallet's website permissions. No account/session persistence is added.
+
+This first adapter supports desktop injected MetaMask, not mobile relay connections. Provider metadata is self-reported and cannot authenticate the extension; a future server-side signature check is still essential. Provider icons/HTML are never rendered. HashPack pairing is not implemented in this commit and is labeled unavailable in the page.
+
+Added routes: `/wallets`, `/wallets.mjs`, `/ethereum-wallet.mjs`. The remaining exact-route/CSP restrictions are unchanged. The draft editor still does not connect wallets; the wallet page does not activate or publish drafts.
+
+Verification: seven new mocked-provider/discovery tests plus the existing suite pass (13 total). Browser extension interaction remains unverified due unavailable browser infrastructure. Manual checks: no permission popup on load; explicit connect opens MetaMask; decline/pending request/wrong network are explained; changing accounts or chain clears the address; Forget while approval is pending prevents a late result from restoring it. No live wallet signature or chain transaction has been performed.
+
+Selected next steps: HashPack native Hedera testnet connection and two server-verified proofs bound to one claim, using Node + PostgreSQL. The owner will create a Reown project ID. ENS parent, host/domain, authentication configuration, and renewal policy remain pending.
+
+Reference APIs checked for this feature: [EIP-6963 discovery](https://eips.ethereum.org/EIPS/eip-6963), [EIP-1193 provider events](https://eips.ethereum.org/EIPS/eip-1193), [MetaMask integration guidance](https://docs.metamask.io/metamask-connect/), [HashPack WalletConnect support](https://docs.hashpack.app/dapp-developers/walletconnect), and [Hedera connector README](https://github.com/hashgraph/hedera-wallet-connect/blob/main/README.md).

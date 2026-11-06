@@ -7,9 +7,12 @@ import { pathToFileURL } from 'node:url';
 const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
   ['/draft', 'draft.html', 'text/html; charset=utf-8'],
+  ['/wallets', 'wallets.html', 'text/html; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
   ['/draft.mjs', 'draft.mjs', 'text/javascript; charset=utf-8'],
   ['/profile-draft.mjs', 'profile-draft.mjs', 'text/javascript; charset=utf-8'],
+  ['/wallets.mjs', 'wallets.mjs', 'text/javascript; charset=utf-8'],
+  ['/ethereum-wallet.mjs', 'ethereum-wallet.mjs', 'text/javascript; charset=utf-8'],
 ].map(async ([route, file, type]) => [route, {
   body: await readFile(new URL(`./public/${file}`, import.meta.url)),
   type,

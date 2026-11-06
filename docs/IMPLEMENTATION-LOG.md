@@ -67,3 +67,19 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - This change enforces configured consent only. Invite redemption, signed wallet claims, authenticated activation, and proof of actual artist consent remain pending. Existing fixtures are explicitly documented as fixtures.
 
 The owner authorized another frontend clone attempt and deferred the agent deployment/authentication choice until that frontend is inspected. Those decisions do not alter the consent requirement fixed here.
+
+## 04 — Prevent request budget overrides from raising operator limits
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+- Clamp each request override to the configured per-request ceiling using the smaller value.
+- Reject negative, non-finite, or non-numeric estimates/overrides before comparing budgets. Validate all configured ceilings and preserve zero as a valid refusal ceiling at the Budget API boundary.
+- Copy and freeze configured ceilings so later mutation cannot silently increase the limit.
+- Add three regression tests covering override escalation, NaN/infinity/negative values, and configuration mutation. Each failed before the implementation and passed afterward.
+- `npm test` from `agent/`: 51 passed, 0 failed.
+- Targeted strict TypeScript check passed: `./node_modules/.bin/tsc --noEmit --strict --target ES2023 --module nodenext --moduleResolution nodenext --allowImportingTsExtensions --skipLibCheck src/budget.ts test/fence-budget.test.ts`.
+- Full package type checking remains blocked by missing optional x402 declarations. The installed `node_modules/@x402/` directory is empty even though `npm ls` reports the locked versions; do not treat that command as proof the modules are usable.
+
+This addresses only the override/input portion of R5. Atomic reservations, per-call accounting, metered pricing, and ledger recovery remain open. No payment source files changed. Reviewed the staged change and whitespace before committing.
+
+Frontend access update: the authorized retry failed with an RPC connection reset/early EOF. A shallow HTTP/1.1 retry is in progress. Agent authentication/deployment remains intentionally undecided until source inspection, as requested by the owner.

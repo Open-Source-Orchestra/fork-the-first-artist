@@ -56,7 +56,7 @@ The steward checks affordability before entering the tool loop, then makes addit
 
 Fix direction: define authoritative per-call pricing, reserve budget before each paid call, prevent overrides from raising operator limits, record already-incurred costs on failure paths, and cover concurrent requests. Do not claim that the current checks enforce the $5 demo limit under these conditions.
 
-Owner: agent budget logic; payments teammate owns meter reservations and settlement accounting. Status: open; requires agreement on pricing/reservation contract.
+Owner: agent budget logic; payments teammate owns meter reservations and settlement accounting. Follow-up: commit `04` prevents overrides raising configured limits, rejects invalid numeric inputs, and freezes configured caps. Remaining accounting/reservation findings are open and require agreement on the pricing/reservation contract.
 
 ### R6 — Payment revenue is counted as inference spend
 

@@ -40,3 +40,15 @@ calls for unconsented requests. See the
 [implementation log](../docs/IMPLEMENTATION-LOG.md) for actual results.
 
 AI assistance for the integration fixes and this documentation: Codex.
+
+## Budget input limits
+
+Operator ceilings must be finite, non-negative numbers. `Budget` copies and
+freezes them at construction. Request-level `maxUsd` can tighten the configured
+per-request ceiling, including setting it to zero; it cannot increase that ceiling.
+Invalid estimates or overrides throw before an affordability comparison.
+
+These input checks do not fix the remaining budget integration findings: concurrent
+calls need reservations, each paid tool/repair turn needs accounting, and the
+meter's actual price must be the source for metered-call estimates. See R5 in the
+PR review before relying on the overall spending limit.

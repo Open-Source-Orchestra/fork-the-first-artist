@@ -217,3 +217,36 @@ test('budget: a template entry is recorded at zero and does not consume budget',
     await cleanup();
   }
 });
+
+test('budget: a caller cannot raise the configured per-request ceiling', async (t) => {
+  const { budget, cleanup } = await freshBudget();
+  t.after(cleanup);
+  const verdict = await budget.check(0.003, { maxUsd: 1 });
+  assert.equal(verdict.ok, false);
+  if (verdict.ok) throw new Error('caller raised the configured cap');
+  assert.equal(verdict.scope, 'request');
+  assert.equal(verdict.capUsd, 0.002);
+});
+
+test('budget: invalid estimates and overrides cannot bypass comparisons', async (t) => {
+  const { budget, cleanup } = await freshBudget();
+  t.after(cleanup);
+  for (const value of [NaN, Infinity, -Infinity, -0.001]) {
+    await assert.rejects(budget.check(value), /finite non-negative number/);
+    await assert.rejects(budget.check(0.001, { maxUsd: value }), /finite non-negative number/);
+  }
+  assert.equal((await budget.check(0.001, { maxUsd: 0 })).ok, false);
+});
+
+test('budget: configured ceilings are validated and cannot be mutated after construction', () => {
+  const caps = { maxUsdPerRequest: 0.002, maxUsdPerHour: 0.05, maxUsdTotal: 5 };
+  for (const key of Object.keys(caps)) {
+    for (const value of [NaN, Infinity, -1]) {
+      assert.throws(() => new Budget({ ...caps, [key]: value }), /finite non-negative number/);
+    }
+  }
+  const budget = new Budget(caps);
+  caps.maxUsdPerRequest = 100;
+  assert.equal(budget.caps.maxUsdPerRequest, 0.002);
+  assert.ok(Object.isFrozen(budget.caps));
+});

@@ -53,13 +53,16 @@ export type BudgetVerdict =
   | { ok: false; scope: 'request' | 'hourly' | 'total'; spentUsd: number; capUsd: number };
 
 export class Budget {
-  readonly caps: BudgetCaps;
+  readonly caps: Readonly<BudgetCaps>;
   private readonly path: string;
   /** parsed cache; invalidated on every `record()` so totals cannot go stale */
   private cache: BudgetEntry[] | null = null;
 
   constructor(caps: BudgetCaps, path = process.env.BUDGET_LEDGER ?? 'data/budget.jsonl') {
-    this.caps = caps;
+    for (const key of ['maxUsdPerRequest', 'maxUsdPerHour', 'maxUsdTotal'] as const) {
+      requireAmount(caps[key], key);
+    }
+    this.caps = Object.freeze({ ...caps });
     this.path = path;
   }
 
@@ -109,8 +112,8 @@ export class Budget {
    * Can we afford `estimatedUsd`?
    *
    * @param estimatedUsd the pre-call estimate from the provider adapter.
-   * @param overrides.maxUsd   a per-call cap from the request, tightening (or
-   *                           loosening) the configured per-request ceiling.
+   * @param overrides.maxUsd   a per-call cap that can only tighten the configured
+   *                           per-request ceiling, never raise it.
    * @param overrides.nowMs    injectable clock for the hourly window.
    *
    * Checks run cheapest-first: the per-request ceiling needs no I/O, then the total,
@@ -121,7 +124,12 @@ export class Budget {
     estimatedUsd: number,
     overrides?: { maxUsd?: number; nowMs?: number },
   ): Promise<BudgetVerdict> {
-    const perRequest = overrides?.maxUsd ?? this.caps.maxUsdPerRequest;
+    requireAmount(estimatedUsd, 'estimatedUsd');
+    if (overrides?.maxUsd !== undefined) requireAmount(overrides.maxUsd, 'maxUsd');
+    const perRequest = Math.min(
+      overrides?.maxUsd ?? this.caps.maxUsdPerRequest,
+      this.caps.maxUsdPerRequest,
+    );
     if (estimatedUsd > perRequest) {
       return { ok: false, scope: 'request', spentUsd: estimatedUsd, capUsd: perRequest };
     }
@@ -153,3 +161,9 @@ export class Budget {
  * money that moves.
  */
 const round6 = (v: number): number => Math.round(v * 1e6) / 1e6;
+
+function requireAmount(value: number, field: string): void {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new TypeError(`${field} must be a finite non-negative number`);
+  }
+}

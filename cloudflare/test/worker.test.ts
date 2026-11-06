@@ -202,6 +202,7 @@ test('successful /ask returns real-shaped tx/HashScan and 0G verification proven
   assert.strictEqual(calls.settles[0].requirements, calls.challenges[0].requirements);
   assert.equal(upstreamBody.max_tokens, 160);
   assert.equal(upstreamBody.verify_tee, true);
+  assert.deepEqual(upstreamBody.chat_template_kwargs, { enable_thinking: false });
   assert.equal(upstreamBody.stream, false);
   assert.equal(upstreamBody.messages.length, 2);
   const body = await response.json();

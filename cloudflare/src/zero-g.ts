@@ -138,6 +138,9 @@ export async function callZeroG(
         max_tokens: cfg.maxOutputTokens,
         stream: false,
         verify_tee: true,
+        // 0gm-1.0-35b-a3b is a thinking model: without this it can spend the whole
+        // output budget on hidden reasoning and return finish_reason=length, empty content.
+        chat_template_kwargs: { enable_thinking: false },
       }),
       signal: AbortSignal.timeout(45_000),
     });

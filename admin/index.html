@@ -84,7 +84,7 @@
         <ul id="checks" class="trust-checks" aria-live="polite"></ul>
         <p id="approve-status" class="editor-status" role="status" aria-live="polite"></p>
         <div id="approve-out" hidden>
-          <p><strong>Approved.</strong> Send this file to the ʻohana ops (Telegram or chat). The ops key then issues the name to the artist's wallet — <code>ens/scripts/onboard.mjs</code> re-verifies every signature and refuses anything incomplete.</p>
+          <p><strong>Approved.</strong> Send this file to the ʻohana ops (Telegram or chat). They record the invitation, consent and approval on Arkiv (<a href="/trust">trust ledger</a>), then the ops key issues the name to the artist's wallet — every signature is re-verified first and anything incomplete is refused.</p>
           <p><button type="button" id="approve-copy">Copy JSON</button> <a id="approve-download" href="#" download="approved.json">Download approved.json</a></p>
           <pre id="approve-json"></pre>
         </div>
@@ -109,6 +109,6 @@
         <p class="field-hint">Next, as the circle grows: grants recorded on Arkiv, two-of-N approvals, and steward roles held on the ENS name itself.</p>
       </section>
     </main>
-    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra · signatures stay in your browser until you share them</p><a href="/fork/stewards.json">stewards.json</a></footer>
+    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra · signatures stay in your browser until you share them</p><a href="/fork/stewards.json">stewards.json</a> · <a href="/trust">trust ledger on Arkiv</a></footer>
   </body>
 </html>

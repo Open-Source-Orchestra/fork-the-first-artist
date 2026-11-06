@@ -63,3 +63,13 @@
 .fork-card .fine{font-size:.66rem;color:var(--cream-faint);margin-top:9px;line-height:1.45}
 @media (max-width:640px){#fork-ribbon{display:none}}
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.fork-who{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.fork-who .lbl{font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.fork-who button{font-size:.7rem;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:.35em .9em;background:transparent;color:inherit;cursor:pointer}
+.fork-who button small{opacity:.65;font-size:.85em;margin-left:.25em}
+.fork-who button[aria-pressed=true]{background:rgba(45,212,191,.18);border-color:rgba(45,212,191,.7);color:#8ff1e2;font-weight:600}
+.fork-who-note{font-size:.78rem;opacity:.85;margin-top:6px}
+.fork-answer .said-who{font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:#8ff1e2;margin-bottom:4px}
+.fork-tile #fork-pay-go{display:inline-block;margin:12px 0 2px;white-space:normal;text-align:center;line-height:1.4;text-decoration:none}
+/* keep the garden's floating finder from covering an open side panel (QA 7 Nov) */
+body:has(.panel.open) #gh-fab{opacity:0;pointer-events:none}

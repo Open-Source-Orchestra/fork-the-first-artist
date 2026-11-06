@@ -22,7 +22,7 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 |---|---|---|
 | Ownership: frontend/claims/ENS, PR review, or whole application | Avoid conflicting implementations of teammate-owned features | Confirmed: review PR #3; implement non-payment work; report payment issues to owner |
 | Base: current main or PR #3 | Determines APIs, package layout, and integration work | Confirmed: PR #3 without merging; local branch `work/pr3-integration` based on `855d08a` |
-| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Reuse `shakaleikaumaka/oso-storytelling`; inspection pending access; deployment undecided |
+| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Source inspected: static HTML/CSS/JS on GitHub Pages; template, integration destination, and backend deployment await owner selection |
 | Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Requirements requested; pending |
 | ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | Unresolved in product plan |
 | Payment asset, decimals, facilitator, and split method | Needed to validate actual settlement and recipient amounts | Unresolved; inspect PR #3 before proposing choices |
@@ -33,7 +33,7 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 
 Ask decisions when their stage approaches. Record the owner's answer, date, rationale, and affected stages here before dependent implementation. Never put private keys, tokens, invitation secrets, or full environment values in documentation, commits, or chat.
 
-Owner decisions recorded on 6 November 2026: the source frontend is [oso-storytelling](https://github.com/shakaleikaumaka/oso-storytelling). Its clone permission request was rejected, so it has not been downloaded or inspected. Continue independent PR review and non-payment fixes while frontend access remains pending. Commit `01` was carried onto the PR-based branch as `0174c3f`; the original planning branch remains available. No remote merge or push occurred.
+Owner decisions recorded on 6 November 2026: the source frontend is [oso-storytelling](https://github.com/shakaleikaumaka/oso-storytelling). After an initially rejected clone request, the owner authorized a retry. A partial clone and selective source checkout succeeded after two connection resets. See [FRONTEND-INTEGRATION.md](FRONTEND-INTEGRATION.md) for inspected features, reuse boundaries, pending decisions, and the next feature sequence. Commit `01` was carried onto the PR-based branch as `0174c3f`; the original planning branch remains available. No remote merge or push occurred.
 
 ## Commit and review contract
 

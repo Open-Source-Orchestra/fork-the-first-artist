@@ -83,3 +83,17 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 This addresses only the override/input portion of R5. Atomic reservations, per-call accounting, metered pricing, and ledger recovery remain open. No payment source files changed. Reviewed the staged change and whitespace before committing.
 
 Frontend access update: the authorized retry failed with an RPC connection reset/early EOF. A shallow HTTP/1.1 retry is in progress. Agent authentication/deployment remains intentionally undecided until source inspection, as requested by the owner.
+
+## 05 — Map the existing OSO frontend to the integration stages
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+- After the shallow retry also failed, fetched the source commit/tree with a blob-filtered clone and checked out only relevant docs/HTML/CSS/JavaScript. Source: `shakaleikaumaka/oso-storytelling@b6be898f38df8fff7abc53334b5641a89e31939b`.
+- Read the source documentation and inspected profile, garden, signing, overlay, and hackathon status code. Identified the static GitHub Pages architecture and distinguished garden-key signing from payout-wallet proof.
+- Added [FRONTEND-INTEGRATION.md](FRONTEND-INTEGRATION.md) with the reusable areas, source boundaries, outstanding choices, and a feature-by-feature implementation sequence. Updated the main workflow's access/inspection status.
+- Requested owner selection of frontend template/destination, deployment, wallet/account mapping, and ENS setup. These determine the next integration feature; no framework or backend host has been assumed.
+- Retrieved online dependency audit details and documented the affected chain/advisories in the PR review. Investigated npm installation logs: optional-dependency failures removed the SDK subtree, explaining unresolved imports despite a successful install exit. Payment dependencies were not changed.
+
+Validation: source commit and sparse-checkout status verified; relevant source references and local documentation links reviewed; staged whitespace checked. This documentation-only commit adds no executable behavior. Latest application result remains 51 passing agent tests and a passing targeted budget type check. Full package type checking and live integrations remain unverified/blocked as described above.
+
+No source-site files were edited, no artist content was imported or published, and no GitHub comments, pushes, reviews, or merges were performed.

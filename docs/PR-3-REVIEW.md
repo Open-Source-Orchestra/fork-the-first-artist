@@ -92,3 +92,9 @@ Environment: Node `v24.7.0`.
 Existing tests verify useful happy paths, protocol shapes, and several refusal paths. They do not disprove the findings above: for example, the settlement doubles return success, consent coverage tests explicit `false`, and budget checks do not exercise concurrent paid work.
 
 Type checking and dependency installation are recorded separately in the implementation log as their results become available. Do not infer type-check success from Node's TypeScript execution, which strips types at runtime.
+
+## Dependency verification follow-up
+
+`npm ci --ignore-scripts` exited successfully, but the optional SDK subtree was removed after installation failures; `node_modules/@x402/` was empty. `npm ls` still listed locked versions, so that output did not establish installability. Full agent type checking consequently reported four unresolved x402 imports in the unchanged payer module. The new budget module and its tests passed a separate strict TypeScript check. Do not replace SDK imports with permissive stubs merely to silence the full check.
+
+The online `npm audit --json --fetch-retries=0` result reports three moderate affected package entries and one high affected package entry through `@x402/hedera` → `@hiero-ledger/sdk` → `ethers` → `ws`. The lockfile pins `ethers` 6.16.0 and `ws` 8.17.1. The underlying advisories reported are [uninitialized memory disclosure](https://github.com/advisories/GHSA-58qx-3vcg-4xpx) and [memory-exhaustion denial of service](https://github.com/advisories/GHSA-96hv-2xvq-fx4p). This is a dependency report, not proof these paths are reachable in this application. No automatic force-fix or payment dependency change was applied; SDK compatibility and patched resolutions need coordinated validation with the payments owner.

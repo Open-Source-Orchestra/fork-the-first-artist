@@ -1,0 +1,20 @@
+# Copy to .dev.vars only for a deliberate local live test. Never commit .dev.vars.
+# Account IDs are public identifiers; both keys below are secrets.
+HEDERA_ARTIST_ACCOUNT_ID=0.0.1001
+HEDERA_FAN_ACCOUNT_ID=0.0.1002
+HEDERA_FAN_PRIVATE_KEY=replace-with-dedicated-fan-testnet-key
+UPSTREAM_API_KEY=replace-with-0g-testnet-key
+UPSTREAM_MODEL=replace-with-currently-available-testnet-model
+
+# Optional public configuration (defaults shown).
+HEDERA_NETWORK=hedera:testnet
+HEDERA_ASSET=0.0.429274
+HEDERA_ASSET_DECIMALS=6
+FACILITATOR_URL=https://x402.org/facilitator
+UPSTREAM_BASE_URL=https://router-api-testnet.integratenetwork.work/v1
+UPSTREAM_TRUST_MODE=verified
+DEMO_PRICE_ATOMIC=1000
+DEMO_MAX_OUTPUT_TOKENS=160
+DEMO_IP_LIMIT_PER_MINUTE=2
+DEMO_GLOBAL_LIMIT_PER_MINUTE=6
+DEMO_MAX_INFLIGHT=2

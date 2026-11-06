@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@x402/core/client": ["node_modules/@x402/core/dist/esm/client/index.d.mts"],
+      "@x402/core/http": ["node_modules/@x402/core/dist/esm/http/index.d.mts"],
+      "@x402/hedera": ["node_modules/@x402/hedera/dist/esm/index.d.mts"],
+      "@x402/hedera/exact/client": ["node_modules/@x402/hedera/dist/esm/exact/client/index.d.mts"]
+    },
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["src", "test"]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "oso-artist-demo",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "tsconfig": "./tsconfig.json",
+  "alias": {
+    "@x402/core/client": "./node_modules/@x402/core/dist/esm/client/index.mjs",
+    "@x402/core/http": "./node_modules/@x402/core/dist/esm/http/index.mjs",
+    "@x402/hedera": "./node_modules/@x402/hedera/dist/esm/index.mjs",
+    "@x402/hedera/exact/client": "./node_modules/@x402/hedera/dist/esm/exact/client/index.mjs"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "PAYMENT_REPLAY_GUARD", "class_name": "PaymentReplayDurableObject" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PaymentReplayDurableObject"] }],
+  "observability": {
+    "enabled": false
+  }
+}

@@ -1,4 +1,10 @@
-import type { WorkerConfig } from './config.ts';
+export interface ZeroGConfig {
+  upstreamApiKey: string;
+  upstreamBaseUrl: string;
+  upstreamModel: string;
+  upstreamTrustMode: string;
+  maxOutputTokens: number;
+}
 
 const MAX_UPSTREAM_BYTES = 65_536;
 const MAX_ANSWER_CHARS = 4_000;
@@ -22,6 +28,7 @@ export interface ZeroGProvenance {
   zgResKey: string | null;
   routerReportedTeeVerified: boolean | null;
   independentlyVerified: false;
+  billingMicro: string | null;
 }
 
 export interface ZeroGAnswer {
@@ -51,6 +58,7 @@ interface ChatCompletion {
     request_id?: unknown;
     provider?: unknown;
     tee_verified?: unknown;
+    billing?: { total_cost_usd_micro?: unknown };
   };
 }
 
@@ -99,7 +107,7 @@ async function boundedText(response: Response): Promise<string> {
 /** A real OpenAI-compatible 0G call. No mock fallback is permitted on this paid route. */
 export async function callZeroG(
   question: string,
-  cfg: WorkerConfig,
+  cfg: ZeroGConfig,
   fetchImpl: typeof fetch,
 ): Promise<ZeroGAnswer> {
   const system = [
@@ -203,6 +211,7 @@ export async function callZeroG(
       routerReportedTeeVerified:
         typeof trace?.tee_verified === 'boolean' ? trace.tee_verified : null,
       independentlyVerified: false,
+      billingMicro: cleanId(trace?.billing?.total_cost_usd_micro, 64),
     },
   };
 }

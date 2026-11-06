@@ -18,6 +18,8 @@ const assets = new Map(await Promise.all([
   ['/arkiv-query.mjs', 'arkiv-query.mjs', 'text/javascript; charset=utf-8'],
   ['/arkiv-proof.json', 'arkiv-proof.json', 'application/json; charset=utf-8'],
   ['/arkiv.css', 'arkiv.css', 'text/css; charset=utf-8'],
+  ['/steward', 'steward.html', 'text/html; charset=utf-8'],
+  ['/steward.mjs', 'steward.mjs', 'text/javascript; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
   ['/draft.mjs', 'draft.mjs', 'text/javascript; charset=utf-8'],
   ['/profile-draft.mjs', 'profile-draft.mjs', 'text/javascript; charset=utf-8'],
@@ -60,7 +62,10 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const arkivPolicy = route === '/arkiv'
       ? " connect-src 'self' https://rpc.rabdi.db-chain.testnet.arkiv.network;"
       : '';
-    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy);
+    const stewardPolicy = route === '/steward'
+      ? " connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev;"
+      : '';
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy);
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

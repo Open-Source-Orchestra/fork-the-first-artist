@@ -62,6 +62,10 @@ test('preview serves only public assets and refuses writes and repository paths'
   assert.match(arkiv.headers['content-security-policy'], /connect-src 'self' https:\/\/rpc.rabdi.db-chain.testnet.arkiv.network/);
   assert.match((await get('/arkiv.css')).headers['content-type'], /^text\/css/);
   assert.equal(JSON.parse((await get('/arkiv-proof.json')).body).inviteId, '55a4a16c-45c5-4bf4-9853-620a49b1cb26');
+  const steward = await get('/steward');
+  assert.equal(steward.status, 200);
+  assert.match(steward.body, /Ask Mira’s <em>public steward/);
+  assert.match(steward.headers['content-security-policy'], /connect-src 'self' https:\/\/oso-zerog-steward.shakaverse.workers.dev/);
   const config = JSON.parse((await get('/wallet-config.json')).body);
   assert.equal(config.projectId, '');
   assert.equal(config.enabled, false);
@@ -71,7 +75,7 @@ test('preview serves only public assets and refuses writes and repository paths'
       assert.equal((await get(path)).status, 200, path);
     }
   }
-  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs']) {
+  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs', '/steward.mjs']) {
     const module = await get(path);
     assert.equal(module.status, 200);
     assert.match(module.headers['content-type'], /^text\/javascript/);

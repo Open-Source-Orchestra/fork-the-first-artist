@@ -1,6 +1,19 @@
 # Cloudflare Worker — narrow Hedera + 0G demo host
 
-> **Status: built and mock-tested, not deployed and not live-validated.** No real Hedera transaction, 0G response, workers.dev hostname, custom domain, or sponsor qualification is claimed here.
+## Live 0G-only steward — deployed and browser-verified
+
+**Live health:** https://oso-zerog-steward.shakaverse.workers.dev/health
+**Judge app:** https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/steward/
+
+The separate `cloudflare/src/zerog-public.ts` Worker provides real 0G Private Computer inference without Hedera or a payment claim. It uses a bounded fictional Mira Modal profile, exact-origin CORS, per-IP/global isolate-local limits, and a server-side 0G key. It never claims self-funding or independent TEE verification and never substitutes a mock answer.
+
+Verified on 6 Nov 2026: request `9e3a7a4e-b434-4ba8-9627-cf40c9312ab3`, verification chat `dd606f89-101e-48dd-b2ed-b7d5beaa79fb`, provider `0xf4FB8d2bD856e672b5f9848b0eD235A20079B250`, model `0gm-1.0-35b-a3b`, actual compute cost **207 micro-USD**. The browser shows the answer, request/verification IDs, provider and actual cost. `cloudflare/src/zero-g.ts` also preserves `billingMicro` for this transparency.
+
+The Worker is deployed with `wrangler.zerog.jsonc` and `UPSTREAM_API_KEY` as a Cloudflare secret. `DEMO_MAX_OUTPUT_TOKENS=768` is the bounded completion ceiling because the reasoning model can exceed 512 tokens; responses must still finish with `finish_reason: stop` and nonempty content. The public 0G suite is **28/28** including failure, replay, CORS and provenance tests.
+
+**This proves the 0G Private Computer main user flow, not Hedera settlement or automatic 0G-credit replenishment.** The next section's combined Hedera Worker remains pending funding and cold live validation.
+
+> **Combined Hedera + 0G Worker status: built and mock-tested, not deployed or live-validated.** No real Hedera transaction, on-chain split, HCS message, or self-funding-agent claim is made.
 
 The `cloudflare/` package is one small Worker for the core demo only:
 

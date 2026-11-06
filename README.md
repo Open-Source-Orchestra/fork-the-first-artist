@@ -4,7 +4,8 @@
 **Product goal:** give each consenting musician an **ENS name**, an **x402 payment rail on Hedera**, and an **AI steward using 0G Private Computer**. Fans pay the artist directly; the intended **96.31% / 3.69%** split assigns a small share toward agent compute. **OSO takes zero cut, zero profit, no token.**
 
 - 🌺 Current production preview: https://artist.opensourceorchestra.org/ (older static sample)
-- ✅ Integrated review preview: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ (repaired circle + live Arkiv read; no production merge)
+- ✅ Integrated review preview: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ (repaired circle + live Arkiv + live 0G steward; no production merge)
+- 🤖 Live 0G steward: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/steward/
 - 📋 Status: https://opensourceorchestra.org/ethglobalmumbai/
 - 🎬 [Video script](docs/DEMO-SCRIPT.md) · [Submission draft/checklist](docs/SUBMISSION.md)
 - 🔗 [Hedera transaction proof](docs/TX-PROOF.md) · [Arkiv evidence](arkiv/README.md)
@@ -14,14 +15,14 @@
 
 ## Current reality — read before demoing
 
-The repository contains a public artist-preview circle, transient local draft editor, wallet connection adapters, offline-tested payment/agent scaffolding, real synthetic Arkiv evidence, and integration documentation. **A mock ID, split preview, fixture, or offline test is not Hedera/0G chain/provider evidence.**
+The repository contains a public artist-preview circle, transient local draft editor, wallet connection adapters, offline-tested payment/agent scaffolding, real 0G and Arkiv evidence, and integration documentation. **A mock ID, split preview, fixture, or offline test is not Hedera/0G chain/provider evidence.**
 
 | Layer | Current boundary |
 |---|---|
 | Frontend | 40 public artist previews + local draft; no public claim, paid chat, or publishing |
 | Hedera x402 | Live-mode code exists; see [TX-PROOF](docs/TX-PROOF.md) for actual settled IDs |
 | 96.31/3.69 | Exact arithmetic exists; only an HTS transaction proves the on-chain split |
-| 0G | Provider/meter code exists; only a real response/request ID proves inference |
+| 0G | **Live mainnet answer + request/verification IDs + public `/steward` app; no self-funding claim** |
 | Arkiv | Real synthetic Rabdi write/read evidence + `/arkiv` viewer; no real artist claim |
 | Claims | Wallet-proof redemption, consent activation and service-freeze enforcement remain pending |
 | ENS | Ownership requirements only; no issuer implementation or artist subname claimed |

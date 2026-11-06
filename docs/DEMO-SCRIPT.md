@@ -7,7 +7,7 @@ Official constraints checked 6 Nov 2026: ETHGlobal general video **2–4 minutes
 - [ ] Public live URL opens on a fresh browser and mobile-width viewport.
 - [ ] One real fan-agent payment returns HTTP 200 with a non-mock Hedera transaction ID.
 - [ ] HashScan shows that transaction and the intended recipient(s).
-- [ ] The answer is real 0G inference and displays its actual request ID; no `[dev-mock inference]`.
+- [x] The answer is real 0G inference and displays its actual request ID; no `[dev-mock inference]` (see `/steward`: request `9e3a7a4e-b434-4ba8-9627-cf40c9312ab3`, verification chat `dd606f89-101e-48dd-b2ed-b7d5beaa79fb`).
 - [x] Arkiv has a real synthetic invitation write/read and reproducible public query (issue `0xf5ac4a…09dd8`, revoke `0x88fa77…4c75`, both status `0x1`; see `arkiv/README.md`).
 - [ ] Failed payment/inference does not produce a fake success; low-budget degradation is free and labelled.
 - [ ] README contains the exact transaction/request/entity evidence shown in the video.

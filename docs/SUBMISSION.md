@@ -15,7 +15,7 @@ Do not submit until every bracketed evidence field is replaced with a real value
 
 ## Short description
 
-A Continuity artist-home prototype with 40 public artist previews, a transient local draft, a live Arkiv synthetic-invitation reader, and a fail-closed Hedera x402 + 0G steward implementation. Arkiv write/revoke/read is proven on Rabdi testnet. Insert real Hedera/0G proof below before describing those integrations as live. The intended 96.31% / 3.69% split directs a small share toward agent compute; OSO takes zero cut and there is no token.
+A Continuity artist-home prototype with 40 public artist previews, a transient local draft, real 0G Private Computer inference with request IDs, and a live Arkiv synthetic-invitation reader. Hedera x402 settlement remains a proof gate, not a claimed success. The intended 96.31% / 3.69% split directs a small share toward agent compute; OSO takes zero cut and there is no token.
 
 ## What exists / what was added at Mumbai
 
@@ -31,7 +31,8 @@ A Continuity artist-home prototype with 40 public artist previews, a transient l
 - Integrated review preview: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ (repaired circle + live Arkiv read; wallets disabled)
 - Repo: https://github.com/Open-Source-Orchestra/fork-the-first-artist
 - Hedera transaction: **[REAL TX ID + HASHSCAN URL]**
-- 0G model + request ID: **[REAL MODEL + REQUEST ID + VERIFIABLE RESPONSE/PROOF]**
+- Live 0G steward: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/steward/ (real judge-accessible answer path)
+- 0G model + request ID: `0gm-1.0-35b-a3b` · `9e3a7a4e-b434-4ba8-9627-cf40c9312ab3`; verification chat `dd606f89-101e-48dd-b2ed-b7d5beaa79fb`; provider `0xf4FB8d2bD856e672b5f9848b0eD235A20079B250`; actual compute cost `207` micro-USD; no independent TEE claim
 - Arkiv writer: `0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2` (dedicated synthetic Rabdi writer)
 - Arkiv current entity: `0x11b5bb0e5e2771ab7363d506ea2334a336f42ad3271bb22a32aabdda170fa267`; [issue](https://rabdi.explorer.arkiv.network/tx/0xf5ac4a62b1af1bdc066c46c825e325cd4485d377b951d8c777450e5771b09dd8) block 301610 / [revoke](https://rabdi.explorer.arkiv.network/tx/0x88fa7783995c065bf2088aea99e812bed3391b5d91c98b88aed1448b0b2e4c75) block 301613, both status `0x1`
 - Arkiv viewer/query: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/arkiv (live manual public read verified at block 302205) + exact keyless query/projection in `arkiv/README.md` and `frontend/public/arkiv-query.mjs`
@@ -45,7 +46,7 @@ Feedback: **[Add specific facilitator/SDK friction and useful documentation impr
 
 ## 0G partner answer
 
-0G Private Computer is in the steward's main answer path, not an optional chat sidecar. Artist data and fan instructions are fenced; the steward's answer is coupled to the paid artist resource and a capped inference meter. The response exposes the real 0G model/request ID and reported verification metadata. Without 0G, a fresh artist-grounded AI answer and its 0G provenance are unavailable; the app must refuse or degrade without charging rather than disguise a template as inference. **[Insert actual request ID and live app path.]**
+0G Private Computer is in the steward's main answer path, not an optional chat sidecar. Artist data and fan instructions are fenced; the public `/steward` page returns a real 0G answer, actual model/request ID, provider, verification chat ID and micro-USD compute cost. Without 0G, the fresh artist-grounded answer is unavailable and the app returns an honest error rather than a mock. Current proof: `9e3a7a4e-b434-4ba8-9627-cf40c9312ab3`, verification chat `dd606f89-101e-48dd-b2ed-b7d5beaa79fb`, cost 207 micro-USD. This is a free public 0G path; Hedera payment and self-funding are separate unfinished flows.
 
 We are targeting **Private Computer**, not claiming Agents That Pay for Themselves unless automatic Hedera-revenue-to-0G-credit funding is actually demonstrated.
 

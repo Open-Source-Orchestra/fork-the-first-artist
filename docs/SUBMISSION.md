@@ -24,9 +24,9 @@ A consent-first artist home where a fan agent discovers an HTTP 402 price, pays 
 - Repo: https://github.com/Open-Source-Orchestra/fork-the-first-artist
 - Hedera transaction: **[REAL TX ID + HASHSCAN URL]**
 - 0G model + request ID: **[REAL MODEL + REQUEST ID + VERIFIABLE RESPONSE/PROOF]**
-- Arkiv writer: **[REAL PUBLIC WRITER ADDRESS]**
-- Arkiv entity + issue/revoke transactions: **[REAL ENTITY/TX LINKS]**
-- Arkiv reproducible query: **[EXACT QUERY + RPC/EXPLORER INSTRUCTIONS]**
+- Arkiv writer: `0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2` (dedicated synthetic Rabdi writer)
+- Arkiv current entity: `0x11b5bb0e5e2771ab7363d506ea2334a336f42ad3271bb22a32aabdda170fa267`; [issue](https://rabdi.explorer.arkiv.network/tx/0xf5ac4a62b1af1bdc066c46c825e325cd4485d377b951d8c777450e5771b09dd8) block 301610 / [revoke](https://rabdi.explorer.arkiv.network/tx/0x88fa7783995c065bf2088aea99e812bed3391b5d91c98b88aed1448b0b2e4c75) block 301613, both status `0x1`
+- Arkiv viewer/query: `/arkiv` on the app (after deployment) + exact keyless query/projection in `arkiv/README.md` and `frontend/public/arkiv-query.mjs`
 - Video: **[2:35–2:50 HUMAN-NARRATED 720p+ VIDEO URL]**
 
 ## Hedera partner answer
@@ -45,7 +45,7 @@ Feedback: **[Add actual model catalog/request-ID/TEE/credit setup observations.]
 
 ## Arkiv partner answer
 
-The new Mumbai integration stores encrypted, expiring synthetic steward invitations on Rabdi. State transitions atomically replace the prior entity and append an encrypted audit event; the status feature reads and authenticates current state rather than treating Arkiv as a write-only log. Raw bearer tokens, wallet proofs and private artist data are never written as public plaintext. **[Insert writer/entity/transactions/query and identify the user-facing read.]**
+The new Mumbai integration stores encrypted, expiring synthetic steward invitations on Rabdi. State transitions atomically replace the prior entity and append an encrypted audit event; the status feature reads and authenticates current state rather than treating Arkiv as a write-only log. Raw bearer tokens, wallet proofs and private artist data are never written as public plaintext. Real writer `0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2`, current entity `0x11b5bb0e…a267`, successful issue/revoke transactions and the exact query are linked above. The `/arkiv` user view performs a manual current public-metadata read; the trusted CLI separately verifies encrypted `revoked` state. Public `kind = claim` count is zero.
 
 See `arkiv/schema.md`, `arkiv/friction.md`, `arkiv/reach.md`, `arkiv/why-arkiv.md`, and `arkiv/how-you-use-arkiv.md`.
 

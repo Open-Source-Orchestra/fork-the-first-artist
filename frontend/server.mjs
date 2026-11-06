@@ -8,6 +8,11 @@ const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
   ['/draft', 'draft.html', 'text/html; charset=utf-8'],
   ['/wallets', 'wallets.html', 'text/html; charset=utf-8'],
+  ['/arkiv', 'arkiv.html', 'text/html; charset=utf-8'],
+  ['/arkiv.mjs', 'arkiv.mjs', 'text/javascript; charset=utf-8'],
+  ['/arkiv-query.mjs', 'arkiv-query.mjs', 'text/javascript; charset=utf-8'],
+  ['/arkiv-proof.json', 'arkiv-proof.json', 'application/json; charset=utf-8'],
+  ['/arkiv.css', 'arkiv.css', 'text/css; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
   ['/draft.mjs', 'draft.mjs', 'text/javascript; charset=utf-8'],
   ['/profile-draft.mjs', 'profile-draft.mjs', 'text/javascript; charset=utf-8'],
@@ -45,7 +50,10 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const walletPolicy = route === '/wallets'
       ? " connect-src 'self' wss://relay.walletconnect.com wss://relay.walletconnect.org https://verify.walletconnect.com https://verify.walletconnect.org; frame-src https://verify.walletconnect.com https://verify.walletconnect.org;"
       : '';
-    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy);
+    const arkivPolicy = route === '/arkiv'
+      ? " connect-src 'self' https://rpc.rabdi.db-chain.testnet.arkiv.network;"
+      : '';
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy);
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

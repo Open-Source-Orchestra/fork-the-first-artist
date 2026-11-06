@@ -39,7 +39,7 @@ npm run dev:frontend
 
 Explore the sample profile or `/draft`. Drafts exist only in the current tab; they are not saved or published. HashPack additionally requires the generated runtime and a public Reown project ID; see [frontend/README.md](frontend/README.md).
 
-For the two-service dev demo and the credentialed Hedera/0G path, follow [docs/RUNBOOK.md](docs/RUNBOOK.md). Dev mode deliberately returns `mock-…`, `dev-…`, and `[dev-mock inference]` values. Live mode requires separate fan, artist and compute accounts and must never silently substitute the mock fan header.
+For the two-service dev demo and the credentialed Hedera/0G path, follow [docs/RUNBOOK.md](docs/RUNBOOK.md). Dev mode deliberately returns `mock-…`, `dev-…`, and `[dev-mock inference]` values. Live mode requires separate fan, artist, compute, and meter-operator accounts and must never silently substitute the mock fan header.
 
 ## Architecture
 

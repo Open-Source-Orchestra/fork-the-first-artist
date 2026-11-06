@@ -30,7 +30,6 @@
  * The registry still reports the real provider ids; it just serves them from the fake.
  */
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import type { ArtistProfile } from './types.ts';
 import { loadAgentConfig, loadDotEnv } from './config.ts';
 import { Budget } from './budget.ts';
@@ -52,24 +51,49 @@ export interface CreateStewardOptions {
 export { DEMO_ARTIST };
 
 /**
- * Load the artist profile, falling back to `DEMO_ARTIST` when the file is absent.
- *
- * The merge order matters: `{ ...DEMO_ARTIST, ...raw }` means a partially-filled
- * `artist.json` inherits sane defaults rather than producing `undefined` fields. A
- * missing `consent` field therefore inherits `true` from the demo artist, which is
- * correct for the demo and is *explicitly* overridden in production configs.
+ * Load only the configured artist's facts. Missing/unreadable files fail startup;
+ * incomplete profiles never inherit the demo artist's identity or consent.
+ * Absent consent is allowed in stored data, but the steward refuses to answer.
+ * This validates configuration; it does not verify an artist's wallet or claim.
  */
 export async function loadArtist(path?: string): Promise<ArtistProfile> {
   const file = path ?? process.env.ARTIST_FILE ?? 'data/artist.json';
-  if (!existsSync(file)) return DEMO_ARTIST;
-  const raw = JSON.parse(await readFile(file, 'utf8')) as Partial<ArtistProfile>;
-  return { ...DEMO_ARTIST, ...raw };
+  const contents = await readFile(file, 'utf8');
+  let raw: unknown;
+  try {
+    raw = JSON.parse(contents);
+  } catch {
+    // JSON parser errors can include private source text. Report only the field.
+    throw new Error('invalid artist profile: expected valid JSON');
+  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('invalid artist profile: expected an object');
+  }
+  const profile = raw as Record<string, unknown>;
+  if (typeof profile.name !== 'string' || !profile.name.trim()) {
+    throw new Error('invalid artist profile: name must be a non-empty string');
+  }
+  if (typeof profile.bio !== 'string') {
+    throw new Error('invalid artist profile: bio must be a string');
+  }
+  if (!Array.isArray(profile.songs) || !profile.songs.every((song) => typeof song === 'string')) {
+    throw new Error('invalid artist profile: songs must be an array of strings');
+  }
+  if (profile.consent !== undefined && typeof profile.consent !== 'boolean') {
+    throw new Error('invalid artist profile: consent must be a boolean when provided');
+  }
+  for (const field of ['ensName', 'hederaAccount']) {
+    if (profile[field] !== undefined && typeof profile[field] !== 'string') {
+      throw new Error(`invalid artist profile: ${field} must be a string when provided`);
+    }
+  }
+  return profile as unknown as ArtistProfile;
 }
 
 /**
  * Build a fully-wired steward.
  *
- * @param opts.artistPath - JSON file overriding `DEMO_ARTIST`
+ * @param opts.artistPath - complete artist profile JSON file (no demo inheritance)
  * @param opts.configPath - provider config; defaults to the example config
  * @param opts.forceFake  - serve every provider from the fake adapter (tests, smoke)
  * @param opts.fetchImpl  - injected transport, so tests make no network calls

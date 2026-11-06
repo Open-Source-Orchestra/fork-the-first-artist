@@ -90,8 +90,10 @@ export class Steward implements AgentInterface {
     }
 
     // ---------------------------------------------------------------- consent
-    const artist: ArtistProfile = { ...this.deps.artist, ...(req.context?.artist ?? {}) };
-    if (artist.consent === false) {
+    // A supplied artist is a separate profile, never a partial overlay that can
+    // inherit consent or identity fields from the configured artist.
+    const artist: ArtistProfile = req.context?.artist ?? this.deps.artist;
+    if (artist.consent !== true) {
       return fail('NO_CONSENT', `${artist.name} has not consented to an agent`, false);
     }
 

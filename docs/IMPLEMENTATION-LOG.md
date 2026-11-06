@@ -45,3 +45,25 @@ The owner selected PR #3 as the development base, assigned all non-payment work,
 - Application and payment code remain unchanged in this review commit. Dependency installation/type checking are not yet verified.
 
 Reviewed staged documentation and checked whitespace before commit. Findings are reported locally; no GitHub comments or reviews were submitted.
+
+## 03 — Require explicit consent and validate configured artist data
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+### Behavior and implementation
+
+- `loadArtist()` now reads the configured file directly. Missing/unreadable files fail instead of activating the demo artist.
+- Validate the profile object, required name/bio/songs fields, optional identity strings, and boolean consent. Report invalid JSON without echoing its contents.
+- Remove demo-profile merging, so an incomplete profile cannot inherit consent, songs, an ENS name, or a payout account.
+- Require `consent === true` before the steward selects a provider. Request-level artist profiles replace the configured profile rather than partially overlaying it.
+- Add six regression tests and document package behavior and remaining claim/authentication gaps. Payment code is unchanged.
+
+### Validation and limitations
+
+- Before the fix, the targeted artist/steward run had five failures demonstrating the missing-file fallback, inherited consent, invalid profile acceptance, non-boolean consent, and request-context inheritance bugs.
+- After the fix, `npm test` from `agent/` passed all 48 tests.
+- `npm ci --ignore-scripts` completed after approved escalation. Its audit summary reported 3 moderate and 1 high dependency advisory; these have not yet been assessed or repaired. An offline audit returned no findings, which is not treated as clearing the installation report.
+- `npm run typecheck` failed on four unresolved `@x402/*` imports in the unchanged payer module; full type validation is not yet established. Investigation of the installed package exports continues separately.
+- This change enforces configured consent only. Invite redemption, signed wallet claims, authenticated activation, and proof of actual artist consent remain pending. Existing fixtures are explicitly documented as fixtures.
+
+The owner authorized another frontend clone attempt and deferred the agent deployment/authentication choice until that frontend is inspected. Those decisions do not alter the consent requirement fixed here.

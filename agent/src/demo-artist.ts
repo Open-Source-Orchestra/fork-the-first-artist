@@ -10,9 +10,9 @@
  * override a single field — e.g. `{ ...DEMO_ARTIST, consent: false }` to prove the
  * consent gate — without fighting literal types.
  *
- * `consent: true` is load-bearing: the steward refuses to answer for an artist whose
- * `consent` is `false` (`steward.ts` checks it before anything else). That is how the
- * team rule "consent first" is enforced in code rather than in policy.
+ * `consent: true` is an offline fixture value, not evidence of a verified claim.
+ * The steward requires literal `true`; the profile loader never uses this
+ * fixture as a fallback for missing files or missing consent.
  */
 import type { ArtistProfile } from './types.ts';
 

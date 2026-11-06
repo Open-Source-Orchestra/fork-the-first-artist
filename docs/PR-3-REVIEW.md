@@ -16,7 +16,7 @@ Locations at reviewed revision: `agent/src/index.ts:62`, `agent/src/steward.ts:9
 
 Fix direction: require an explicit boolean opt-in, do not inherit another artist's consent or facts, and distinguish configured artist data from offline fixtures. Tests must demonstrate zero provider calls when consent is missing or malformed. This local gate still cannot replace the planned invite, wallet proof, and activation record.
 
-Owner: non-payment implementation. Initial status: open; track follow-up commits in the implementation log.
+Owner: non-payment implementation. Follow-up: commit `03` fixes missing/non-boolean consent, profile inheritance, and missing-file fallback with regression tests. Verified claim/activation and demo-fixture publication controls remain outstanding.
 
 ### R2 — Public agent endpoint bypasses the payment gate
 

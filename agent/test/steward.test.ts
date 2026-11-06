@@ -184,6 +184,34 @@ test('steward: unaffordable request degrades to a template reply, no model call'
   }
 });
 
+test('steward: missing or non-boolean consent never reaches the provider', async (t) => {
+  for (const consent of [undefined, null, 'true', 1]) {
+    const provider = new ScriptedProvider([reply('must not be generated')]);
+    const artist = { ...DEMO_ARTIST, consent } as unknown as typeof DEMO_ARTIST;
+    const { steward, dir } = await makeSteward({ provider, artist });
+    t.after(() => rm(dir, { recursive: true, force: true }));
+    const out = await steward.run({ instruction: 'hello' });
+    assert.equal(out.ok, false);
+    if (out.ok) throw new Error('unconsented request succeeded');
+    assert.equal(out.error.code, 'NO_CONSENT');
+    assert.equal(provider.calls.length, 0);
+  }
+});
+
+test('steward: a context artist cannot inherit the configured artist consent', async (t) => {
+  const provider = new ScriptedProvider([reply('must not be generated')]);
+  const { steward, dir } = await makeSteward({ provider });
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const out = await steward.run({
+    instruction: 'hello',
+    context: { artist: { name: 'Another artist', bio: '', songs: [] } },
+  });
+  assert.equal(out.ok, false);
+  if (out.ok) throw new Error('unconsented context succeeded');
+  assert.equal(out.error.code, 'NO_CONSENT');
+  assert.equal(provider.calls.length, 0);
+});
+
 test('steward: the degradation ladder runs shorter before it gives up', async () => {
   // per-request estimate is 0.0004 at 400 max_tokens; the cap only affords the
   // halved-max_tokens tier, and only once.

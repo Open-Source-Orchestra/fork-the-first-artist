@@ -20,3 +20,6 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .78rem; }
 .ledger li.bad span { color: #ffaba0; }
 .ledger li.reh span { color: var(--gold-bright); }
 .ledger small { color: var(--cream-dim); opacity: .8; }
+#consent-form label { margin-top: 18px; margin-bottom: 6px; }
+#consent-form input { margin-top: 4px; }
+#consent-form span, #account { font-family: var(--sans); font-size: .85rem; color: var(--cream-dim); }

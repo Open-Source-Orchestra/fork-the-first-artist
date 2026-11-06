@@ -70,3 +70,6 @@
 .fork-who button[aria-pressed=true]{background:rgba(45,212,191,.18);border-color:rgba(45,212,191,.7);color:#8ff1e2;font-weight:600}
 .fork-who-note{font-size:.78rem;opacity:.85;margin-top:6px}
 .fork-answer .said-who{font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:#8ff1e2;margin-bottom:4px}
+.fork-tile #fork-pay-go{display:inline-block;margin:12px 0 2px;white-space:normal;text-align:center;line-height:1.4;text-decoration:none}
+/* keep the garden's floating finder from covering an open side panel (QA 7 Nov) */
+body:has(.panel.open) #gh-fab{opacity:0;pointer-events:none}

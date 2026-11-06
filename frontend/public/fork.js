@@ -20,7 +20,7 @@ const STEWARDS = {
   'mira-modal': {
     name: 'Mira Modal', short: 'Mira', tag: 'fictional',
     who: '<b>Mira Modal, a fictional demo artist</b>. Every real artist\'s steward wakes only after that artist consents.',
-    chips: [["List Mira's songs", "List Mira's songs."], ['What does Mira make music from?', 'What does Mira make music from?'], ['How do fans support Mira?', 'How do fans support Mira?']],
+    chips: [["List Mira's songs", "List Mira's songs."], ['What does Mira make music from?', 'What does Mira make music from?'], ['Who is Mira?', 'Who is Mira Modal?']],
   },
   shaka: {
     name: 'Shaka', short: 'Shaka', tag: 'real · asked for it',
@@ -120,6 +120,7 @@ function mountPanel() {
         <dt>HCS split log</dt><dd><a href="${HASHSCAN}/topic/${PROOF.topic}" target="_blank" rel="noopener">topic ${PROOF.topic}</a></dd>
         <dt>0G request (bound)</dt><dd>${PROOF.zeroGRequest}</dd>
       </dl>
+      <div class="row2"><a class="big" id="fork-pay-go" href="/pay">⚡ tip the artist — run the real x402 loop on Hedera testnet</a></div>
       <div class="links"><a class="pill" href="${REPO}/blob/main/docs/TX-PROOF.md" target="_blank" rel="noopener">full proof ↗</a><a class="pill teal" href="${REPO}/tree/main/hedera-steward" target="_blank" rel="noopener">Hedera Agent Kit steward ↗</a></div>
       <p class="fork-honest">Synthetic demo accounts on testnet — no real artist was paid or activated.</p>
     </section>

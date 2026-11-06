@@ -6,12 +6,12 @@
     "node": ">=22.18"
   },
   "scripts": {
-    "test": "node --test test/config.test.mjs",
-    "test:integration": "node --test test/steward.integration.test.mjs",
+    "test": "node --test test/*.test.mjs",
     "steward": "node --env-file-if-exists=.env src/cli.mjs",
-    "test:local": "node scripts/test-local.mjs"
+    "test:arkiv": "node --env-file-if-exists=.env scripts/test-arkiv.mjs"
   },
   "dependencies": {
-    "pg": "8.23.1"
+    "@arkiv-network/sdk": "1.0.1",
+    "viem": "2.57.16"
   }
 }

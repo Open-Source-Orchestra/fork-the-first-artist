@@ -22,7 +22,7 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 |---|---|---|
 | Ownership: frontend/claims/ENS, PR review, or whole application | Avoid conflicting implementations of teammate-owned features | Confirmed: review PR #3; implement non-payment work; report payment issues to owner |
 | Base: current main or PR #3 | Determines APIs, package layout, and integration work | Confirmed: PR #3 without merging; local branch `work/pr3-integration` based on `855d08a` |
-| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Confirmed: adapt nodes/shaka into frontend/ using static HTML/CSS/JS; persistent Node + PostgreSQL approved; backend host/domain remain undecided |
+| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Confirmed: adapt nodes/shaka into frontend/ using static HTML/CSS/JS; persistent Node approved; Arkiv replaces PostgreSQL per owner request in part 13; backend host/domain remain undecided |
 | Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Confirmed: MetaMask for ENS mainnet authority and HashPack for native Hedera testnet account proof; one claim binds both |
 | ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | ENSv2 mainnet; artist-controlled records and no OSO revocation/reassignment confirmed. Parent supplied later; exact permissions/renewal pending |
 | Payment asset, decimals, facilitator, and split method | Needed to validate actual settlement and recipient amounts | Unresolved; inspect PR #3 before proposing choices |
@@ -39,7 +39,7 @@ Updated owner decisions and verified partner requirements are recorded in [PRIZE
 
 ## Commit and review contract
 
-Current stage C progress: commit 12 implements steward issuance/revocation and freeze persistence with real PostgreSQL concurrency/rollback tests. Claims cannot yet be created through an application path; private drafts, consent, dual-wallet verification, service enforcement, and activation remain outstanding. The operational boundary and setup are in [claims/README.md](../claims/README.md).
+Current stage C progress: commit 12 introduced PostgreSQL persistence; part 13 replaces it with encrypted Arkiv entities, SDK queries, and atomic replacement batches. Offline regression tests pass; live Rabdi verification is pending configuration. Claims cannot yet be created through an application path; private drafts, consent, dual-wallet verification, service enforcement, and activation remain outstanding. The operational boundary and setup are in [claims/README.md](../claims/README.md).
 
 1. Work on a feature branch. Use a PR and obtain the teammate approval required by the root README before merging; never push directly to `main`.
 2. Number our commits consecutively within this implementation series: `01`, `02`, `03`, and so on. Preserve existing contributor commit messages and history.

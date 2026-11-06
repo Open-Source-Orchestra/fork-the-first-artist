@@ -18,7 +18,7 @@
     "test:frontend": "node --test frontend/test/*.test.mjs",
     "build:wallet": "npm --prefix frontend run build:wallet",
     "test:claims": "npm --prefix claims test",
-    "test:claims:local": "npm --prefix claims run test:local",
-    "steward": "npm --prefix claims run steward --"
+    "steward": "npm --prefix claims run steward --",
+    "test:claims:arkiv": "npm --prefix claims run test:arkiv"
   }
 }

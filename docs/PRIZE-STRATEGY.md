@@ -5,7 +5,7 @@ Checked 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 ## Confirmed owner decisions
 
 - Design ENS integration for Ethereum mainnet. This is design authorization, not permission to deploy, buy a name, or spend gas. Prepare concrete transactions and estimated costs before deployment review.
-- Keep Hedera payments on testnet. MetaMask + HashPack and a persistent Node/PostgreSQL backend are approved. Backend host/domain and ENS parent are not chosen. The owner will provide the parent later; a Reown project ID will be created separately.
+- Keep Hedera payments on testnet. MetaMask + HashPack and a persistent Node backend are approved; Arkiv replaces the initial PostgreSQL prototype at the owner’s request. Backend host/domain and ENS parent are not chosen. The owner will provide the parent later; a Reown project ID will be created separately.
 - The owner reports no prior 0G or Hedera integration evidence. Do not describe OSO's existing frontend as evidence of either integration.
 - Adapt `oso-storytelling/nodes/shaka` into this repository's `frontend/`. Keep the source repository and its production website untouched.
 - Use PR #3 as the local implementation base without merging. Payments remain teammate-owned; review and report their defects.
@@ -16,6 +16,7 @@ Amounts below are category pools, not guaranteed awards. Partner eligibility for
 
 | Category | Requirements that drive the build | Decision |
 |---|---|---|
+| Arkiv: Build on Arkiv (existing projects) — $4,000, Continuity | New functional Arkiv integration with live read/write evidence and required judging documents | Owner-selected migration; live evidence and Continuity batch acceptance remain unverified; see [Arkiv evidence](../arkiv/README.md) |
 | ENS: Existing Project Integration — $3,000, Continuity | Meaningful ENSv2 on Ethereum mainnet, functional live demo, public source | Design target; requires an approved parent and ownership model |
 | ENS: Best Use — $7,000 | ENSv2 on mainnet or Sepolia, central functionality | Secondary only if Continuity eligibility is confirmed |
 | Hedera: AI Agents That Pay — $6,500 | Autonomous x402 settlement on testnet/mainnet, real transaction ID, HashScan evidence, video at most five minutes | Strong product fit; Continuity category eligibility still needs confirmation |
@@ -24,7 +25,9 @@ Amounts below are category pools, not guaranteed awards. Partner eligibility for
 | 0G: Keep Building — $3,000, Continuity | Existing 0G project, dated baseline/changelog, new 0G evidence | Excluded from current targets: owner reports no prior integration |
 | 0G: Agents That Pay for Themselves — $2,000 | Earnings automatically reach actual compute credit and fund inference; transaction/request evidence, spend cap, low-fund behavior | Stretch only; PR #3 does not establish this funding loop. Token launch is optional |
 
-Sources: [ENS prizes](https://ethglobal.com/events/mumbai/prizes/ens), [Hedera prizes](https://ethglobal.com/events/mumbai/prizes/hedera), [0G prizes](https://ethglobal.com/events/mumbai/prizes/0g), [pre-existing work rules](https://ethglobal.com/rules).
+Arkiv is a fourth possible partner; final selection within the event’s three-partner limit remains pending. No submission choices were changed.
+
+Sources: [Arkiv prizes](https://ethglobal.com/events/mumbai/prizes/arkiv), [ENS prizes](https://ethglobal.com/events/mumbai/prizes/ens), [Hedera prizes](https://ethglobal.com/events/mumbai/prizes/hedera), [0G prizes](https://ethglobal.com/events/mumbai/prizes/0g), [pre-existing work rules](https://ethglobal.com/rules).
 
 ## Ownership boundary — owner decision recorded 6 November 2026
 

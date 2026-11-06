@@ -32,9 +32,9 @@ Read: root README, CONTRIBUTING, GIFT, NOTICE, LICENSE-CONTENT, the license head
 
 ## Confirmed choices and remaining decisions
 
-The owner selected `nodes/shaka` adapted into this repo's `frontend/`, with a public demo backend using owner-approved Node + PostgreSQL; host/domain are not chosen. Preserve the existing buildless HTML/CSS/JS architecture for the local foundation. ENSv2 mainnet is approved for the design; Hedera stays on testnet. See [PRIZE-STRATEGY.md](PRIZE-STRATEGY.md).
+The owner selected `nodes/shaka` adapted into this repo's `frontend/`, with a public demo backend using owner-approved Node + Arkiv (part 13 supersedes PostgreSQL); host/domain are not chosen. Preserve the existing buildless HTML/CSS/JS architecture for the local foundation. ENSv2 mainnet is approved for the design; Hedera stays on testnet. See [PRIZE-STRATEGY.md](PRIZE-STRATEGY.md).
 
-MetaMask + HashPack and Node + PostgreSQL are approved. Exact payout-proof verification, ENS parent and exact permissions/renewal model, backend authentication, and storage schema remain to be implemented. Artists control records and OSO cannot revoke/reassign names; the parent will be supplied later. Local sample UI can proceed independently; no artist activation or chain writes can be inferred from it.
+MetaMask + HashPack and Node are approved. The owner selected Arkiv to replace PostgreSQL in part 13. Exact payout-proof verification, ENS parent and exact permissions/renewal model, backend authentication, and storage schema remain to be implemented. Artists control records and OSO cannot revoke/reassign names; the parent will be supplied later. Local sample UI can proceed independently; no artist activation or chain writes can be inferred from it.
 
 ## Foundation implementation
 
@@ -65,3 +65,7 @@ Commit 10 adds unverified MetaMask extension connection; commit 11 adds configur
 ## Steward persistence progress
 
 Commit 12 adds the approved server-side steward CLI with PostgreSQL invitations, unused-invite revocation, service-freeze records, private transactional audit events, and versioned schema initialization. See [claims/README.md](../claims/README.md) for commands and the nine checks run against a fresh temporary database. There is no public admin endpoint. Wallet-proof redemption and runtime enforcement of freezes are still pending; existing services do not yet read this database. No production database was configured.
+
+## Arkiv replacement — part 13
+
+The owner requested Arkiv after checking Mumbai partner prizes. Current claim storage uses Arkiv Rabdi SDK entities with encrypted private payloads; PostgreSQL is removed from runtime and test dependencies. The CLI reads authoritative status from Arkiv. Initial PostgreSQL verification above is historical. See [claims/README.md](../claims/README.md) and [Arkiv evidence](../arkiv/README.md) for setup, concurrency/expiry boundaries, and pending live evidence. No production data transfer, artist activation, or deployment is claimed.

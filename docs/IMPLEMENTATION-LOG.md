@@ -212,3 +212,30 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - Both test clusters stopped after verification. Private temporary test data is retained for diagnosis. No production database, public endpoint, wallet signature, chain write, HCS event, payment source change, push, or merge occurred.
 
 Next: implement consent-bound wallet challenges and atomic redemption, then enforce verified/active/unfrozen claim state at service boundaries. Parent, Reown project ID, host/origin, and the pending public-data/permission decisions remain requirements for live integration; no placeholder is represented as configured.
+
+## 13 — Replace PostgreSQL steward persistence with Arkiv Rabdi
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+### Decision and scope
+
+- Owner requested Arkiv instead of PostgreSQL after checking ETHGlobal Mumbai partner prizes. Reviewed the official Arkiv prize page and current create/query/batch/expiry documentation, then inspected the installed SDK source. Targeted the existing-project Continuity category; qualification is not claimed without live evidence and confirmed event eligibility. Added the required schema and judging documents under `arkiv/` and noted the unresolved final three-partner selection.
+- Replaced the part-12 backend implementation, SQL schema, pg dependency, and PostgreSQL test harness. No real PostgreSQL claim data or production connection was configured by this work. This is a code replacement, not a production-data transfer. Existing PostgreSQL installation/test directories remain untouched; old implementation is preserved in commit `0017db1`.
+
+### Behavior and security
+
+- Pinned Arkiv SDK 1.0.1 and viem 2.57.16 on Rabdi chain 7794095. CLI writes now use actual SDK batches; invitation/claim status reads query Arkiv by schema, namespace, kind, UUID, owner, and creator. Added invite-status and read-only check; removed the SQL migrate command.
+- Encrypt private payloads with AES-256-GCM and fresh 96-bit nonces. Authentication binds chain/schema/owner/namespace/kind/ID. Names, operator labels, reasons, wallet bindings, and token hashes stay encrypted. Raw bearer tokens are never persisted. Public metadata/ciphertext/timing remain visible and are documented.
+- Create state with readonly attributes. A transition creates replacement state and audit and deletes the exact prior entity in one batch. This relies on documented atomic batching and rejection of a missing prior entity. Reads reject ambiguity, malformed schema, wrong ownership, stale head/query blocks, invalid authentication, and expiry. Concurrent failure is explicit rather than silently overwriting state.
+- Classify only a decoded EntityNotFound revert for the exact consumed key as a state conflict. Other failed/unconfirmed writes remain uncertain; raw provider messages/URLs are not printed, and writes are not blindly retried. The live test requires this specific conflict classification so an RPC outage cannot pass the concurrency check.
+- Added a live synthetic-invitation test for issuance/read/revocation/idempotency/stale-write rejection. It prints public writer/transaction/entity evidence only, never tokens or decrypted private records. No production claim insertion or artist activation path was added.
+- Generated a separate encryption key in ignored claims/.env with exclusive creation and mode 0600, without printing it or overwriting user configuration. Owner will configure their test signer/access key locally. The template contains empty secret values. No secret entered source control.
+
+### Verification
+
+- Initial sandbox npm metadata lookup failed with DNS ENOTFOUND; approved retry succeeded. Approved dependency installation with lifecycle scripts disabled reported zero known vulnerabilities. Removed pg and its transitive dependencies via an offline install after updating the manifest.
+- All **12 offline tests passed**: config/input validation, encryption randomness/authentication/context/tampering, encrypted token storage, concurrent freeze modeling, batch-failure rollback modeling, revocation/expiry, absent/duplicate/wrong-owner/stale records, real-SDK query construction and RPC decoding, malformed schema rejection, precise decoded-conflict classification, and sanitized CLI/help behavior.
+- SDK module import and root help command passed. Reviewed source, lockfile changes, documentation, local-secret exclusion, and whitespace. Frontend application and agent/payment source are unchanged; their suites were not rerun for this migration.
+- **Live Rabdi verification has not run:** the local signer and access-key fields were still empty at the final configuration-presence check. Offline fake transports/batch models are not reported as chain evidence. No entity, transaction, writer address, or prize qualification was fabricated.
+
+Remaining: configure test wallet/access key and run the opt-in live script; implement wallet proof/redemption, consent, service freeze enforcement, retention renewal/recovery, and artist-facing activation. Host/origin, ENS parent, and Reown setup remain pending. Arkiv expiry is not erasure, application state remains operator-owned, and cross-process signer nonce coordination is not implemented. No payment changes, push, merge, or deployment occurred.

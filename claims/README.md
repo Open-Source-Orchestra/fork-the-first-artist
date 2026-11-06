@@ -1,59 +1,73 @@
-# Steward operations and claim persistence
+# Steward operations on Arkiv
 
-Part 12 implements the owner-approved Node/PostgreSQL steward CLI. There is no public administration endpoint. It issues expiring invitations, revokes unused invitations, records service freezes, and reads claim status. Wallet verification, invitation redemption, the public claim API, HCS logging, and activation are not implemented here.
+Part 13 replaces the PostgreSQL package from commit `0017db1` with Arkiv Rabdi (chain **7794095**). The server-side CLI still issues/revokes invitations, records service freezes, and reads claim status. `invite-status` reads encrypted authoritative state from Arkiv. There is no public admin endpoint, PostgreSQL runtime, SQL migration, or fallback local database.
 
-**A freeze currently records database state only. Existing agent/payment services do not yet consult it.** Future service authorization must reject frozen or non-active claims before performing work. A freeze must never alter ENS ownership, ENS records, or the verified Hedera payout account. This package makes no chain calls.
+**Freeze enforcement in agent/payment services and wallet-proof redemption remain unimplemented.** A freeze changes OSO service metadata only. ENS ownership and the Hedera payout account are independent and are never changed by this package. Connection to MetaMask/HashPack is not claim verification.
 
-## Setup and commands
+## Setup
 
-Use Node 22.18+ and PostgreSQL (integration-tested with PostgreSQL 18.6). From the repository root:
+Use Node 22.18+. From the repository root:
 
 ```sh
 npm --prefix claims ci --ignore-scripts
-cp claims/.env.example claims/.env
 ```
 
-Configure `DATABASE_URL` in the ignored file or the host's secret store. Create a dedicated application database and operator role first. No database, role, default password, remote host, or production service is provisioned by these commands. Percent-encode special characters in URL credentials. URLs require a host, user, and database name; query parameters/fragments are rejected. Loopback connections use PostgreSQL authentication without TLS; remote connections require certificate-verified TLS. A private CA can be supplied through Node's `NODE_EXTRA_CA_CERTS`; do not disable verification.
+Configure an ignored `claims/.env` using `.env.example`. If it does not exist, copy the example first; never overwrite a configured file. It needs:
+
+- `ARKIV_PRIVATE_KEY`: a dedicated server-side Rabdi test account with tGLM. Never use the artist's wallet or a mainnet treasury.
+- `ARKIV_ACCESS_KEY`: obtain from [Arkiv Hub](https://hub.arkiv.network/access-keys). This stays server-side; the SDK includes it in the RPC URL.
+- `ARKIV_ENCRYPTION_KEY`: an independent random 32-byte secret, encoded as 64 hex characters. Back it up securely; changing or losing it makes old records unreadable. The development setup generated this locally in the ignored file, without printing it.
+- `ARKIV_NAMESPACE`: a stable, unique lowercase identifier per environment, default example `oso-mumbai-demo`. Changing namespace or writer switches the visible record set.
+- `ARKIV_RETENTION_DAYS`: 4–180, default 30. Storage expiry is distinct from invitation validity. Budget and renewal policy still need deployment configuration.
+
+Keep `.env` readable only by the backend operator. Do not enable `DEBUG`; the CLI rejects it to avoid verbose SDK diagnostics. Do not expose this file through the frontend. Keys have no checked-in defaults. The RPC host is fixed to the approved Rabdi testnet; commands validate chain ID and recent block time before data operations.
 
 ```sh
-npm run steward -- migrate
+npm run steward -- check
 npm run steward -- invite --artist "Demo artist" --actor "Steward label" --ttl-hours 24
+npm run steward -- invite-status --invite UUID
 npm run steward -- revoke-invite --invite UUID --actor "Steward label" --reason "Invitation withdrawn"
 npm run steward -- freeze --claim UUID --actor "Steward label" --reason "Claim disputed"
 npm run steward -- status --claim UUID
 ```
 
-Replace `UUID` with an existing record ID. There is deliberately no CLI command to create a verified claim, activate an artist, change a payout, or bypass signatures. The freeze/status commands become useful once verified claims exist. `--help` works without a database.
+`check` reads the chain and reports public writer/namespace/block information. Other mutation commands spend test GLM. `--help` needs no credentials. `migrate` is removed: Arkiv schemas describe typed entities rather than provisioning SQL tables. There is no command to forge a verified claim, activate an artist, or change payout identity.
 
-The operator's host access and database credentials authorize these commands. `--actor` is a human-readable audit label, **not proof of a steward's identity**. Restrict credentials and shell access to trusted operators. Use a dedicated migration owner; a runtime steward role needs schema USAGE, SELECT/INSERT on invites, UPDATE on invites.revoked_at, SELECT on claims, UPDATE on claims.frozen_at/frozen_by/freeze_reason, INSERT on audit_events, and USAGE on its identity sequence. Do not give the future public service migration ownership or steward privileges. Role provisioning depends on the chosen host and is not automated yet.
+The invitation response contains the raw bearer token once, only after a confirmed SDK write. Deliver it privately; do not capture that output in public CI logs. Only SHA-256(token) is stored, inside encrypted data. A token is valid for 1–72 hours, default 24, regardless of how long the entity is retained. Losing output requires inspecting/revoking the invitation by its ID and issuing another; tokens cannot be recovered from storage.
 
-## Invitation and freeze behavior
+## Storage and concurrency
 
-- Invitation output contains a fresh 256-bit bearer token, ID, and expiry. Treat stdout as private: do not run issuance in publicly logged CI or paste its output into an issue. Deliver the token privately to the intended artist. Delivery/link generation is not automated.
-- The database stores only SHA-256(token), never the raw token. Tokens are returned only after the invite and audit event commit. Lifetime defaults to 24 hours and can be 1–72 hours. If output is lost, revoke that invite and issue another; the token cannot be recovered from storage.
-- Revocation locks the invitation row and checks for an existing claim. Repeated revocation is a no-op; an already claimed invite must use a service freeze instead. Future redemption must lock this same row, check revocation/expiry, verify both wallet proofs and consent, and insert the claim atomically. The unique invite-to-claim constraint prevents duplicate claim rows; it does not implement proof verification.
-- Freezing changes only freeze metadata. Concurrent calls produce one change and one audit event; later calls preserve the original reason. Audit insertion failure rolls back the change. ENS authority, payout, and activation fields stay intact. No unfreeze policy or command has been selected.
-- Audit events are private database records, not tamper-evident HCS receipts. Database owners can alter them. Avoid sensitive personal details in actor/reason fields.
+`@arkiv-network/sdk` 1.0.1 and viem 2.57.16 are pinned. The schema and privacy details are in [arkiv/schema.md](../arkiv/schema.md).
 
-Claims reserve separate fields for Ethereum owner and native Hedera testnet account. These fields are not populated by wallet connection or by arbitrary CLI input. `verified_at` must be supplied by the future verification transaction; `activation_state` starts pending. Account-key verification, consent snapshots, profile storage, challenge state, ENS provisioning, and recoverable external activation will need subsequent migrations.
+Each state entity is created with immutable attributes (`readonly`). A transition creates its replacement and an encrypted audit event and deletes the exact prior entity key in one atomic batch. Per Arkiv's documented all-or-nothing batches and rejection of operations on missing entities, two writers attempting to consume the same prior entity cannot both commit. A stale contender fails; it must read again before deciding whether anything remains to do. This is not an SQL transaction or a distributed lock. Local tests model these semantics; the live script explicitly checks stale-entity rejection on Rabdi.
 
-## Migrations and failures
+Reads filter schema, namespace, kind, UUID, owner, and creator. They reject duplicate matches, invalid schema, a stale query block, non-readonly entities, expired entities, and failed authentication. Absence never means an artist is active or an invite is unused. The SDK has an in-process nonce manager; run one backend signer process. Do not use the same signer concurrently from separate CLI processes/hosts: competing Ethereum nonces can produce failed/replaced transactions. Entity consumption protects record transitions, not nonce allocation across processes.
 
-`migrate` applies `schema/001_steward.sql` transactionally under a PostgreSQL advisory lock. Concurrent calls apply it once. A checksum mismatch fails rather than silently changing an applied migration. Add a new migration for subsequent schema changes; the runner currently supports version 001 only.
+A state mutation and its audit share one transaction. Failed or uncertain writes return no success/token. Errors include only safe record IDs and a transaction hash when available. A timeout is **not proof of rollback**: inspect the transaction and read state before retrying. There is no blind retry of state-changing calls. RPC transport timeouts are 15 seconds; receipt waiting uses the SDK behavior. A receipt establishes inclusion, not an irreversible finality guarantee.
 
-Queries use parameters for operator input and a 10-second statement timeout. Connection attempts time out after five seconds. CLI failures return nonzero status and sanitized messages without connection URLs or database error contents. Inspect restricted database logs when diagnosing infrastructure failures. Transactions commit state and audit together using one checked-out client, following [node-postgres transaction guidance](https://node-postgres.com/features/transactions). Revocation serialization uses [PostgreSQL row locking](https://www.postgresql.org/docs/18/explicit-locking.html#LOCKING-ROWS).
+Authorization is possession of the server signer and host access. `--actor` is an audit label, not a verified steward identity. The writer can delete its entities and controls encryption; this is operator-controlled application storage, not artist-owned ENS authority or an immutable audit ledger. The read path also trusts the configured RPC's chain view.
 
-## Verification
+## Privacy and retention
+
+Arkiv is public. Names, steward labels, reasons, token hashes, and wallet bindings are AES-256-GCM encrypted with random nonces. Authentication binds ciphertext to chain, schema, owner, namespace, kind, and UUID. Public metadata still reveals the writer, record kinds/IDs, transaction timing, ciphertext size, and expiry. Raw invitation tokens, wallet signatures, and signing/encryption keys are never sent to Arkiv.
+
+Entities expire in blocks. Deleted/expired content may remain in transaction history or independent copies; expiry is not a promise of erasure. This change adds no public artist profile or new publication consent. [Arkiv docs](https://docs.arkiv.network/writing/expiration/) explain lifetime and extension behavior.
+
+There is no automatic renewal yet. Monitor expiry and implement reviewed renewal before depending on long-lived claims. Missing/expired claim state must suspend OSO access; it must never resurrect an invitation or alter ENS/payout ownership. Future redemption must consume the same invitation entity in its atomic batch, verify both wallets and consent, and create the claim there. Do not implement redemption as a query followed by an independent create.
+
+## Migration boundary
+
+The previous PostgreSQL implementation was exercised only in temporary synthetic databases; no production database or real claims were configured by this work. This is a **code/backend replacement**, not a claimed transfer of existing user data. SQL files, pg dependency, and PostgreSQL test harness are removed; commit `0017db1` preserves them. Existing Homebrew binaries/default cluster and private test directories are untouched. No destructive database command was run.
+
+If someone populated PostgreSQL independently, stop before cutover: export privately, validate consent and identity, encrypt/import with stable IDs, reconcile counts/state/audit, and review a rollback plan. No automatic export/import tool is included because there is no known production dataset to migrate.
+
+## Tests and live evidence
 
 ```sh
 npm run test:claims
-npm run test:claims:local
+npm run test:claims:arkiv
 ```
 
-The first command runs configuration/input tests without PostgreSQL. The second initializes a fresh private temporary cluster, chooses a loopback TCP port, uses a random SCRAM password, runs real database tests, and stops the cluster. It never opens the host's default cluster. Test files remain in the private OS temporary directory for diagnosis; no production data is used. By default binaries are read from `/opt/homebrew/opt/postgresql@18/bin`; set `PG_BIN` to the PostgreSQL bin directory on other installations. Run as a non-root OS user. Abrupt process termination such as SIGKILL cannot execute cleanup.
+The first command is offline: crypto/config/domain tests, a model of atomic batch behavior, and a real-SDK query over a fake transport. It does not prove network behavior. The second is an explicit live script that spends tGLM, issues/reads/revokes an encrypted synthetic invitation, verifies idempotency and stale-batch rejection, and prints only public evidence. The fixture expires after roughly four days; it never creates an artist claim or activation. On partial failure, inspect chain state before repeating.
 
-Alternatively, set `TEST_DATABASE_URL` to a dedicated empty test database and run `npm --prefix claims run test:integration`. The suite refuses an existing `artist_claims` schema and does not reset it. Tests create fixtures, including synthetic verified claims, inside that test database only.
-
-Nine tests cover configuration, invalid input, concurrent migrations/checksum drift, hashed tokens and parameterized input, concurrent freezes, audit rollback, schema constraints, revocation, and CLI behavior. These tests do not establish wallet verification or enforcement in other services. The aggregate root test command includes only the three database-free tests; real PostgreSQL tests are explicit.
-
-On the development machine, PostgreSQL 18 was installed through Homebrew with approval. Homebrew initialized its normal default cluster, but no background/startup service was enabled or started by this work. Verification used the isolated temporary cluster above. No production database or backend host is configured.
+Live verification status and real writer/transaction/entity evidence belong in [arkiv/README.md](../arkiv/README.md). Do not replace missing evidence with fabricated hashes or call prize qualification complete from offline tests.

@@ -121,10 +121,10 @@ const stewardFetch = (reply: StewardReply) =>
 
 const okSteward: StewardReply = {
   ok: true,
-  reply: { text: 'Shaka is a Mumbai percussionist.' },
+  reply: { text: 'Demo Artist performs Demo Song.' },
   provider: 'fake',
   model: 'fake-1',
-  provenance: { requestId: 'dev-req-abc', teeVerified: true },
+  provenance: { requestId: 'dev-req-abc', teeVerified: null },
 };
 
 const upstreamFetch = (async () =>
@@ -160,7 +160,7 @@ test('paywall: 402 without payment, then a paid answer with an unverified split 
     await handleAsk(second.ctx, { cfg, gate, spendLog, fetchImpl: stewardFetch(okSteward) });
     assert.equal(second.captured.status, 200);
     assert.equal(second.captured.body.ok, true);
-    assert.equal(second.captured.body.reply.text, 'Shaka is a Mumbai percussionist.');
+    assert.equal(second.captured.body.reply.text, 'Demo Artist performs Demo Song.');
     assert.equal(gate.settled, 1);
 
     // the split is 96.31 / 3.69 of 0.10 USDC
@@ -181,6 +181,48 @@ test('paywall: 402 without payment, then a paid answer with an unverified split 
     assert.equal(recent.length, 1);
     assert.equal(recent[0]!.kind, 'ask');
     assert.equal(recent[0]!.splitVerified, false);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('paywall: authenticates the steward call and forwards every per-call proof', async () => {
+  const { cfg, gate, spendLog, cleanup } = await freshEnv();
+  try {
+    cfg.stewardServiceToken = 'test-only-service-token';
+    let authorization: string | null = null;
+    let outgoing: Record<string, unknown> = {};
+    const reply: StewardReply = {
+      ...okSteward,
+      provenance: {
+        requestId: 'dev-req-summary',
+        teeVerified: null,
+        calls: [
+          { sequence: 1, phase: 'initial', requestId: 'dev-req-1', paymentTxId: 'mock-meter-1', teeVerified: null },
+          { sequence: 2, phase: 'tool', requestId: 'dev-req-2', paymentTxId: 'mock-meter-2', teeVerified: null },
+        ],
+      },
+    };
+    const captureFetch = (async (_url: unknown, init?: RequestInit) => {
+      authorization = new Headers(init?.headers).get('authorization');
+      outgoing = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      return new Response(JSON.stringify(reply), { status: 200 });
+    }) as unknown as typeof fetch;
+    const { ctx, captured } = fakeCtx({
+      pathname: ASK_PATH,
+      body: { instruction: 'hello', provider: 'caller-must-not-select', model: 'caller-model', tools: ['anything'] },
+      headers: { 'x-payment': 'payer=0.0.1234' },
+    });
+    await handleAsk(ctx, { cfg, gate, spendLog, fetchImpl: captureFetch });
+    assert.equal(captured.status, 200);
+    assert.equal(authorization, 'Bearer test-only-service-token');
+    assert.deepEqual(Object.keys(outgoing).sort(), ['instruction', 'payment']);
+    assert.equal(outgoing.provider, undefined);
+    assert.equal(outgoing.model, undefined);
+    assert.equal(outgoing.tools, undefined);
+    assert.equal(captured.body.proof.upstream.calls.length, 2);
+    assert.equal(captured.body.proof.upstream.calls[0].paymentTxId, 'mock-meter-1');
+    assert.equal(captured.body.proof.upstream.calls[1].requestId, 'dev-req-2');
   } finally {
     await cleanup();
   }

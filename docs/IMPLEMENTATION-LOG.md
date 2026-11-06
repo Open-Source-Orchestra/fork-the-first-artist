@@ -283,3 +283,26 @@ Date: 6 November 2026. Author: configured Git identity `ohana-sysadmin`. AI assi
 - Optional pinned Playwright/axe browser suite: **11 passed, 0 failed**. All **120/120 seat centers** hit their own buttons at 1280×800, 375×812, and 320×568; no wrong-seat interception or horizontal overflow. CTA, keyboard/dialog, filter combinations/reset, no-JS, and safe CTA handoff checks passed.
 - Twelve axe scans across four public routes × three viewports reported **0 violations** under the configured WCAG 2/2.1/2.2 A/AA rules. Browser listeners reported no page/console/local-request errors.
 - Real wallet pairing/extensions, claims, activation, backend/payment integration, deployment, and host-header remediation remain unverified or unimplemented as explicitly listed in the readiness record. No artist was activated.
+
+## 16 — Close the payment facilitator path and prove Arkiv live
+
+Date: 6 November 2026 (UTC). Authors: `ohana-sysadmin` and synthetic test wallets. AI assistance: Taurus `sysadmin 🫡`; source/payment base by the named human contributors.
+
+### Payment and service integration
+
+- `fix/demo-payments@ce5e34c` made challenge requirements canonical, including facilitator `extra.feePayer`, across challenge/verify/settle. An offline contract test runs the real Hedera gate against a mocked facilitator for both resource paths.
+- Explicit settlement failure and uncertain/missing-transaction results no longer return paid content/proof or append paid ledger entries. Caller `?payTo=` cannot redirect the configured artist recipient. Compute spending excludes fan revenue; per-call ceilings and distinct compute→meter recipients are enforced. Only `ENOENT` creates an empty ledger; unreadable/malformed/invalid history fails closed. Dev TEE claims are null. The incomplete custom-token script is disabled before any chain action.
+- Payments now reads `STEWARD_SERVICE_TOKEN`, authenticates its steward call, ignores attempted caller provider/model/tool selection, and forwards `provenance.calls[]` as `proof.upstream.calls`. Documentation closes R2/R3/R4/R6 and records the remaining distributed-reservation and reconciliation boundaries.
+
+### Real Arkiv evidence and user-facing read
+
+- Dedicated synthetic Rabdi writer `0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2`, chain `7794095`, namespace `oso-mumbai-synthetic-8e9d4dec`, invitation `55a4a16c-45c5-4bf4-9853-620a49b1cb26`.
+- Issue `0xf5ac4a62b1af1bdc066c46c825e325cd4485d377b951d8c777450e5771b09dd8` (block 301610) and revoke `0x88fa7783995c065bf2088aea99e812bed3391b5d91c98b88aed1448b0b2e4c75` (block 301613) both returned status `0x1`. The live repository test passed write/read/revoke/idempotency/stale-write rejection. Exactly two audit entities exist; public claim count is zero.
+- `/arkiv` performs a manual keyless current-entity read with no encryption/access key, ciphertext, or polling. Real browser responses use an array of `{name,type,value}` attributes; the parser validates them strictly and never infers encrypted status. The trusted CLI separately returned `revoked`. Real reads were verified at 375px without overflow, including final integrated block 302024. Exact query and evidence: `arkiv/README.md`.
+
+### Integrated verification
+
+- Clean dependency install completed after moving temporary data/cache off the small root overlay; this was an environment fix, not an application workaround.
+- **168/168 tests passed:** payments 55, agent 70, frontend 31, claims 12. Payments and agent typechecks passed. HashPack runtime/license build passed.
+- Optional Playwright suite: **11/11 passed**, 120/120 seat centers correct, 12 axe scans with zero violations. Final integrated Arkiv browser read: HTTP/query success at block 302024, one readonly entity, no console errors.
+- Still not proven: real Hedera settlement, real 0G inference, HCS, on-chain split, Reown wallet pairing, claims/ENS activation, production hosting. Hedera accounts remained unfunded and 0G credentials were blocked by official CAPTCHA/team-credit provisioning; no mock was substituted for live evidence.

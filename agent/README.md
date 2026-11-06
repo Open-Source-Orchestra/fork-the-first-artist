@@ -88,21 +88,12 @@ The JSON body accepts `instruction` (non-empty string) and optional `json`
 The demo server always uses its configured default provider/model and
 `get_artist_profile`, `get_songs`, `quote_tip`.
 
-**Payments contract:** after the payments teammate integrates authentication, its
-existing steward fetch must add the same bearer header:
-
-```ts
-headers: {
-  'content-type': 'application/json',
-  ...(process.env.STEWARD_SERVICE_TOKEN
-    ? { authorization: `Bearer ${process.env.STEWARD_SERVICE_TOKEN}` }
-    : {}),
-}
-```
-
-This branch intentionally does not edit `payments/`. The existing same-host dev
-integration works with a blank token. Do not enable a token on the agent until the
-caller sends it; a remote/non-loopback agent cannot start without one.
+**Payments contract:** the integrated payments service reads the same
+`STEWARD_SERVICE_TOKEN` and adds the bearer header to its steward fetch. Configure
+both private environment files together. Same-host dev integration works with a
+blank token; a remote/non-loopback agent cannot start without one. Payments also
+forwards `provenance.calls` as `proof.upstream.calls`, preserving every metered
+request/payment ID for the fan-facing response.
 
 ## Budget enforcement and provenance
 
@@ -155,7 +146,7 @@ compatibility and add one entry per model call:
 }
 ```
 
-`phase` is `initial`, `tool`, or `schema-repair`. Payments should preserve this
+`phase` is `initial`, `tool`, or `schema-repair`. Payments preserves this
 array as `proof.upstream.calls`; the demo script also prints every meter ledger
 entry when an older payments response has not forwarded the array. Do not present
 one top-level request/payment pair as proof for several meter calls.

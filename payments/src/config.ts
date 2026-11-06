@@ -65,6 +65,8 @@ export interface Config {
     trustMode: string;
   };
   stewardUrl: string;
+  /** Optional shared service credential; required by the agent for non-loopback binds. */
+  stewardServiceToken?: string;
   /** where the local spend ledger lives (jsonl). State, not source — gitignored. */
   ledgerPath: string;
 }
@@ -188,6 +190,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       trustMode: env('UPSTREAM_TRUST_MODE') ?? 'verified',
     },
     stewardUrl: (env('STEWARD_URL') ?? 'http://localhost:8403').replace(/\/+$/, ''),
+    stewardServiceToken: env('STEWARD_SERVICE_TOKEN'),
     ledgerPath: env('LEDGER_PATH') ?? 'data/spend-log.jsonl',
   };
 

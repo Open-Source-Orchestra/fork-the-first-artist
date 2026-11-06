@@ -7,9 +7,8 @@ your machine.
 ## 0. Prerequisites
 
 - Node **22.18+** (or 24). `node -v`
-- A Hedera **testnet** account with an ECDSA key (portal.hedera.com → create
-  account → faucet). Only needed for live mode.
-- Optional: a 0G Private Computer API key (pc.0g.ai → link email → $1 credit).
+- Separate Hedera **testnet** fan, artist, compute and meter accounts with ECDSA keys as needed. Only needed for live mode; use the official faucet or event support, never real funds.
+- A 0G Private Computer API key is optional for labelled dev-mock inference and **required for live mode**. Use the current sponsor/team-credit flow and verify the model catalog. On 6 Nov the testnet self-service credit/faucet flow was not available to this workspace; do not invent a key or use mainnet spend.
 
 ## 1. Dev mode — nothing on chain, 60 seconds
 
@@ -61,10 +60,9 @@ Set `ZEROG_NETWORK=testnet` for the configured testnet router and set
 default is only a compatibility value, not proof of catalog availability.
 
 The agent defaults to `HOST=127.0.0.1`. For a remote bind, generate a strong
-`STEWARD_SERVICE_TOKEN`, configure the same value in both services, and update the
-payments steward call to send `Authorization: Bearer <token>` before starting the
-agent. Non-loopback startup without the token is refused. The agent ignores
-caller-supplied provider/model/tool overrides.
+`STEWARD_SERVICE_TOKEN` and configure the same value in both services. Payments
+sends `Authorization: Bearer <token>`; non-loopback agent startup without the token
+is refused. The agent ignores caller-supplied provider/model/tool overrides.
 
 ### 2b. HCS topics
 

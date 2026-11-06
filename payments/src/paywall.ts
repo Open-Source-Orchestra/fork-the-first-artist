@@ -64,6 +64,15 @@ export interface StewardReply {
     teeVerified?: boolean | null;
     paymentTxId?: string;
     hcsTxId?: string;
+    calls?: {
+      sequence: number;
+      phase: string;
+      requestId?: string;
+      teeVerified?: boolean | null;
+      paymentTxId?: string;
+      hcsTxId?: string;
+      costUsd?: number;
+    }[];
   };
   toolCalls?: unknown[];
   /** `'template-reply'` etc. — a non-LLM answer, which must never be charged */
@@ -250,6 +259,7 @@ export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
           teeVerified: stewarded.provenance?.teeVerified ?? null,
           provider: stewarded.provider ?? null,
           model: stewarded.model ?? null,
+          calls: stewarded.provenance?.calls ?? [],
         },
         hashScan:
           settlement.network === 'hedera:mainnet'
@@ -275,9 +285,11 @@ async function callSteward(
   payment: { payer?: string },
   doFetch: typeof fetch,
 ): Promise<StewardReply> {
+  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  if (cfg.stewardServiceToken) headers.authorization = `Bearer ${cfg.stewardServiceToken}`;
   const res = await doFetch(`${cfg.stewardUrl}/ask`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers,
     // the payer id is forwarded so the steward's own logs can correlate the two
     // services for one fan question
     body: JSON.stringify({ instruction, payment }),

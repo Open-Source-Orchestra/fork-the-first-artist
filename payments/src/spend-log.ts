@@ -16,7 +16,7 @@
  * | Mode | Line in `spend-log.jsonl` | `hcsTxId` |
  * |---|---|---|
  * | `dev`  | yes | `hcs-mock-<sha256 prefix>` — a stable synthetic id, clearly synthetic |
- * | `live` | yes | the real HCS topic message id, `"<txId>@<status>"` |
+ * | `live` | yes | the real HCS topic message id, `"<txId>@<status>"`; `null` when HCS is disabled or fails |
  *
  * Writing to HCS is Hedera's "topic as a tamper-evident audit log" bonus point, and
  * it is best-effort on purpose: an unhappy audit topic must never fail a payment
@@ -54,21 +54,50 @@ export interface SpendEntry {
   /** 0G TEE attestation result; `null` means 0G did not report one */
   teeVerified?: boolean | null;
   model?: string;
-  /** the 96.31% share, when the split was computed for this entry */
+  /** preview of the 96.31% share, not proof of a recipient transfer */
   artistAtomic?: string;
-  /** the 3.69% share */
+  /** preview of the 3.69% share, not proof of a recipient transfer */
   agentAtomic?: string;
+  /** whether the asset's custom-fee split was verified; currently always false */
+  splitVerified?: boolean;
   /** HCS topic message id, or `null` when the audit write failed */
   hcsTxId?: string | null;
   /** free-text reason for a degraded or unusual entry */
   note?: string;
 }
 
-/** Aggregates used by the budget gate. `calls` counts every line, including templates. */
+/**
+ * Ledger aggregates. Legacy `totalUsd`/`lastHourUsd` remain total payment volume
+ * for reporting; only the explicit compute fields are used for meter ceilings.
+ * `calls` counts every line, including templates.
+ */
 export interface Totals {
   totalUsd: number;
   lastHourUsd: number;
+  computeTotalUsd: number;
+  computeLastHourUsd: number;
+  revenueTotalUsd: number;
+  revenueLastHourUsd: number;
   calls: number;
+}
+
+/** Reject syntactically valid JSON that cannot be trusted for spend accounting. */
+function isSpendEntry(value: unknown): value is SpendEntry {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    (entry.kind === 'ask' || entry.kind === 'meter' || entry.kind === 'template') &&
+    typeof entry.at === 'string' &&
+    Number.isFinite(Date.parse(entry.at)) &&
+    typeof entry.txId === 'string' &&
+    entry.txId.trim().length > 0 &&
+    typeof entry.priceAtomic === 'string' &&
+    /^\d+$/.test(entry.priceAtomic) &&
+    typeof entry.priceUsd === 'string' &&
+    entry.priceUsd.trim().length > 0 &&
+    Number.isFinite(Number(entry.priceUsd)) &&
+    Number(entry.priceUsd) >= 0
+  );
 }
 
 export class SpendLog {
@@ -83,29 +112,42 @@ export class SpendLog {
   /**
    * Read and parse the whole ledger.
    *
-   * A missing file is `[]` (first run). A single malformed line is skipped rather
-   * than aborting: the ledger is an append-only log written by an at-least-once
-   * process, and refusing to boot over one truncated last line during a demo would
-   * be the wrong trade. Every skip is reported on stderr so it is not silent.
+   * A missing file is `[]` (first run). Every other read failure and every damaged
+   * line is fatal: treating unknown history as zero would let spend resume against
+   * an unknown balance.
    */
   private async readAll(): Promise<SpendEntry[]> {
     if (this.cache) return this.cache;
+    let raw: string;
     try {
-      const raw = await readFile(this.cfg.ledgerPath, 'utf8');
-      const entries: SpendEntry[] = [];
-      for (const line of raw.split(/\r?\n/)) {
-        if (!line.trim()) continue;
-        try {
-          entries.push(JSON.parse(line) as SpendEntry);
-        } catch {
-          console.warn(`[ledger] skipping malformed line: ${line.slice(0, 80)}`);
-        }
+      raw = await readFile(this.cfg.ledgerPath, 'utf8');
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+        this.cache = [];
+        return this.cache;
       }
-      this.cache = entries;
-    } catch {
-      this.cache = [];
+      throw new Error(`Spend ledger is unreadable: ${this.cfg.ledgerPath}`, { cause: err });
     }
-    return this.cache;
+
+    const entries: SpendEntry[] = [];
+    const lines = raw.split(/\r?\n/);
+    for (const [index, line] of lines.entries()) {
+      if (!line.trim()) continue;
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(line);
+      } catch (err) {
+        throw new Error(`Spend ledger is corrupt at line ${index + 1}: invalid JSON`, {
+          cause: err,
+        });
+      }
+      if (!isSpendEntry(parsed)) {
+        throw new Error(`Spend ledger is corrupt at line ${index + 1}: invalid entry`);
+      }
+      entries.push(parsed);
+    }
+    this.cache = entries;
+    return entries;
   }
 
   /**
@@ -115,6 +157,8 @@ export class SpendLog {
    *              test fixture.
    */
   async append(entry: Omit<SpendEntry, 'at'> & { at?: string }): Promise<SpendEntry> {
+    // Do not append to history that could not be accounted for.
+    await this.readAll();
     const full: SpendEntry = { at: entry.at ?? new Date().toISOString(), ...entry } as SpendEntry;
 
     // Audit first so the stored line already carries its HCS id. A failure here is
@@ -140,11 +184,12 @@ export class SpendLog {
    *          catches and records `null`.
    */
   private async submitToHcs(entry: SpendEntry): Promise<string | null> {
-    if (this.cfg.mode === 'dev' || !this.cfg.hcsSpendTopicId) {
+    if (this.cfg.mode === 'dev') {
       // Synthetic, but derived from the entry, so the same entry always yields the
       // same id and a test can assert on it deterministically.
       return `hcs-mock-${createHash('sha256').update(JSON.stringify(entry)).digest('hex').slice(0, 16)}`;
     }
+    if (!this.cfg.hcsSpendTopicId) return null;
 
     // Dynamic import: dev mode must run with the Hedera SDK absent (see step 03).
     const { Client, PrivateKey, TopicMessageSubmitTransaction } = await import('@hiero-ledger/sdk');
@@ -178,13 +223,32 @@ export class SpendLog {
     const oneHourAgo = now - 60 * 60 * 1000;
     let total = 0;
     let lastHour = 0;
+    let computeTotal = 0;
+    let computeLastHour = 0;
+    let revenueTotal = 0;
+    let revenueLastHour = 0;
     for (const e of all) {
       const usd = Number(e.priceUsd);
-      if (!Number.isFinite(usd)) continue;
       total += usd;
-      if (Date.parse(e.at) >= oneHourAgo) lastHour += usd;
+      const inLastHour = Date.parse(e.at) >= oneHourAgo;
+      if (inLastHour) lastHour += usd;
+      if (e.kind === 'meter') {
+        computeTotal += usd;
+        if (inLastHour) computeLastHour += usd;
+      } else if (e.kind === 'ask') {
+        revenueTotal += usd;
+        if (inLastHour) revenueLastHour += usd;
+      }
     }
-    return { totalUsd: round6(total), lastHourUsd: round6(lastHour), calls: all.length };
+    return {
+      totalUsd: round6(total),
+      lastHourUsd: round6(lastHour),
+      computeTotalUsd: round6(computeTotal),
+      computeLastHourUsd: round6(computeLastHour),
+      revenueTotalUsd: round6(revenueTotal),
+      revenueLastHourUsd: round6(revenueLastHour),
+      calls: all.length,
+    };
   }
 
   /** Newest-first slice, for the demo output and any future admin page. */

@@ -22,6 +22,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { loadConfig, type Config } from '../src/config.ts';
 import { createMockGate } from '../src/gate/index.ts';
 import type { Gate } from '../src/gate/index.ts';
+import { createHederaGate } from '../src/gate/hedera.ts';
 import { SpendLog } from '../src/spend-log.ts';
 import { handleAsk, ASK_PATH, type StewardReply } from '../src/paywall.ts';
 import { handleMeter, METER_PATH } from '../src/meter.ts';
@@ -35,7 +36,7 @@ import { handleMeter, METER_PATH } from '../src/meter.ts';
  * rather than through the ledger, because the ledger could be right while the
  * settlement is wrong.
  */
-function countingGate(inner: Gate): Gate & { settled: number } {
+function countingGate(inner: Gate, settleImpl?: Gate['settle']): Gate & { settled: number } {
   const wrapped = {
     settled: 0,
     kind: inner.kind,
@@ -43,7 +44,7 @@ function countingGate(inner: Gate): Gate & { settled: number } {
     verify: inner.verify.bind(inner),
     settle: async (input: { handle: unknown; requirements: never }) => {
       wrapped.settled++;
-      return inner.settle(input);
+      return settleImpl ? settleImpl(input) : inner.settle(input);
     },
   };
   return wrapped as Gate & { settled: number };
@@ -79,14 +80,14 @@ function fakeCtx(opts: {
   return { ctx, captured };
 }
 
-const freshEnv = async (overrides: Partial<Config> = {}) => {
+const freshEnv = async (overrides: Partial<Config> = {}, settleImpl?: Gate['settle']) => {
   const dir = await mkdtemp(join(tmpdir(), 'oso-05-'));
   const cfg = loadConfig({
     mode: 'dev',
     ledgerPath: join(dir, 'spend-log.jsonl'),
     ...overrides,
   });
-  const gate = countingGate(createMockGate(cfg));
+  const gate = countingGate(createMockGate(cfg), settleImpl);
   return {
     cfg,
     gate,
@@ -94,6 +95,25 @@ const freshEnv = async (overrides: Partial<Config> = {}) => {
     cleanup: () => rm(dir, { recursive: true, force: true }),
   };
 };
+
+/** Live-mode configuration with only local test doubles; no SDK or network is used. */
+const liveEnv = (settleImpl: Gate['settle'], overrides: Partial<Config> = {}) =>
+  freshEnv(
+    {
+      mode: 'live',
+      accounts: { artist: '0.0.1111', compute: '0.0.2222', meter: '0.0.3333' },
+      agentPrivateKey: undefined,
+      hcsSpendTopicId: undefined,
+      upstream: {
+        baseUrl: 'http://upstream.invalid',
+        apiKey: 'test-only',
+        model: 'test-model',
+        trustMode: 'verified',
+      },
+      ...overrides,
+    },
+    settleImpl,
+  );
 
 /** A fetch double that returns the steward's canned answer envelope. */
 const stewardFetch = (reply: StewardReply) =>
@@ -107,9 +127,20 @@ const okSteward: StewardReply = {
   provenance: { requestId: 'dev-req-abc', teeVerified: true },
 };
 
+const upstreamFetch = (async () =>
+  new Response(
+    JSON.stringify({
+      object: 'chat.completion',
+      model: 'test-model',
+      choices: [],
+      x_0g_trace: { request_id: 'req-test', tee_verified: null },
+    }),
+    { status: 200 },
+  )) as unknown as typeof fetch;
+
 // --------------------------------------------------------------------------- paywall
 
-test('paywall: 402 without payment, then a paid answer with split proof', async () => {
+test('paywall: 402 without payment, then a paid answer with an unverified split preview', async () => {
   const { cfg, gate, spendLog, cleanup } = await freshEnv();
   try {
     // 1. no payment -> a 402 challenge, nothing settled
@@ -120,7 +151,7 @@ test('paywall: 402 without payment, then a paid answer with split proof', async 
     assert.equal(first.captured.body.accepts[0].amount, '100000');
     assert.equal(gate.settled, 0, 'no payment: nothing may settle');
 
-    // 2. with payment -> an answer, exactly one settlement, split recorded
+    // 2. with payment -> an answer, one settlement, explicitly unverified split preview
     const second = fakeCtx({
       pathname: ASK_PATH,
       body: { instruction: 'who are you?' },
@@ -133,9 +164,11 @@ test('paywall: 402 without payment, then a paid answer with split proof', async 
     assert.equal(gate.settled, 1);
 
     // the split is 96.31 / 3.69 of 0.10 USDC
-    assert.equal(second.captured.body.split.artistAtomic, '96310');
-    assert.equal(second.captured.body.split.agentAtomic, '3690');
-    assert.match(second.captured.body.split.human, /0\.096310 artist \/ 0\.003690 agent/);
+    assert.equal(second.captured.body.splitPreview.artistAtomic, '96310');
+    assert.equal(second.captured.body.splitPreview.agentAtomic, '3690');
+    assert.match(second.captured.body.splitPreview.human, /0\.096310 artist \/ 0\.003690 agent/);
+    assert.equal(second.captured.body.splitVerified, false);
+    assert.equal(second.captured.body.split, undefined);
 
     // the proof binds the payment to the upstream request — the submission artifact
     assert.match(second.captured.body.proof.paymentTxId, /^mock-/);
@@ -147,6 +180,7 @@ test('paywall: 402 without payment, then a paid answer with split proof', async 
     const recent = await spendLog.recent();
     assert.equal(recent.length, 1);
     assert.equal(recent[0]!.kind, 'ask');
+    assert.equal(recent[0]!.splitVerified, false);
   } finally {
     await cleanup();
   }
@@ -236,13 +270,102 @@ test('paywall: an empty instruction is a 400 before any payment talk', async () 
   }
 });
 
-test('paywall: ?payTo= routes funds to the artist from their ENS record', async () => {
+test('paywall: a caller-controlled ?payTo= cannot redirect the artist payout', async () => {
   const { cfg, gate, spendLog, cleanup } = await freshEnv();
   try {
-    const { ctx, captured } = fakeCtx({ pathname: `${ASK_PATH}?payTo=0.0.7777`, body: { instruction: 'hi' } });
+    const malicious = fakeCtx({
+      pathname: `${ASK_PATH}?payTo=${cfg.accounts.artist}&payTo=0.0.7777`,
+      body: { instruction: 'hi' },
+    });
+    await handleAsk(malicious.ctx, { cfg, gate, spendLog, fetchImpl: stewardFetch(okSteward) });
+    assert.equal(malicious.captured.status, 400);
+    assert.equal(malicious.captured.body.error, 'PAY_TO_NOT_ALLOWED');
+    assert.equal(malicious.captured.body.accepts, undefined);
+    assert.equal(gate.settled, 0);
+    assert.equal((await spendLog.recent()).length, 0);
+
+    // Older clients may repeat the configured value, but never choose another.
+    const matching = fakeCtx({
+      pathname: `${ASK_PATH}?payTo=${cfg.accounts.artist}`,
+      body: { instruction: 'hi' },
+    });
+    await handleAsk(matching.ctx, { cfg, gate, spendLog, fetchImpl: stewardFetch(okSteward) });
+    assert.equal(matching.captured.status, 402);
+    assert.equal(matching.captured.body.accepts[0].payTo, cfg.accounts.artist);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('paywall: failed live settlement returns no paid answer, proof, or ledger entry', async () => {
+  const { cfg, gate, spendLog, cleanup } = await liveEnv(async () => ({
+    success: false,
+    errorReason: 'facilitator rejected settlement',
+  }));
+  try {
+    const { ctx, captured } = fakeCtx({
+      pathname: ASK_PATH,
+      body: { instruction: 'hello' },
+      headers: { 'x-payment': 'test-payment' },
+    });
     await handleAsk(ctx, { cfg, gate, spendLog, fetchImpl: stewardFetch(okSteward) });
-    assert.equal(captured.status, 402);
-    assert.equal(captured.body.accepts[0].payTo, '0.0.7777');
+
+    assert.equal(captured.status, 502);
+    assert.equal(captured.body.error, 'SETTLEMENT_FAILED');
+    assert.equal(captured.body.settled, false);
+    assert.equal(captured.body.proof, null);
+    assert.equal(captured.body.reply, undefined);
+    assert.equal(captured.headers['x-payment-response'], undefined);
+    assert.equal(gate.settled, 1);
+    assert.equal((await spendLog.recent()).length, 0);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('paywall: live settlement success without a transaction id is ambiguous, never paid', async () => {
+  const { cfg, gate, spendLog, cleanup } = await liveEnv(async () => ({
+    success: true,
+    network: 'hedera:testnet',
+  }));
+  try {
+    const { ctx, captured } = fakeCtx({
+      pathname: ASK_PATH,
+      body: { instruction: 'hello' },
+      headers: { 'x-payment': 'test-payment' },
+    });
+    await handleAsk(ctx, { cfg, gate, spendLog, fetchImpl: stewardFetch(okSteward) });
+
+    assert.equal(captured.status, 502);
+    assert.equal(captured.body.error, 'SETTLEMENT_UNCONFIRMED');
+    assert.equal(captured.body.settled, null);
+    assert.equal(captured.body.reconciliationRequired, true);
+    assert.equal(captured.body.proof, null);
+    assert.equal(captured.body.reply, undefined);
+    assert.equal(gate.settled, 1);
+    assert.equal((await spendLog.recent()).length, 0);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('paywall: a settlement transport error requires reconciliation and records nothing', async () => {
+  const { cfg, gate, spendLog, cleanup } = await liveEnv(async () => {
+    throw new Error('connection reset');
+  });
+  try {
+    const { ctx, captured } = fakeCtx({
+      pathname: ASK_PATH,
+      body: { instruction: 'hello' },
+      headers: { 'x-payment': 'test-payment' },
+    });
+    await handleAsk(ctx, { cfg, gate, spendLog, fetchImpl: stewardFetch(okSteward) });
+
+    assert.equal(captured.status, 502);
+    assert.equal(captured.body.error, 'SETTLEMENT_UNCONFIRMED');
+    assert.equal(captured.body.settled, null);
+    assert.equal(captured.body.proof, null);
+    assert.equal((await spendLog.recent()).length, 0);
   } finally {
     await cleanup();
   }
@@ -267,8 +390,8 @@ test('meter: 402 challenge is protocol-shaped and priced', async () => {
 
     assert.equal(captured.status, 402);
     assert.equal(captured.body.accepts[0].amount, '2000'); // 0.002 USDC
-    // the meter is paid to the AGENT's own wallet, never the artist's
-    assert.equal(captured.body.accepts[0].payTo, cfg.accounts.compute);
+    // the meter is paid to its operator, never the artist or the compute payer
+    assert.equal(captured.body.accepts[0].payTo, cfg.accounts.meter);
   } finally {
     await cleanup();
   }
@@ -289,13 +412,103 @@ test('meter: a paid call returns the answer, the payment tx and the 0G request i
     // ...plus the audit block
     assert.match(captured.body.x_meter.paymentTxId, /^mock-/);
     assert.match(captured.body.x_meter.upstream.requestId, /^dev-req-/);
-    assert.equal(captured.body.x_meter.upstream.teeVerified, true);
+    assert.equal(captured.body.x_meter.upstream.teeVerified, null, 'dev inference has no TEE attestation');
+    assert.equal(captured.body.x_0g_trace.tee_verified, null);
     assert.equal(gate.settled, 1);
 
     const recent = await spendLog.recent();
     assert.equal(recent.length, 1);
     assert.equal(recent[0]!.kind, 'meter');
     assert.ok(recent[0]!.upstreamRequestId, 'the 0G request id is recorded with the payment');
+  } finally {
+    await cleanup();
+  }
+});
+
+test('meter: fan revenue does not consume the compute budget', async () => {
+  const { cfg, gate, spendLog, cleanup } = await freshEnv();
+  try {
+    const ask = fakeCtx({
+      pathname: ASK_PATH,
+      body: { instruction: 'hello' },
+      headers: { 'x-payment': 'payer=0.0.1234' },
+    });
+    await handleAsk(ask.ctx, { cfg, gate, spendLog, fetchImpl: stewardFetch(okSteward) });
+    assert.equal(ask.captured.status, 200);
+
+    // The 0.10 USDC ask alone exceeds the default 0.05 hourly cap. It is artist
+    // revenue, not compute spend, so the 0.002 USDC meter call must still run.
+    const meter = meterCtx({ 'x-payment': 'payer=0.0.6666' });
+    await handleMeter(meter.ctx, { cfg, gate, spendLog });
+    assert.equal(meter.captured.status, 200);
+
+    const totals = await spendLog.totals();
+    assert.equal(totals.totalUsd, 0.102, 'reporting still includes all payment volume');
+    assert.equal(totals.revenueTotalUsd, 0.1);
+    assert.equal(totals.computeTotalUsd, 0.002);
+    assert.equal(totals.computeLastHourUsd, 0.002);
+    assert.equal(totals.calls, 2);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('meter: failed live settlement returns no paid payload, proof, or ledger entry', async () => {
+  const { cfg, gate, spendLog, cleanup } = await liveEnv(async () => ({
+    success: false,
+    errorReason: 'settlement rejected',
+  }));
+  try {
+    const { ctx, captured } = meterCtx({ 'x-payment': 'test-payment' });
+    await handleMeter(ctx, { cfg, gate, spendLog, fetchImpl: upstreamFetch });
+
+    assert.equal(captured.status, 502);
+    assert.equal(captured.body.error, 'SETTLEMENT_FAILED');
+    assert.equal(captured.body.settled, false);
+    assert.equal(captured.body.proof, null);
+    assert.equal(captured.body.x_meter, undefined);
+    assert.equal(captured.headers['x-payment-response'], undefined);
+    assert.equal(gate.settled, 1);
+    assert.equal((await spendLog.recent()).length, 0);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('meter: live settlement success without a transaction id is ambiguous, never paid', async () => {
+  const { cfg, gate, spendLog, cleanup } = await liveEnv(async () => ({ success: true }));
+  try {
+    const { ctx, captured } = meterCtx({ 'x-payment': 'test-payment' });
+    await handleMeter(ctx, { cfg, gate, spendLog, fetchImpl: upstreamFetch });
+
+    assert.equal(captured.status, 502);
+    assert.equal(captured.body.error, 'SETTLEMENT_UNCONFIRMED');
+    assert.equal(captured.body.settled, null);
+    assert.equal(captured.body.reconciliationRequired, true);
+    assert.equal(captured.body.proof, null);
+    assert.equal(captured.body.x_meter, undefined);
+    assert.equal(gate.settled, 1);
+    assert.equal((await spendLog.recent()).length, 0);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('meter: fixed price above the per-call ceiling is refused before payment', async () => {
+  const { cfg, gate, spendLog, cleanup } = await freshEnv({
+    budget: { totalUsd: 100, hourlyUsd: 100, maxPerCallUsd: 0.001 },
+  });
+  try {
+    const { ctx, captured } = meterCtx({ 'x-payment': 'payer=0.0.6666' });
+    await handleMeter(ctx, { cfg, gate, spendLog });
+
+    assert.equal(captured.status, 403);
+    assert.equal(captured.body.code, 'SPEND_CAP_EXCEEDED');
+    assert.equal(captured.body.scope, 'per-call');
+    assert.equal(captured.body.priceUsd, 0.002);
+    assert.equal(captured.body.capUsd, 0.001);
+    assert.equal(gate.settled, 0);
+    assert.equal((await spendLog.recent()).length, 0);
   } finally {
     await cleanup();
   }
@@ -342,9 +555,110 @@ test('meter: /meter/info advertises the price and budget without needing payment
     await handleMeter(ctx, { cfg, gate, spendLog });
     assert.equal(captured.status, 200);
     assert.equal(captured.body.priceAtomic, '2000');
-    assert.equal(captured.body.payTo, cfg.accounts.compute);
+    assert.equal(captured.body.payTo, cfg.accounts.meter);
     assert.equal(captured.body.spent.calls, 0);
   } finally {
+    await cleanup();
+  }
+});
+
+test('live gate: paywall and meter reuse identical feePayer requirements for verify and settle', async () => {
+  const unusedSettlement = (async () => {
+    throw new Error('test must use the real gate client with a mocked facilitator');
+  }) as Gate['settle'];
+  const { cfg, spendLog, cleanup } = await liveEnv(unusedSettlement, {
+    facilitatorUrl: 'http://facilitator.invalid',
+  });
+  const originalFetch = globalThis.fetch;
+  const verifyRequirements: Record<string, any>[] = [];
+  const settleRequirements: Record<string, any>[] = [];
+  let supportedCalls = 0;
+
+  const facilitatorFetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    const url = String(input);
+    if (url === 'http://facilitator.invalid/supported') {
+      supportedCalls++;
+      return new Response(
+        JSON.stringify({
+          kinds: [
+            {
+              x402Version: 2,
+              scheme: 'exact',
+              network: cfg.network,
+              extra: { feePayer: '0.0.9999' },
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    }
+
+    const wire = JSON.parse(String(init?.body)) as {
+      paymentRequirements: Record<string, any>;
+      paymentPayload: unknown;
+    };
+    if (url === 'http://facilitator.invalid/verify') {
+      verifyRequirements.push(wire.paymentRequirements);
+      return new Response(
+        JSON.stringify({ isValid: true, payer: cfg.accounts.compute }),
+        { status: 200 },
+      );
+    }
+    if (url === 'http://facilitator.invalid/settle') {
+      settleRequirements.push(wire.paymentRequirements);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          transaction: `0.0.9999@1770000000.00000000${settleRequirements.length}`,
+          network: cfg.network,
+          payer: cfg.accounts.compute,
+        }),
+        { status: 200 },
+      );
+    }
+    throw new Error(`unexpected network call: ${url}`);
+  }) as typeof fetch;
+
+  try {
+    globalThis.fetch = facilitatorFetch;
+    const gate = createHederaGate(cfg);
+    const paymentHeader = Buffer.from(
+      JSON.stringify({ x402Version: 2, scheme: 'exact', network: cfg.network, payload: {} }),
+    ).toString('base64');
+
+    const ask = fakeCtx({
+      pathname: ASK_PATH,
+      body: { instruction: 'hello' },
+      headers: { 'x-payment': paymentHeader },
+    });
+    await handleAsk(ask.ctx, {
+      cfg,
+      gate,
+      spendLog,
+      fetchImpl: stewardFetch({
+        ...okSteward,
+        provenance: { requestId: 'req-ask-test', teeVerified: null },
+      }),
+    });
+    assert.equal(ask.captured.status, 200);
+
+    const meter = meterCtx({ 'x-payment': paymentHeader });
+    await handleMeter(meter.ctx, { cfg, gate, spendLog, fetchImpl: upstreamFetch });
+    assert.equal(meter.captured.status, 200);
+
+    assert.equal(supportedCalls, 1, 'facilitator capabilities are fetched once and cached');
+    assert.equal(verifyRequirements.length, 2);
+    assert.equal(settleRequirements.length, 2);
+    for (const [index, requirements] of verifyRequirements.entries()) {
+      assert.deepEqual(settleRequirements[index], requirements);
+      assert.equal(requirements.extra?.feePayer, '0.0.9999');
+    }
+    assert.equal(verifyRequirements[0]!.payTo, cfg.accounts.artist);
+    assert.equal(verifyRequirements[1]!.payTo, cfg.accounts.meter);
+    assert.notEqual(verifyRequirements[1]!.payTo, cfg.accounts.compute);
+    assert.equal((await spendLog.recent()).length, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
     await cleanup();
   }
 });

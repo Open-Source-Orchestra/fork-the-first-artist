@@ -36,6 +36,14 @@
  */
 import { loadDotEnv } from '../src/config.ts';
 
+// Disabled during the base-USDC demo: initialSupply is zero and this script has
+// neither a supply key nor a mint path. Do not let an operator accidentally create
+// an unusable asset or mistake its arithmetic for a working revenue split.
+console.error(
+  'token:create is disabled: the script has no supply key/mint path and custom assets also require facilitator allowedAssets configuration. Use the default USDC single-recipient settlement flow.',
+);
+process.exit(1);
+
 loadDotEnv();
 
 /** Read a required env var, or exit with the variable's name — never with a stack trace. */

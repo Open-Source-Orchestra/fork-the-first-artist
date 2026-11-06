@@ -72,7 +72,8 @@ async function main(): Promise<void> {
     model?: string;
     degradation?: string;
     error?: { code: string; message: string };
-    split?: { human: string };
+    splitPreview?: { human: string };
+    splitVerified?: boolean;
     proof?: {
       paymentTxId: string;
       payer?: string;
@@ -93,7 +94,9 @@ async function main(): Promise<void> {
   ok(`   via ${body.provider}/${body.model}${body.degradation ? ` [degraded: ${body.degradation}]` : ''}`);
 
   rule('4. the proof judges ask for');
-  ok(`split          : ${body.split?.human}`);
+  ok(
+    `split preview  : ${body.splitPreview?.human} (verified on asset: ${body.splitVerified === true})`,
+  );
   ok(`payment tx     : ${body.proof?.paymentTxId}`);
   ok(`HashScan       : ${body.proof?.hashScan}`);
   ok(`0G request id  : ${body.proof?.upstream.requestId ?? '(none)'}`);

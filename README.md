@@ -8,12 +8,13 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 - Numbered coding workflow: [docs/IMPLEMENTATION-WORKFLOW.md](docs/IMPLEMENTATION-WORKFLOW.md)
 - Prize strategy and confirmed decisions: [docs/PRIZE-STRATEGY.md](docs/PRIZE-STRATEGY.md)
 - Implementation history and verification: [docs/IMPLEMENTATION-LOG.md](docs/IMPLEMENTATION-LOG.md)
+- Frontend demo-readiness evidence: [docs/FRONTEND-DEMO-READINESS.md](docs/FRONTEND-DEMO-READINESS.md)
 
 ## Layout
 | Folder | What |
 |---|---|
 | `payments/` | x402 on Hedera + 96.31/3.69 split |
-| `frontend/` | profile, claim, tip |
+| `frontend/` | public artist-preview circle, sample home, local draft, unverified wallet adapters |
 | `claims/` | Arkiv steward CLI: encrypted invites, revocation, freeze records |
 | `ens/` | artist names + records |
 | `agent/` | 0G steward agent, spend cap, HCS claim log |
@@ -21,7 +22,7 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 
 ## Local frontend preview
 
-Run `npm run dev:frontend` from this directory and open `http://127.0.0.1:4173`. Explore the sample OSO profile or open `/draft` to preview a name and bio in the current tab. Drafts are not saved or published; claim and payment integration are not active. See [frontend/README.md](frontend/README.md) for scope, verification, and source attribution.
+Run `npm run dev:frontend` from this directory and open `http://127.0.0.1:4173`. Browse 40 public artist previews, visit `/home` for the sample OSO profile, or open `/draft` to preview a name and bio in the current tab. Public roster/photos are not activation consent. Drafts are not saved or published; claim and payment integration are not active. See [frontend/README.md](frontend/README.md) for the 27 unit/route tests, optional 11-test browser/axe audit, scope, and source attribution.
 
 Arkiv integration and pending testnet evidence: [arkiv/README.md](arkiv/README.md).
 

@@ -28,7 +28,10 @@ test('preview serves only public assets and refuses writes and repository paths'
   assert.equal(home.status, 200);
   assert.match(home.headers['content-type'], /^text\/html/);
   assert.match(home.body, /Everyone plays/);
+  assert.match(home.body, /Browse all 40 public artist previews/);
+  assert.doesNotMatch(home.body, /keeps every cent|Claim this seat/);
   assert.match((await get('/home')).body, /Sample profile/);
+  assert.match((await get('/circle-state.mjs')).body, /export function filterArtists/);
   const roster = await get('/circle/artists.mjs');
   assert.equal(roster.status, 200);
   assert.match(roster.body, /export const roster/);
@@ -43,6 +46,8 @@ test('preview serves only public assets and refuses writes and repository paths'
 
   const editor = await get('/draft');
   assert.equal(editor.status, 200);
+  assert.equal((await get('/draft?artist=alaska-x-subcult')).status, 200);
+  assert.equal((await get('/draft?artist=unknown-private-text')).status, 200);
   assert.match(editor.body, /id="editor-fields" disabled/);
   assert.match(editor.headers['content-security-policy'], /script-src 'self'/);
   assert.match(editor.headers['content-security-policy'], /form-action 'none'/);
@@ -60,7 +65,7 @@ test('preview serves only public assets and refuses writes and repository paths'
       assert.equal((await get(path)).status, 200, path);
     }
   }
-  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs']) {
+  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs']) {
     const module = await get(path);
     assert.equal(module.status, 200);
     assert.match(module.headers['content-type'], /^text\/javascript/);

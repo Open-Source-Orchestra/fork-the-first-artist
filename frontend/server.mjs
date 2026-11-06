@@ -9,6 +9,7 @@ const assets = new Map(await Promise.all([
   ['/home', 'home.html', 'text/html; charset=utf-8'],
   ['/circle.css', 'circle.css', 'text/css; charset=utf-8'],
   ['/circle.mjs', 'circle.mjs', 'text/javascript; charset=utf-8'],
+  ['/circle-state.mjs', 'circle-state.mjs', 'text/javascript; charset=utf-8'],
   ['/circle/artists.mjs', 'circle/artists.mjs', 'text/javascript; charset=utf-8'],
   ['/draft', 'draft.html', 'text/html; charset=utf-8'],
   ['/wallets', 'wallets.html', 'text/html; charset=utf-8'],

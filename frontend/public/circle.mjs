@@ -1,73 +1,150 @@
 import { roster } from '/circle/artists.mjs';
-// Circle front door: render the seats, filter by day, open a profile card. No inline HTML from data.
+import { createFilterState, draftUrlForArtist, filterArtists } from '/circle-state.mjs';
+
+// Public preview only: render native list/button semantics with one combined filter state.
 const $ = (id) => document.getElementById(id);
 const ring = $('ring');
 const { artists } = roster;
-const photos = artists.filter((a) => a.photo);
+const state = createFilterState();
+const photos = artists.filter((artist) => artist.photo);
 
-// photo arc (twice for a seamless drift)
-for (const a of [...photos, ...photos]) {
+// The decorative arc is not interactive and never receives pointer events.
+for (const artist of [...photos, ...photos]) {
   const img = document.createElement('img');
-  img.src = a.photo; img.alt = ''; img.loading = 'lazy';
+  img.src = artist.photo;
+  img.alt = '';
+  img.loading = 'lazy';
   $('arc').append(img);
 }
 
-const seats = artists.map((a, i) => {
-  const b = document.createElement('button');
-  b.type = 'button'; b.className = `seat ${a.kind}`; b.setAttribute('role', 'listitem');
-  b.setAttribute('aria-label', `${a.name}${a.set ? ' · ' + a.set : ''}`);
-  b.style.setProperty('--a', `${(360 / artists.length) * i}deg`);
-  if (a.photo) b.style.backgroundImage = `url("${a.photo}")`; else b.textContent = a.glyph || '🎶';
-  const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = a.name; b.append(nm);
-  b.addEventListener('click', () => open(a));
-  ring.append(b);
-  return { a, b };
+const seats = artists.map((artist, index) => {
+  const item = document.createElement('li');
+  const angle = ((360 / artists.length) * index - 90) * (Math.PI / 180);
+  item.style.setProperty('--x', `${50 + 43 * Math.cos(angle)}%`);
+  item.style.setProperty('--y', `${50 + 45 * Math.sin(angle)}%`);
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `seat ${artist.kind}`;
+  button.dataset.slug = artist.slug;
+  button.setAttribute('aria-label', `${artist.name}${artist.set ? ` · ${artist.set}` : ''}`);
+
+  const visual = document.createElement('span');
+  visual.className = 'seat-visual';
+  visual.setAttribute('aria-hidden', 'true');
+  if (artist.photo) visual.style.backgroundImage = `url("${artist.photo}")`;
+  else visual.textContent = artist.glyph || '🎶';
+
+  const name = document.createElement('span');
+  name.className = 'nm';
+  name.textContent = artist.name;
+  const set = document.createElement('span');
+  set.className = 'seat-set';
+  set.textContent = artist.set || artist.status || '';
+
+  button.append(visual, name, set);
+  button.addEventListener('click', () => openProfile(artist, button));
+  item.append(button);
+  ring.append(item);
+  return { artist, button, item };
 });
 
-const radius = () => { const r = ring.clientWidth * 0.42; seats.forEach(({ b }) => b.style.setProperty('--r', `-${r}px`)); };
-radius(); addEventListener('resize', radius);
-
-function show(test) {
-  let n = 0;
-  for (const { a, b } of seats) { const on = test(a); b.classList.toggle('dim', !on); b.tabIndex = on ? 0 : -1; n += on; }
-  $('count').textContent = `${n} / ${artists.length}`; $('meter').value = n / artists.length;
+function syncControls() {
+  if ($('find').value !== state.query) $('find').value = state.query;
+  document.querySelectorAll('.pill[data-day]').forEach((button) => {
+    const selected = button.dataset.day === state.day;
+    button.classList.toggle('is-on', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
 }
-show(() => true);
 
-$('pills').addEventListener('click', (e) => {
-  const p = e.target.closest('button[data-day]'); if (!p) return;
-  document.querySelectorAll('.pill[data-day]').forEach((x) => x.classList.toggle('is-on', x === p));
-  const d = p.dataset.day;
-  show((a) => d === 'all' || String(a.day) === d || a.kind === 'host');
-});
-
-$('finder').addEventListener('submit', (e) => e.preventDefault());
-$('find').addEventListener('input', (e) => {
-  const q = e.target.value.trim().toLowerCase();
-  show((a) => !q || a.name.toLowerCase().includes(q));
-});
-
-$('spin').addEventListener('click', () => {
-  ring.classList.remove('spin'); void ring.offsetWidth; ring.classList.add('spin');
-  show(() => true);
-});
-
-const dlg = $('profile');
-function open(a) {
-  const ph = $('p-photo');
-  ph.textContent = ''; ph.style.backgroundImage = '';
-  if (a.photo) ph.style.backgroundImage = `url("${a.photo}")`; else ph.textContent = a.glyph || '🎶';
-  $('p-set').textContent = a.set || a.status || '';
-  $('p-name').textContent = a.name;
-  $('p-tag').textContent = a.tagline || '';
-  $('p-head').textContent = a.headline || '';
-  const ul = $('p-links'); ul.textContent = '';
-  for (const l of a.links || []) {
-    const li = document.createElement('li'); const link = document.createElement('a');
-    link.href = l.url; link.textContent = l.label; link.rel = 'noopener noreferrer'; link.target = '_blank';
-    li.append(link); ul.append(li);
+function applyFilters() {
+  const matching = new Set(filterArtists(artists, state));
+  for (const { artist, button, item } of seats) {
+    const visible = matching.has(artist);
+    item.hidden = !visible;
+    item.classList.toggle('is-dimmed', !visible);
+    if (visible) item.removeAttribute('aria-hidden');
+    else item.setAttribute('aria-hidden', 'true');
+    button.tabIndex = visible ? 0 : -1;
   }
-  dlg.showModal();
+  $('count').textContent = `${matching.size} of ${artists.length}`;
+  $('meter').max = artists.length;
+  $('meter').value = matching.size;
+  $('meter').textContent = `${matching.size} of ${artists.length}`;
 }
-$('p-close').addEventListener('click', () => dlg.close());
-dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+
+syncControls();
+applyFilters();
+
+$('pills').addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-day]');
+  if (!button) return;
+  state.day = button.dataset.day;
+  syncControls();
+  applyFilters();
+});
+
+$('finder').addEventListener('submit', (event) => event.preventDefault());
+$('find').addEventListener('input', (event) => {
+  state.query = event.target.value;
+  applyFilters();
+});
+
+function resetCircle() {
+  Object.assign(state, createFilterState());
+  syncControls();
+  applyFilters();
+  // Celebration changes paint only; seat geometry and hit targets stay stable.
+  ring.classList.remove('spin');
+  void ring.offsetWidth;
+  ring.classList.add('spin');
+}
+
+$('reset-filters').addEventListener('click', resetCircle);
+$('spin').addEventListener('click', resetCircle);
+
+const dialog = $('profile');
+let dialogOpener = null;
+function openProfile(artist, opener) {
+  dialogOpener = opener;
+  const photo = $('p-photo');
+  photo.textContent = '';
+  photo.style.backgroundImage = '';
+  if (artist.photo) photo.style.backgroundImage = `url("${artist.photo}")`;
+  else photo.textContent = artist.glyph || '🎶';
+  $('p-set').textContent = artist.set || artist.status || '';
+  $('p-name').textContent = artist.name;
+  $('p-tag').textContent = artist.tagline || '';
+  $('p-head').textContent = artist.headline || '';
+  $('p-draft').href = draftUrlForArtist(artist);
+
+  const links = $('p-links');
+  links.textContent = '';
+  for (const publicLink of artist.links || []) {
+    const item = document.createElement('li');
+    const anchor = document.createElement('a');
+    anchor.href = publicLink.url;
+    anchor.textContent = publicLink.label;
+    anchor.rel = 'noopener noreferrer';
+    anchor.target = '_blank';
+    item.append(anchor);
+    links.append(item);
+  }
+  links.hidden = !(artist.links || []).length;
+  dialog.showModal();
+}
+
+$('p-close').addEventListener('click', () => dialog.close());
+dialog.addEventListener('close', () => {
+  if (dialogOpener?.isConnected) dialogOpener.focus();
+});
+dialog.addEventListener('click', (event) => {
+  if (event.target !== dialog) return;
+  const bounds = dialog.getBoundingClientRect();
+  const outside = event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
+  if (outside) dialog.close();
+});
+
+// Reveal interactive controls only after all renderers and handlers are ready.
+document.body.classList.remove('no-js');

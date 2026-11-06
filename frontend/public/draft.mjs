@@ -1,4 +1,6 @@
 import { validateProfileDraft } from './profile-draft.mjs';
+import { artistNameForSlug } from './circle-state.mjs';
+import { roster } from './circle/artists.mjs';
 
 const form = document.querySelector('#draft-form');
 const fields = {
@@ -80,5 +82,19 @@ window.addEventListener('pageshow', (event) => {
   }
 });
 discardDraft();
+
+// A circle link supplies only a slug. Resolve it against bundled public data;
+// never prefill arbitrary URL text, bios, wallet data, or claim/authority fields.
+const parameters = new URLSearchParams(window.location.search);
+const requestedSlug = parameters.get('artist');
+const publicArtistName = artistNameForSlug(requestedSlug, roster.artists);
+if (parameters.has('artist')) {
+  // The transient handoff need not remain in history or restore data on reload.
+  window.history.replaceState(null, '', `${window.location.pathname}${window.location.hash}`);
+  if (publicArtistName) fields.name.value = publicArtistName;
+}
+
 document.querySelector('#editor-fields').disabled = false;
-status.textContent = 'Nothing has been saved or published.';
+status.textContent = publicArtistName
+  ? 'Public artist name prefilled. Add a story to preview it; nothing has been saved, claimed, or published.'
+  : 'Nothing has been saved or published.';

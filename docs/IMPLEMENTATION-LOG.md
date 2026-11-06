@@ -29,3 +29,19 @@ The owner requested a complete staged coding workflow, a numbered commit after e
 ### Pending decisions and limits
 
 Asked the owner which components to own, whether to build from `main` or PR #3, and whether stack/wallet/deployment requirements already exist. Implementation stages remain provisional until those answers arrive. PR #3 tests and live integrations have not been independently verified. No PR was merged, no remote branch was pushed, and no artist resource was activated.
+
+## 02 — Review PR #3 and record implementation ownership
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+The owner selected PR #3 as the development base, assigned all non-payment work, and requested reuse of the frontend in `shakaleikaumaka/oso-storytelling`. Payments are review/report only; the teammate owns their fixes.
+
+- Fetched PR head `855d08a`, created `work/pr3-integration`, and carried commit `01` onto it as `0174c3f`. Preserved all 12 original PR commits and their authorship.
+- Read the additional build-log README, expanded payments README, agent/package contracts, runbook, and implementation code.
+- Added [PR-3-REVIEW.md](PR-3-REVIEW.md) with six high-priority findings, affected source locations, ownership, proposed corrections, and verification limits.
+- Updated the workflow with the owner's decisions.
+- Baseline verification: 42 agent tests, 30 payments non-server tests, and 9 payments HTTP tests passed across separate runs. The initial sandboxed HTTP test process crashed; its approved retry passed. No live services or chain transactions were exercised.
+- Frontend clone failed in the network sandbox and the escalation was rejected by the user. No alternative download was attempted. Frontend integration remains blocked on access.
+- Application and payment code remain unchanged in this review commit. Dependency installation/type checking are not yet verified.
+
+Reviewed staged documentation and checked whitespace before commit. Findings are reported locally; no GitHub comments or reviews were submitted.

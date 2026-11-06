@@ -1,6 +1,6 @@
 # Numbered implementation workflow
 
-Status: workflow established; implementation scope, starting code, and stack await the repository owner's answers.
+Status: owner confirmed PR #3 as the implementation base and ownership of all non-payment work. Review payment code and report issues; the teammate owns payment fixes. Reuse the existing frontend before making stack decisions.
 
 This document describes how we will implement and review the project. Product requirements remain in [PLAN.md](PLAN.md). A proposed stage below is not an approved architecture decision or a claim that a feature exists.
 
@@ -20,9 +20,9 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 
 | Decision | Why it matters | Status |
 |---|---|---|
-| Ownership: frontend/claims/ENS, PR review, or whole application | Avoid conflicting implementations of teammate-owned features | Asked; pending |
-| Base: current main or PR #3 | Determines APIs, package layout, and integration work | Asked; pending |
-| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Asked; pending |
+| Ownership: frontend/claims/ENS, PR review, or whole application | Avoid conflicting implementations of teammate-owned features | Confirmed: review PR #3; implement non-payment work; report payment issues to owner |
+| Base: current main or PR #3 | Determines APIs, package layout, and integration work | Confirmed: PR #3 without merging; local branch `work/pr3-integration` based on `855d08a` |
+| Frontend/backend stack and deployment target | Determines runtime, persistence, routing, and build constraints | Reuse `shakaleikaumaka/oso-storytelling`; inspection pending access; deployment undecided |
 | Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Requirements requested; pending |
 | ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | Unresolved in product plan |
 | Payment asset, decimals, facilitator, and split method | Needed to validate actual settlement and recipient amounts | Unresolved; inspect PR #3 before proposing choices |
@@ -32,6 +32,8 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 | Consenting demo artists and approved public content | Required before publishing or activating artist resources | Not supplied |
 
 Ask decisions when their stage approaches. Record the owner's answer, date, rationale, and affected stages here before dependent implementation. Never put private keys, tokens, invitation secrets, or full environment values in documentation, commits, or chat.
+
+Owner decisions recorded on 6 November 2026: the source frontend is [oso-storytelling](https://github.com/shakaleikaumaka/oso-storytelling). Its clone permission request was rejected, so it has not been downloaded or inspected. Continue independent PR review and non-payment fixes while frontend access remains pending. Commit `01` was carried onto the PR-based branch as `0174c3f`; the original planning branch remains available. No remote merge or push occurred.
 
 ## Commit and review contract
 

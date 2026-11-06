@@ -27,3 +27,6 @@ agent/data/*.jsonl
 # (the original squashed commit is preserved here for auditing, never pushed)
 .backup/
 pi-session-*.html
+
+# live-e2e run dirs / scratch
+.tmp/

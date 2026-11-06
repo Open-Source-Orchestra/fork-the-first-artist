@@ -2,7 +2,7 @@
   "name": "fork-the-first-artist",
   "private": true,
   "version": "0.1.0",
-  "description": "Open Source Orchestra — artist ENS names, x402 rails on Hedera, steward agents on 0G",
+  "description": "Open Source Orchestra \u2014 artist ENS names, x402 rails on Hedera, steward agents on 0G",
   "engines": {
     "node": ">=22.18"
   },
@@ -24,6 +24,11 @@
     "test:claims:arkiv": "npm --prefix claims run test:arkiv",
     "test:cloudflare": "npm --prefix cloudflare test",
     "build:cloudflare": "npm --prefix cloudflare run build",
-    "dev:cloudflare": "npm --prefix cloudflare run dev"
+    "dev:cloudflare": "npm --prefix cloudflare run dev",
+    "e2e:dev": "node scripts/live-e2e.mjs --dev",
+    "e2e:dev:0g": "node scripts/live-e2e.mjs --dev --real-0g",
+    "e2e:live": "node scripts/live-e2e.mjs --live",
+    "steward:check": "${STEWARD_PYTHON:-/workspace/utkarsh-hedera/.venv/bin/python} hedera-steward/steward.py check",
+    "test:steward": "cd hedera-steward && ${STEWARD_PYTHON:-/workspace/utkarsh-hedera/.venv/bin/python} -m pytest -q"
   }
 }

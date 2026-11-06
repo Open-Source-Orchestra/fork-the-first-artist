@@ -1,11 +1,16 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 // Exact routes keep repository files, credentials and runtime data out
 // of the response path. This is a loopback-only preview, not a backend or deploy target.
 const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
+  ['/home', 'home.html', 'text/html; charset=utf-8'],
+  ['/circle.css', 'circle.css', 'text/css; charset=utf-8'],
+  ['/circle.mjs', 'circle.mjs', 'text/javascript; charset=utf-8'],
+  ['/circle-state.mjs', 'circle-state.mjs', 'text/javascript; charset=utf-8'],
+  ['/circle/artists.mjs', 'circle/artists.mjs', 'text/javascript; charset=utf-8'],
   ['/draft', 'draft.html', 'text/html; charset=utf-8'],
   ['/wallets', 'wallets.html', 'text/html; charset=utf-8'],
   ['/arkiv', 'arkiv.html', 'text/html; charset=utf-8'],
@@ -20,6 +25,8 @@ const assets = new Map(await Promise.all([
   ['/ethereum-wallet.mjs', 'ethereum-wallet.mjs', 'text/javascript; charset=utf-8'],
   ['/hedera-wallet.mjs', 'hedera-wallet.mjs', 'text/javascript; charset=utf-8'],
   ['/hashpack-ui.mjs', 'hashpack-ui.mjs', 'text/javascript; charset=utf-8'],
+  ...(await readdir(new URL('./public/circle/img/', import.meta.url))).filter((f) => /^[a-z0-9-]+\.jpg$/.test(f))
+    .map((f) => [`/circle/img/${f}`, `circle/img/${f}`, 'image/jpeg']),
 ].map(async ([route, file, type]) => [route, {
   body: await readFile(new URL(`./public/${file}`, import.meta.url)),
   type,
@@ -53,7 +60,7 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const arkivPolicy = route === '/arkiv'
       ? " connect-src 'self' https://rpc.rabdi.db-chain.testnet.arkiv.network;"
       : '';
-    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy);
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy);
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

@@ -264,3 +264,22 @@ Date: 6 November 2026 (UTC). Author: configured Git identity `ohana-sysadmin`. A
 ### Remaining risks and integration contract
 
 Payments must send `Authorization: Bearer <STEWARD_SERVICE_TOKEN>` when the token is enabled and should forward `provenance.calls` as `proof.upstream.calls`; this branch deliberately leaves that integration to the payments owner. Multiple processes/hosts need an external atomic reservation/ledger protocol. Ambiguous failed-call settlement, unreadable/corrupt ledger recovery, live catalog availability, actual Hedera/0G settlement, on-chain split verification, claims/activation, dependency advisory remediation, and deployment remain unverified or open. No PR, approval, merge, deployment, live provider call, or spend was performed by this entry.
+## 15 — Repair the public circle for the frontend demo
+
+Date: 6 November 2026. Author: configured Git identity `ohana-sysadmin`. AI assistance: Taurus `sysadmin 🫡`.
+
+### Behavior and scope
+
+- Based on `design-circle` at `68184677584916941535fdca909e14ada8fe5e31`; changed only frontend code/tests, root/frontend documentation, and the browser-test scripts/dependencies. No `payments/` or `agent/` files changed.
+- Replaced overlapping 3D-transformed seat buttons with a 2D desktop ring and normal-flow small-screen layout. Restored native list/button semantics, visible search naming, early DOM/tab order, `aria-pressed`, polite result counts, semantic hiding, and unobstructed CTA targets. Native dialog Escape/close/focus behavior remains intact.
+- Added a single combined day/query filter state and complete reset paths. Replaced scalar `day` data with explicit `days` arrays for genuine daily/multi-day and undated artists.
+- Replaced claim/every-cent copy with honest local-draft and 3.69% compute-share language. Circle CTAs resolve only an exact public roster slug to a public name, prefill nothing else, and remove the transient query. Unknown/arbitrary URL values are not rendered.
+- Added a static 40-name/set no-JS list and project links. Corrected source provenance to disclose the real public biographies/photos imported by PR #2 while preserving maker-rights/license and activation-consent boundaries.
+- Documented that the current GitHub Pages deployment does not reproduce the local security headers; no host-header fix or deployment is claimed. See [FRONTEND-DEMO-READINESS.md](FRONTEND-DEMO-READINESS.md).
+
+### Validation
+
+- `npm run test:frontend`: **27 passed, 0 failed**. New self-contained tests cover roster invariants, combined/reset filters, multi-day/undated data, exact slug handoff, native/static HTML, no-JS fallback, and routes.
+- Optional pinned Playwright/axe browser suite: **11 passed, 0 failed**. All **120/120 seat centers** hit their own buttons at 1280×800, 375×812, and 320×568; no wrong-seat interception or horizontal overflow. CTA, keyboard/dialog, filter combinations/reset, no-JS, and safe CTA handoff checks passed.
+- Twelve axe scans across four public routes × three viewports reported **0 violations** under the configured WCAG 2/2.1/2.2 A/AA rules. Browser listeners reported no page/console/local-request errors.
+- Real wallet pairing/extensions, claims, activation, backend/payment integration, deployment, and host-header remediation remain unverified or unimplemented as explicitly listed in the readiness record. No artist was activated.

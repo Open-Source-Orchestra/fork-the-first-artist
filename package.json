@@ -16,6 +16,7 @@
     "smoke": "node agent/scripts/smoke.ts",
     "dev:frontend": "node --env-file-if-exists=frontend/.env frontend/server.mjs",
     "test:frontend": "node --test frontend/test/*.test.mjs",
+    "test:frontend:browser": "npm --prefix frontend run test:browser",
     "build:wallet": "npm --prefix frontend run build:wallet",
     "test:claims": "npm --prefix claims test",
     "steward": "npm --prefix claims run steward --",

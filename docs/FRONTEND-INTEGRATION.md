@@ -69,3 +69,9 @@ Commit 12 adds the approved server-side steward CLI with PostgreSQL invitations,
 ## Arkiv replacement — part 13
 
 The owner requested Arkiv after checking Mumbai partner prizes. Current claim storage uses Arkiv Rabdi SDK entities with encrypted private payloads; PostgreSQL is removed from runtime and test dependencies. The CLI reads authoritative status from Arkiv. Initial PostgreSQL verification above is historical. See [claims/README.md](../claims/README.md) and [Arkiv evidence](../arkiv/README.md) for setup, concurrency/expiry boundaries, and pending live evidence. No production data transfer, artist activation, or deployment is claimed.
+
+## Public circle and demo repair — PR #2 / part 14
+
+PR #2 subsequently replaced `/` with a public artist-preview circle and moved the commit-07 sample to `/home`. It imported real public circle names, bios, links, and photos; the earlier “real artist content is not imported” statement applies only to the commit-07 sample foundation. See [frontend/SOURCE.md](../frontend/SOURCE.md) for exact provenance limits and consent boundaries.
+
+Part 14 repairs the circle's hit targets, native semantics, keyboard/filter behavior, explicit multi-day data, no-JS fallback, honest copy, and local public-name draft handoff. It adds 27 dependency-free tests and an optional 11-test Playwright/axe audit; see [FRONTEND-DEMO-READINESS.md](FRONTEND-DEMO-READINESS.md). This does not connect the circle to the future claim backend or change the integration sequence above. The current GitHub Pages host does not reproduce the local response security headers; deployed-header remediation remains separate.

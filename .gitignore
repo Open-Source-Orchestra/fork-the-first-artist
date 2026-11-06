@@ -9,6 +9,7 @@
 # --- dependencies ---
 node_modules/
 frontend/generated/
+.audit-results/
 
 # --- keys ---
 *.key

@@ -9,6 +9,7 @@
 - 🔗 [Hedera transaction proof](docs/TX-PROOF.md) · [Arkiv evidence](arkiv/README.md)
 - 📄 [Product target](docs/PLAN.md) · [Prize strategy](docs/PRIZE-STRATEGY.md)
 - 🧾 [Implementation history](docs/IMPLEMENTATION-LOG.md) · [Payment/agent review](docs/PR-3-REVIEW.md)
+- ✅ [Frontend demo-readiness evidence](docs/FRONTEND-DEMO-READINESS.md)
 
 ## Current reality — read before demoing
 
@@ -16,11 +17,11 @@ The repository contains a static artist preview, a transient local draft editor,
 
 | Layer | Current boundary |
 |---|---|
-| Frontend | Live static preview; no public claim, paid chat, or publishing |
+| Frontend | 40 public artist previews + local draft; no public claim, paid chat, or publishing |
 | Hedera x402 | Live-mode code exists; see [TX-PROOF](docs/TX-PROOF.md) for actual settled IDs |
 | 96.31/3.69 | Exact arithmetic exists; only an HTS transaction proves the on-chain split |
 | 0G | Provider/meter code exists; only a real response/request ID proves inference |
-| Arkiv | Encrypted synthetic-invitation CLI exists; see [evidence status](arkiv/README.md) |
+| Arkiv | Real synthetic Rabdi write/read evidence + `/arkiv` viewer; no real artist claim |
 | Claims | Wallet-proof redemption, consent activation and service-freeze enforcement remain pending |
 | ENS | Ownership requirements only; no issuer implementation or artist subname claimed |
 
@@ -37,7 +38,7 @@ npm run dev:frontend
 # open http://127.0.0.1:4173
 ```
 
-Explore the sample profile or `/draft`. Drafts exist only in the current tab; they are not saved or published. HashPack additionally requires the generated runtime and a public Reown project ID; see [frontend/README.md](frontend/README.md).
+Browse 40 public artist previews, visit `/home` for the sample OSO profile, open `/draft` for a transient local draft, or read `/arkiv` for the live synthetic Rabdi proof. Public roster/photos are not activation consent. Drafts are not saved or published; claim and payment integration are not active. HashPack additionally requires the generated runtime and a public Reown project ID. See [frontend/README.md](frontend/README.md) for unit/route tests, the optional browser/axe audit, scope, and attribution.
 
 For the two-service dev demo and the credentialed Hedera/0G path, follow [docs/RUNBOOK.md](docs/RUNBOOK.md). Dev mode deliberately returns `mock-…`, `dev-…`, and `[dev-mock inference]` values. Live mode requires separate fan, artist, compute, and meter-operator accounts and must never silently substitute the mock fan header.
 

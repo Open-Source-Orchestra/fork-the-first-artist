@@ -55,7 +55,7 @@ export class FakeProvider implements ModelProvider {
     }
 
     if (wantsJson) {
-      const text = JSON.stringify({ text: `(fake) about: ${lastUser.slice(0, 60)}`, songs: ['Monsoon Ragas'] });
+      const text = JSON.stringify({ text: `(fake) about: ${lastUser.slice(0, 60)}`, songs: ['Demo Song'] });
       return {
         text,
         usage: { inputTokens: 60, outputTokens: 20 },

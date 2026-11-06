@@ -60,11 +60,15 @@ export function loadAgentConfig(
   if (!parsed.providers || typeof parsed.providers !== 'object') {
     throw new Error(`${path}: missing "providers"`);
   }
+  const providers = { ...parsed.providers };
+  if (providers['0g']?.kind === 'inference') {
+    providers['0g'] = zeroGEnvOverrides(providers['0g']);
+  }
   if (!parsed.providers[parsed.default]) {
     throw new Error(`${path}: default provider "${parsed.default}" is not in providers`);
   }
 
-  for (const [id, p] of Object.entries(parsed.providers)) {
+  for (const [id, p] of Object.entries(providers)) {
     // rail entries describe money, not a model, so the model checks do not apply
     if (p.kind === 'rail') continue;
     if (!p.baseUrl) throw new Error(`${path}: provider ${id} needs baseUrl`);
@@ -78,13 +82,14 @@ export function loadAgentConfig(
   }
 
   const g = parsed.generation ?? { temperature: 0.4, maxTokens: 400, maxToolTurns: 4 };
-  const b = parsed.budget ?? { maxUsdPerRequest: 0.002, maxUsdPerHour: 0.05, maxUsdTotal: 5 };
+  const b = parsed.budget ?? { maxUsdPerRequest: 0.01, maxUsdPerHour: 0.05, maxUsdTotal: 5 };
   // a non-positive per-request cap would refuse every single call; that is a
   // config mistake, not a policy setting
   if (!(b.maxUsdPerRequest > 0)) throw new Error(`${path}: budget.maxUsdPerRequest must be > 0`);
 
   return {
     ...parsed,
+    providers,
     // env wins over the file, so an operator can tighten a budget without editing
     // a committed config
     generation: {
@@ -98,6 +103,42 @@ export function loadAgentConfig(
       maxUsdTotal: envNum('BUDGET_TOTAL_USD', b.maxUsdTotal),
     },
   };
+}
+
+/** Apply the documented 0G environment knobs; no network/catalog call is made. */
+function zeroGEnvOverrides(provider: ProviderConfig): ProviderConfig {
+  const network = envText('ZEROG_NETWORK');
+  if (network && network !== 'mainnet' && network !== 'testnet') {
+    throw new Error('ZEROG_NETWORK must be mainnet or testnet');
+  }
+  const explicitBaseUrl = envText('ZEROG_BASE_URL');
+  let networkBaseUrl = provider.baseUrl;
+  if (network === 'testnet') {
+    if (!provider.baseUrlTestnet && !explicitBaseUrl) {
+      throw new Error('0G testnet needs baseUrlTestnet or ZEROG_BASE_URL');
+    }
+    networkBaseUrl = provider.baseUrlTestnet ?? provider.baseUrl;
+  }
+
+  const transport = envText('INFERENCE_TRANSPORT') ?? provider.transport;
+  if (transport !== 'direct' && transport !== 'x402-meter') {
+    throw new Error('INFERENCE_TRANSPORT must be direct or x402-meter');
+  }
+  const trustMode = envText('ZEROG_TRUST_MODE');
+  return {
+    ...provider,
+    baseUrl: explicitBaseUrl ?? networkBaseUrl,
+    defaultModel: envText('ZEROG_MODEL') ?? provider.defaultModel,
+    transport,
+    headers: trustMode
+      ? { ...provider.headers, 'X-0G-Provider-Trust-Mode': trustMode }
+      : provider.headers,
+  };
+}
+
+function envText(key: string): string | undefined {
+  const value = process.env[key]?.trim();
+  return value ? value : undefined;
 }
 
 /** Numeric env var, or the fallback. A non-numeric value throws rather than becoming NaN. */
@@ -124,6 +165,9 @@ export function providerAvailability(
   cfg: ProviderConfig,
 ): { usable: boolean; reason?: string } {
   if (cfg.transport === 'x402-meter') {
+    if (process.env.PAYMENTS_MODE === 'live' && !process.env.HEDERA_AGENT_PRIVATE_KEY) {
+      return { usable: false, reason: 'HEDERA_AGENT_PRIVATE_KEY is required in live mode' };
+    }
     return {
       usable: true,
       reason: process.env.HEDERA_AGENT_PRIVATE_KEY ? undefined : 'no wallet key: dev/mock payment',

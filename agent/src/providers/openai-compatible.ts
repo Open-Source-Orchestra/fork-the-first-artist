@@ -32,6 +32,8 @@ export interface OpenAICompatibleOptions {
   meter?: { url: string; payer: Payer };
   capabilities: Capability[];
   priceUsdPerMTok: { input: number; output: number };
+  /** Authoritative fixed charge for metered calls, when configured. */
+  fixedPricePerCallUsd?: number;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
 }
@@ -67,6 +69,12 @@ export class OpenAICompatibleProvider implements ModelProvider {
   private readonly fetchImpl: typeof fetch;
 
   constructor(opts: OpenAICompatibleOptions) {
+    if (
+      opts.fixedPricePerCallUsd !== undefined &&
+      (!Number.isFinite(opts.fixedPricePerCallUsd) || opts.fixedPricePerCallUsd < 0)
+    ) {
+      throw new TypeError('fixedPricePerCallUsd must be a finite non-negative number');
+    }
     this.opts = opts;
     this.id = opts.id;
     this.model = opts.defaultModel;
@@ -80,6 +88,7 @@ export class OpenAICompatibleProvider implements ModelProvider {
 
   /** Rough, pre-flight only: real cost comes back in `usage` after the call. */
   estimateCost(req: NormalizedChatRequest): number {
+    if (this.opts.fixedPricePerCallUsd !== undefined) return this.opts.fixedPricePerCallUsd;
     const inputChars = req.messages.reduce((n, m) => n + m.content.length, 0);
     const inputTokens = Math.ceil(inputChars / 4) + 32;
     const outputTokens = req.maxTokens ?? 400;
@@ -91,6 +100,7 @@ export class OpenAICompatibleProvider implements ModelProvider {
 
   /** Cost from the response itself, when the provider tells us. */
   costOf(usage: { inputTokens: number; outputTokens: number }): number {
+    if (this.opts.fixedPricePerCallUsd !== undefined) return this.opts.fixedPricePerCallUsd;
     return (
       (usage.inputTokens * this.opts.priceUsdPerMTok.input +
         usage.outputTokens * this.opts.priceUsdPerMTok.output) /

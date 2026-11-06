@@ -16,30 +16,56 @@
  * `/agent-card` reporting `usable: false` **with a reason** is deliberate: a demo that
  * silently degraded to the fake provider would look identical to one that works.
  */
-import { createServer } from 'node:http';
+import { createServer, type Server } from 'node:http';
+import { createHash, timingSafeEqual } from 'node:crypto';
+import { isIP, type AddressInfo } from 'node:net';
 import { pathToFileURL } from 'node:url';
 import { createSteward, loadArtist } from './index.ts';
 import { loadAgentConfig, providerAvailability } from './config.ts';
 import { readBody, parseJson, sendJson, log } from './http.ts';
-import type { OutputSchema } from './types.ts';
+import type { AgentConfig, AgentInterface, ArtistProfile, OutputSchema } from './types.ts';
 
 export interface StewardServerOptions {
   port?: number;
+  host?: string;
+  /** Required for every /ask call when set; mandatory on a non-loopback bind. */
+  serviceToken?: string;
   forceFake?: boolean;
+  /** Test/integration injection; production normally uses createSteward(). */
+  steward?: AgentInterface;
+  config?: AgentConfig;
+  artist?: ArtistProfile;
 }
 
-export async function startServer(opts: StewardServerOptions = {}): Promise<void> {
-  const steward = await createSteward({ forceFake: opts.forceFake });
-  const cfg = loadAgentConfig();
-  const artist = await loadArtist();
+export interface StewardServerHandle {
+  server: Server;
+  host: string;
+  port: number;
+  origin: string;
+  close(): Promise<void>;
+}
+
+export async function startServer(opts: StewardServerOptions = {}): Promise<StewardServerHandle> {
+  const host = opts.host ?? process.env.HOST ?? '127.0.0.1';
+  const configuredToken = opts.serviceToken ?? process.env.STEWARD_SERVICE_TOKEN;
+  const serviceToken = configuredToken?.trim() || undefined;
+  if (!isLoopbackHost(host) && !serviceToken) {
+    throw new Error('STEWARD_SERVICE_TOKEN is required when HOST is not loopback');
+  }
+
+  const steward = opts.steward ?? (await createSteward({ forceFake: opts.forceFake }));
+  const cfg = opts.config ?? loadAgentConfig();
+  const artist = opts.artist ?? (await loadArtist());
   const port = opts.port ?? Number(process.env.PORT ?? 8403);
+  if (!Number.isInteger(port) || port < 0 || port > 65_535) {
+    throw new Error('PORT must be an integer from 0 to 65535');
+  }
 
   const server = createServer((req, res) => {
     void (async () => {
-      res.setHeader('access-control-allow-origin', '*');
-      res.setHeader('access-control-allow-methods', 'GET,POST,OPTIONS');
-      res.setHeader('access-control-allow-headers', 'content-type,x-payment');
-      if (req.method === 'OPTIONS') return void res.writeHead(204).end();
+      // This is a service-to-service API, not a browser endpoint. No wildcard
+      // CORS opt-in: browser preflights fail instead of exposing localhost spend.
+      if (req.method === 'OPTIONS') return void res.writeHead(204, { allow: 'GET,POST,OPTIONS' }).end();
 
       const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
 
@@ -63,7 +89,7 @@ export async function startServer(opts: StewardServerOptions = {}): Promise<void
                 transport: p.transport,
                 capabilities: p.capabilities,
                 usable: avail.usable,
-                note: avail.reason,
+                note: publicProviderNote(avail),
                 isDefault: id === cfg.default,
               };
             });
@@ -71,16 +97,32 @@ export async function startServer(opts: StewardServerOptions = {}): Promise<void
             artist: { name: artist.name, ensName: artist.ensName, bio: artist.bio, songs: artist.songs },
             agent: steward.describe(),
             providers,
-            budget: cfg.budget,
             rail: cfg.rail,
           });
         }
 
         if (url.pathname === '/ask' && req.method === 'POST') {
+          if (serviceToken && !validBearer(req.headers.authorization, serviceToken)) {
+            return sendJson(
+              res,
+              401,
+              { ok: false, error: { code: 'UNAUTHORIZED', message: 'valid service bearer token required' } },
+              { 'www-authenticate': 'Bearer realm="steward"' },
+            );
+          }
+          const contentType = req.headers['content-type']?.split(';', 1)[0]?.trim().toLowerCase();
+          if (contentType !== 'application/json') {
+            // Requiring JSON forces browser cross-origin callers through a
+            // preflight (which receives no CORS grant), and rejects simple forms.
+            return sendJson(res, 415, {
+              ok: false,
+              error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: 'application/json required' },
+            });
+          }
           const body = parseJson(await readBody(req)) as
-            | { instruction?: string; provider?: string; model?: string; tools?: string[]; json?: boolean }
+            | { instruction?: string; json?: boolean }
             | undefined;
-          if (!body?.instruction) {
+          if (typeof body?.instruction !== 'string' || !body.instruction.trim()) {
             return sendJson(res, 400, { ok: false, error: { code: 'BAD_REQUEST', message: 'instruction required' } });
           }
 
@@ -100,14 +142,12 @@ export async function startServer(opts: StewardServerOptions = {}): Promise<void
               }
             : undefined;
 
-          // The one place a fan question enters. `tools` defaults to the full demo
-          // toolset; a caller may narrow it, and an unknown name is rejected by the
-          // steward before any model call happens.
+          // Provider, model, and tools are operator-controlled. Ignore any
+          // client-supplied override fields rather than letting a caller choose
+          // a more expensive backend or a different capability set.
           const result = await steward.run({
             instruction: body.instruction,
-            provider: body.provider as never,
-            model: body.model,
-            tools: body.tools ?? ['get_artist_profile', 'get_songs', 'quote_tip'],
+            tools: ['get_artist_profile', 'get_songs', 'quote_tip'],
             output,
             context: { artist },
           });
@@ -120,22 +160,66 @@ export async function startServer(opts: StewardServerOptions = {}): Promise<void
       } catch (err) {
         log.error('ask failed', { err: (err as Error).message });
         if (!res.headersSent) {
-          sendJson(res, 500, { ok: false, error: { code: 'INTERNAL', message: (err as Error).message } });
+          sendJson(res, 500, { ok: false, error: { code: 'INTERNAL', message: 'steward request failed' } });
         }
       }
     })();
   });
 
-  await new Promise<void>((resolve) => server.listen(port, resolve));
+  await new Promise<void>((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, host, () => {
+      server.off('error', reject);
+      resolve();
+    });
+  });
+  const address = server.address() as AddressInfo;
   const d = steward.describe();
   log.info('steward listening', {
-    port,
+    host,
+    port: address.port,
     provider: d.provider,
     model: d.model,
     transport: d.transport,
     rail: d.rail,
     tools: d.tools.length,
+    serviceAuth: Boolean(serviceToken),
   });
+  const originHost = host.includes(':') ? `[${host}]` : host;
+  return {
+    server,
+    host,
+    port: address.port,
+    origin: `http://${originHost}:${address.port}`,
+    close: () =>
+      new Promise<void>((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()));
+      }),
+  };
+}
+
+function validBearer(header: string | undefined, expectedToken: string): boolean {
+  const match = /^Bearer ([^\s]+)$/i.exec(header ?? '');
+  if (!match) return false;
+  // Hash both sides so timingSafeEqual always receives equal-length buffers,
+  // including when the presented token has a different length.
+  const presented = createHash('sha256').update(match[1]!, 'utf8').digest();
+  const expected = createHash('sha256').update(expectedToken, 'utf8').digest();
+  return timingSafeEqual(presented, expected);
+}
+
+function isLoopbackHost(host: string): boolean {
+  const normalized = host.replace(/^\[|\]$/g, '').toLowerCase();
+  if (normalized === 'localhost' || normalized === '::1') return true;
+  const mappedV4 = normalized.startsWith('::ffff:') ? normalized.slice(7) : normalized;
+  if (isIP(mappedV4) !== 4) return false;
+  return mappedV4.split('.')[0] === '127';
+}
+
+function publicProviderNote(avail: { usable: boolean; reason?: string }): string | undefined {
+  if (!avail.usable) return 'required provider credentials are not configured';
+  if (avail.reason) return 'development/mock payment configuration';
+  return undefined;
 }
 
 // Only listen when executed directly (`node src/server.ts`), so importing this module

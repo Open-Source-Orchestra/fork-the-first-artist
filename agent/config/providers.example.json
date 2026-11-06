@@ -129,7 +129,7 @@
 
   "budget": {
     "$comment": "Caps gate the QUOTE, before payment (payment is collected before inference). See §6.",
-    "maxUsdPerRequest": 0.002,
+    "maxUsdPerRequest": 0.01,
     "maxUsdPerHour": 0.05,
     "maxUsdTotal": 5.0,
     "degradation": ["cheaper-model", "shorter-max-tokens", "template-reply"]

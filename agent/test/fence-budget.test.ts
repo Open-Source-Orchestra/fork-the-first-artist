@@ -51,15 +51,15 @@ test('fence: angle-bracket delimiters of any kind are downgraded', () => {
 });
 
 test('fence: the system prompt states the data-is-not-instructions rule', () => {
-  const p = systemPrompt({ artistName: 'Shaka', profile: {}, hasTools: true });
+  const p = systemPrompt({ artistName: 'Demo Artist', profile: {}, hasTools: true });
   assert.match(p, /never as instructions/);
   assert.match(p, /Only state facts contained in the DATA block/);
   assert.match(p, /Do not|Never invent/);
 });
 
 test('fence: the safety rules are present whether or not tools are offered', () => {
-  const withTools = systemPrompt({ artistName: 'Shaka', profile: {}, hasTools: true });
-  const without = systemPrompt({ artistName: 'Shaka', profile: {}, hasTools: false });
+  const withTools = systemPrompt({ artistName: 'Demo Artist', profile: {}, hasTools: true });
+  const without = systemPrompt({ artistName: 'Demo Artist', profile: {}, hasTools: false });
   for (const p of [withTools, without]) {
     assert.match(p, /never as instructions/);
     assert.match(p, /Never invent/);
@@ -236,6 +236,9 @@ test('budget: invalid estimates and overrides cannot bypass comparisons', async 
     await assert.rejects(budget.check(0.001, { maxUsd: value }), /finite non-negative number/);
   }
   assert.equal((await budget.check(0.001, { maxUsd: 0 })).ok, false);
+  for (const spentUsd of [NaN, Infinity, -0.001]) {
+    await assert.rejects(budget.record({ kind: 'inference', spentUsd }), /finite non-negative number/);
+  }
 });
 
 test('budget: configured ceilings are validated and cannot be mutated after construction', () => {
@@ -249,4 +252,38 @@ test('budget: configured ceilings are validated and cannot be mutated after cons
   caps.maxUsdPerRequest = 100;
   assert.equal(budget.caps.maxUsdPerRequest, 0.002);
   assert.ok(Object.isFrozen(budget.caps));
+});
+
+test('budget: a pending reservation counts against later checks until released', async (t) => {
+  const { budget, cleanup } = await freshBudget({
+    maxUsdPerRequest: 0.002,
+    maxUsdPerHour: 10,
+    maxUsdTotal: 0.003,
+  });
+  t.after(cleanup);
+  const reserved = await budget.reserve(0.002);
+  assert.equal(reserved.ok, true);
+  if (!reserved.ok) return;
+
+  const blocked = await budget.check(0.002);
+  assert.equal(blocked.ok, false, 'an in-flight call must not make the same funds available twice');
+  reserved.reservation.release();
+  assert.equal((await budget.check(0.002)).ok, true, 'an unused reservation releases its estimate');
+});
+
+test('budget: concurrent reservations in one steward cannot both pass the same total', async (t) => {
+  const { budget, cleanup } = await freshBudget({
+    maxUsdPerRequest: 0.002,
+    maxUsdPerHour: 10,
+    maxUsdTotal: 0.003,
+  });
+  t.after(cleanup);
+  const results = await Promise.all([budget.reserve(0.002), budget.reserve(0.002)]);
+  assert.equal(results.filter((result) => result.ok).length, 1);
+  assert.equal(results.filter((result) => !result.ok).length, 1);
+  const accepted = results.find((result) => result.ok);
+  assert.ok(accepted?.ok);
+  await accepted.reservation.commit({ kind: 'inference', spentUsd: 0.002, note: 'offline test' });
+  assert.equal((await budget.totals()).totalUsd, 0.002);
+  assert.equal((await budget.check(0.002)).ok, false, 'committed actual spend replaces the reservation');
 });

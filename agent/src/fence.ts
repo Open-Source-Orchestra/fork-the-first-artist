@@ -13,7 +13,7 @@
  *
  * ```
  * <<<OSO_DATA label="artist_profile" >>>
- * { "name": "Shaka", "bio": "…" }
+ * { "name": "Demo Artist", "bio": "…" }
  * <<<END_OSO_DATA>>>
  * ```
  *
@@ -64,9 +64,9 @@ export function sanitizeForPrompt(value: string): string {
  * Wrap a value in a labelled data fence, sanitising both the label and the body.
  *
  * @example
- *   fencedData('artist_profile', { name: 'Shaka' })
+ *   fencedData('artist_profile', { name: 'Demo Artist' })
  *   // <<<OSO_DATA label="artist_profile" >>>
- *   // { "name": "Shaka" }
+ *   // { "name": "Demo Artist" }
  *   // <<<END_OSO_DATA>>>
  */
 export function fencedData(label: string, value: unknown): string {

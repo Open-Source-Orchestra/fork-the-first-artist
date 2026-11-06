@@ -10,8 +10,9 @@ import { loadDotEnv, loadAgentConfig, providerAvailability } from '../src/config
 import { ProviderRegistry } from '../src/providers/registry.ts';
 import { createPayer } from '../src/rails/payer.ts';
 import type { ProviderId } from '../src/types.ts';
+import { fileURLToPath } from 'node:url';
 
-loadDotEnv();
+loadDotEnv(fileURLToPath(new URL('../.env', import.meta.url)));
 
 const args = process.argv.slice(2);
 const flag = (name: string): string | undefined => {
@@ -52,10 +53,10 @@ try {
   const res = await provider.chat({
     model: pcfg.defaultModel,
     messages: [
-      { role: 'system', content: 'You are a terse assistant.' },
-      { role: 'user', content: 'In one short sentence: who is Shaka?' },
+      { role: 'system', content: 'You are a terse assistant. Follow the output instruction exactly.' },
+      { role: 'user', content: 'Reply with exactly SMOKE_OK and nothing else.' },
     ],
-    temperature: 0.3,
+    temperature: 0,
     maxTokens: 80,
   });
 

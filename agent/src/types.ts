@@ -98,6 +98,8 @@ export interface ProviderConfig {
    */
   envKey?: string;
   defaultModel: string;
+  /** Optional testnet endpoint selected by ZEROG_NETWORK=testnet for 0G. */
+  baseUrlTestnet?: string;
   transport: Transport;
   headers?: Record<string, string>;
   /** provider extensions passed verbatim, e.g. 0G's `verify_tee` */
@@ -180,8 +182,9 @@ export interface AgentRunRequest<T = unknown> {
 /**
  * Where the answer came from — the block that makes a claim checkable.
  *
- * `requestId` + `paymentTxId` together are the submission artifact: one payment
- * bound to one inference. `teeVerified` says whether 0G attested the run.
+ * Top-level `requestId` + `paymentTxId` are a compatibility summary. `calls[]`
+ * preserves every payment/inference pair when tools or repair cause multiple
+ * calls. `teeVerified` says whether 0G attested the corresponding call.
  */
 export interface Provenance {
   /** 0G: `x_0g_trace.request_id` */
@@ -192,6 +195,18 @@ export interface Provenance {
   paymentTxId?: string;
   /** Hedera consensus log entry id */
   hcsTxId?: string | null;
+  /** One entry per provider call; top-level fields remain for compatibility. */
+  calls?: ProvenanceCall[];
+}
+
+export interface ProvenanceCall {
+  sequence: number;
+  phase: 'initial' | 'tool' | 'schema-repair';
+  requestId?: string;
+  teeVerified?: boolean | null;
+  paymentTxId?: string;
+  hcsTxId?: string | null;
+  costUsd: number;
 }
 
 export interface ToolCallRecord {

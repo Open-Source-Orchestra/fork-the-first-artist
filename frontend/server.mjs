@@ -44,7 +44,7 @@ const assets = new Map(await Promise.all([
   ['/admin', 'admin.html', 'text/html; charset=utf-8'],
   ['/consent', 'consent.html', 'text/html; charset=utf-8'],
   ['/ens-sign', 'ens-sign.html', 'text/html; charset=utf-8'],
-  ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
+  ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'wallet-connect.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
   ['/trust.css', 'trust.css', 'text/css; charset=utf-8'],
   ['/steward.mjs', 'steward.mjs', 'text/javascript; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],

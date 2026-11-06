@@ -3,6 +3,7 @@
 import { recoverMessageAddress, hashMessage, isAddress, getAddress } from '/vendor/viem-recover.min.js';
 import { buildApprovalMessage, buildGrantMessage, buildInviteMessage, decodeInvite, encodeInvite, trustedStewards, verifyInvite } from '/trust-message.mjs';
 import { buildConsentMessage } from '/consent-message.mjs';
+import { connectWallet } from '/wallet-connect.mjs';
 
 const $ = (id) => document.getElementById(id);
 const recover = (message, signature) => recoverMessageAddress({ message, signature });
@@ -40,7 +41,7 @@ $('connect').addEventListener('click', async () => {
   if (!window.ethereum) { $('who-status').textContent = 'No browser wallet found. Open this page in MetaMask (or any EIP-1193 wallet).'; return; }
   await loaded;
   try {
-    [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    account = await connectWallet();
     $('account').textContent = account;
     me = trusted.get(account.toLowerCase()) ?? null;
     if (me) {
@@ -51,7 +52,7 @@ $('connect').addEventListener('click', async () => {
     } else {
       $('who-status').textContent = 'This wallet is not a steward of the circle, so its invitations and approvals would be refused. Ask the root steward for a grant (section 03).';
     }
-  } catch (e) { $('who-status').textContent = `Wallet refused: ${e.message ?? e}`; }
+  } catch (e) { $('who-status').textContent = e.message ?? String(e); }
 });
 
 /* 01 invite */

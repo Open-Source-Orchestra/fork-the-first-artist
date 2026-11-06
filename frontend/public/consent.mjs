@@ -1,3 +1,4 @@
+import { connectWallet } from '/wallet-connect.mjs';
 // Plain EIP-1193 (window.ethereum) personal_sign — no Reown, no network calls, no gas.
 import { buildConsentMessage, CONSENT_CHAIN_ID } from '/consent-message.mjs';
 import { recoverMessageAddress } from '/vendor/viem-recover.min.js';
@@ -41,12 +42,12 @@ $('connect').addEventListener('click', async () => {
     return;
   }
   try {
-    const [a] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const a = await connectWallet();
     account = a;
     $('account').textContent = a;
     render();
   } catch (e) {
-    $('status').textContent = `Wallet refused: ${e.message ?? e}`;
+    $('status').textContent = e.message ?? String(e);
   }
 });
 for (const id of ['label', 'hedera']) $(id).addEventListener('input', render);

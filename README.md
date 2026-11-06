@@ -5,6 +5,8 @@ Any musician makes a profile and gets an **ENS name**, an **x402 payment rail on
 
 - 📋 Plan + live status: https://opensourceorchestra.org/ethglobalmumbai/
 - 📄 Full plan: [docs/PLAN.md](docs/PLAN.md)
+- Numbered coding workflow: [docs/IMPLEMENTATION-WORKFLOW.md](docs/IMPLEMENTATION-WORKFLOW.md)
+- Implementation history and verification: [docs/IMPLEMENTATION-LOG.md](docs/IMPLEMENTATION-LOG.md)
 
 ## Layout
 | Folder | What |

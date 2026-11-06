@@ -1,0 +1,17 @@
+{
+  "name": "fork-the-first-artist-claims",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "steward": "node --env-file-if-exists=.env src/cli.mjs",
+    "test:arkiv": "node --env-file-if-exists=.env scripts/test-arkiv.mjs"
+  },
+  "dependencies": {
+    "@arkiv-network/sdk": "1.0.1",
+    "viem": "2.57.16"
+  }
+}

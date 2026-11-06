@@ -44,3 +44,17 @@ The ambiguous scalar `day` field is replaced by explicit `days` arrays. This rec
 Profile CTAs now say **Start a local draft**, not **Claim this seat**. They pass only a roster slug; `draft.mjs` resolves an exact public name, prefills no other field, and removes the transient query from browser history. Arbitrary URL content is not rendered or imported. Copy states the planned 3.69% steward compute share and OSO's zero cut rather than “keeps every cent.” No claim/activation/backend/payment behavior was added.
 
 `circle-state.mjs`, its unit tests, and `browser/circle.browser.test.mjs` are new project code. Playwright and axe-core are pinned development-only audit dependencies, not runtime application bundles. Verification commands and current results are in [README.md](README.md) and [../docs/FRONTEND-DEMO-READINESS.md](../docs/FRONTEND-DEMO-READINESS.md).
+
+## Garden circle front door — `garden-front-door`
+
+On 7 November 2026 (ETHGlobal Mumbai, ~04:15 IST) Shaka asked that the hackathon run on the full Open Source Orchestra garden circle rather than the simplified circle. The front door `/` is now the garden circle imported from [`shakaleikaumaka/oso-storytelling`](https://github.com/shakaleikaumaka/oso-storytelling) at revision `034754507a6d8afce5c022e62a68a1432e48c1ee` (last change to `garden/circle/`: `53039cd`), path `garden/circle/`: `index.html`, `app.js`, `finder.js`, `keys.js`, `overlay.js`, `finder.css`, `keys.css`, `ef.css`, `data/artists.json`, `data/edits.json`, `img/`, `history/` (photos 2022–2026) and `vendor/` (Three.js r-module build, VRButton, tweetnacl — each under its own license). `data/ef.json`, `ef.js` and the `EF/` redirect were not imported (unused there too).
+
+Changes to the imported files are minimal and listed exactly:
+
+- relative `../profiles/`, `../riders/`, `../keys/`, `/takedown/`, `/schedule/` links were made absolute to `https://opensourceorchestra.org/…` so they work on the artist domain;
+- `app.js` dispatches one `fork:artist` DOM event after rendering an artist's detail panel, and ignores the `#fork` hash;
+- `index.html`: title/description/kicker mention Fork the First Artist, one paragraph explains the fork, a `<noscript>` list was added, and `fork.css` / `fork.js` are loaded.
+
+New project code: `fork.js` and `fork.css` (ribbon, the fork panel with the live 0G ask, Hedera x402 proof, Arkiv proof and ENS state; the per-artist fork card), `fork/registry.json` (artists appear only after their own consent), `test/garden.test.mjs`, `browser/garden.browser.test.mjs`, and the server/test routing. The earlier accessible circle moved unchanged to `/list`.
+
+The garden's NOTICE (CC0 content unless the maker says otherwise; takedown first) applies to the imported photos and roster. Public garden information is preview only — never consent, a claim, an ENS issuance or a payout address.

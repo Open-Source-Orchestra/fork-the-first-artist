@@ -1,11 +1,32 @@
 import { createServer } from 'node:http';
 import { readFile, readdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+import { join, sep } from 'node:path';
 
 // Exact routes keep repository files, credentials and runtime data out
 // of the response path. This is a loopback-only preview, not a backend or deploy target.
+const GARDEN_TYPES = { '.json': 'application/json; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
+async function gardenTree(dirs) {
+  const out = [];
+  for (const dir of dirs) {
+    for (const entry of await readdir(new URL(`./public/${dir}/`, import.meta.url), { recursive: true, withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      const rel = join(entry.parentPath ?? entry.path, entry.name).split(`${sep}public${sep}`).pop().split(sep).join('/');
+      const ext = rel.slice(rel.lastIndexOf('.')).toLowerCase();
+      if (!/^[A-Za-z0-9._/-]+$/.test(rel) || rel.includes('..') || !GARDEN_TYPES[ext]) continue;
+      out.push([`/${rel}`, rel, GARDEN_TYPES[ext]]);
+    }
+  }
+  return out;
+}
+
 const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
+  ['/list', 'list.html', 'text/html; charset=utf-8'],
+  // The Open Source Orchestra garden circle (front door) + the Fork the First Artist layer.
+  ...['app.js', 'finder.js', 'keys.js', 'overlay.js', 'fork.js'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
+  ...['finder.css', 'keys.css', 'ef.css', 'fork.css'].map((f) => [`/${f}`, f, 'text/css; charset=utf-8']),
+  ...(await gardenTree(['data', 'fork', 'img', 'history', 'vendor'])),
   ['/home', 'home.html', 'text/html; charset=utf-8'],
   ['/circle.css', 'circle.css', 'text/css; charset=utf-8'],
   ['/circle.mjs', 'circle.mjs', 'text/javascript; charset=utf-8'],
@@ -65,7 +86,12 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const stewardPolicy = route === '/steward'
       ? " connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev;"
       : '';
-    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy);
+    // The garden circle front door carries inline style/script from the upstream OSO page and fetches
+    // the live 0G steward + the garden's public keys; every other route keeps the strict policy.
+    const gardenPolicy = route === '/'
+      ? "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org; base-uri 'none'; form-action 'none'; frame-ancestors 'none';"
+      : null;
+    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy));
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

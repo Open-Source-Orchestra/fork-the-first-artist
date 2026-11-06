@@ -8,6 +8,7 @@
 
 # --- dependencies ---
 node_modules/
+frontend/generated/
 
 # --- keys ---
 *.key

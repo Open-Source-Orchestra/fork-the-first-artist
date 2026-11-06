@@ -22,3 +22,7 @@ This import is continuity provenance, not evidence of prior 0G/Hedera integratio
 ## Subsequent work — commit 09
 
 `public/draft.html`, `public/draft.mjs`, `public/profile-draft.mjs`, and `test/profile-draft.test.mjs` are new local-editor code. New form/preview styles extend the adapted stylesheet; the home page links to the editor. This does not import the upstream garden's signing or storage logic. The preview server now also serves the editor and its two modules from explicit routes. No new source-site content or vendor dependency was added.
+
+## Subsequent work — commits 10–11
+
+Wallet adapters, pages, tests, and runtime/build scripts are new project code. The HashPack bundle uses pinned npm dependencies under their own licenses; it is generated locally and not committed. WalletConnect Community License, qrcode MIT license, and generated package notices are copied/linked by the builder and served through explicit routes. They are not relicensed under the upstream OSO code license. Dependency distribution terms must be reviewed before publication.

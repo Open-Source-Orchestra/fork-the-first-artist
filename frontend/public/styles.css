@@ -107,6 +107,9 @@ select { display: block; width: 100%; margin-top: 10px; background: var(--night)
 dl { margin: 24px 0; font-family: var(--sans); font-size: .85rem; }
 dt { color: var(--gold); margin-top: 14px; }
 dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+#hedera-pairing { margin: 24px 0; }
+#hedera-qr { max-width: 100%; height: auto; margin-bottom: 16px; }
+#hedera-account { margin-bottom: 12px; }
 
 @media (max-width: 600px) {
   .wrap { padding-left: 20px; padding-right: 20px; }

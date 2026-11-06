@@ -26,7 +26,7 @@ PRs are dependencies to evaluate, not implicitly accepted code. Recheck their cu
 | Supported wallets and payout identifier | The signature must prove control of the exact payout destination, including any Hedera account/EVM-address mapping | Confirmed: MetaMask for ENS mainnet authority and HashPack for native Hedera testnet account proof; one claim binds both |
 | ENS parent, network, issuer, and onchain/offchain approach | Determines ownership checks, registration, and resolution | ENSv2 mainnet; artist-controlled records and no OSO revocation/reassignment confirmed. Parent supplied later; exact permissions/renewal pending |
 | Payment asset, decimals, facilitator, and split method | Needed to validate actual settlement and recipient amounts | Unresolved; inspect PR #3 before proposing choices |
-| Invite issuer, freeze authority, and authentication | Needed before implementing privileged claim operations | Unresolved |
+| Invite issuer, freeze authority, and authentication | Needed before implementing privileged claim operations | Confirmed: server-side steward CLI, no public admin endpoint; freezes affect OSO services only |
 | Profile storage, photos, and public claim-log contents | Determines persistence, upload controls, and personal-data exposure | Unresolved |
 | 0G funding path and enforcement of the $5 demo cap | Compute earnings and inference costs may use different assets/networks | Unresolved; requires live integration evidence |
 | Consenting demo artists and approved public content | Required before publishing or activating artist resources | Not supplied |

@@ -57,3 +57,7 @@ Each item is a cohesive commit, with tests and documentation as applicable. Numb
 9. **Verify the full demo and hand off.** Two consenting artists, actual testnet evidence, spend-cap/failure cases, a clean setup rehearsal, and updated package documentation/demo script.
 
 Live ENS/Hedera/0G verification requires the selected setup and locally configured credentials. No credentials should be posted in chat or committed. Tests and UI must label simulated behavior distinctly from actual settlement or activation.
+
+## Wallet connection progress
+
+Commit 10 adds unverified MetaMask extension connection; commit 11 adds configurable HashPack native testnet pairing and explicit payout-account selection. Both clear selections on changes and reject stale completion. The wallet page is separate from drafts; neither wallet connection is a verified claim. The owner will create a Reown project ID and selected Node + PostgreSQL for the future claim backend. See frontend/README.md for setup, dependency notices, scope, and missing live verification. No real parent, host, project ID, or database connection is configured.

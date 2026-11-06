@@ -5,7 +5,7 @@ import { once } from 'node:events';
 import { createPreviewServer } from '../server.mjs';
 
 test('preview serves only public assets and refuses writes and repository paths', async (t) => {
-  const server = createPreviewServer();
+  const server = createPreviewServer({ projectId: '' });
   t.after(() => new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())));
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -41,7 +41,20 @@ test('preview serves only public assets and refuses writes and repository paths'
   assert.match(editor.headers['content-security-policy'], /script-src 'self'/);
   assert.match(editor.headers['content-security-policy'], /form-action 'none'/);
   assert.equal((await get('/wallets')).status, 200);
-  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/wallets.mjs', '/ethereum-wallet.mjs']) {
+  const wallet = await get('/wallets');
+  assert.match(wallet.headers['content-security-policy'], /wss:\/\/relay.walletconnect.com/);
+  assert.doesNotMatch(home.headers['content-security-policy'], /connect-src/);
+  assert.doesNotMatch(editor.headers['content-security-policy'], /connect-src/);
+  const config = JSON.parse((await get('/wallet-config.json')).body);
+  assert.equal(config.projectId, '');
+  assert.equal(config.enabled, false);
+  assert.deepEqual(Object.keys(config).sort(), ['enabled', 'projectId', 'runtimeReady']);
+  if (config.runtimeReady) {
+    for (const path of ['/hashpack-runtime.mjs', '/hashpack-runtime.mjs.LEGAL.txt', '/walletconnect-license.txt', '/qrcode-license.txt']) {
+      assert.equal((await get(path)).status, 200, path);
+    }
+  }
+  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs']) {
     const module = await get(path);
     assert.equal(module.status, 200);
     assert.match(module.headers['content-type'], /^text\/javascript/);
@@ -57,4 +70,8 @@ test('preview serves only public assets and refuses writes and repository paths'
     assert.equal(response.status, 405);
     assert.equal(response.headers.allow, 'GET, HEAD');
   }
+});
+
+test('public wallet configuration rejects invalid IDs without echoing supplied data', () => {
+  assert.throws(() => createPreviewServer({ projectId: 'not-a-project-ID' }), { message: 'REOWN_PROJECT_ID must be empty or a 32-character hexadecimal public project ID.' });
 });

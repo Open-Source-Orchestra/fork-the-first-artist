@@ -176,3 +176,16 @@ Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
 - Checked official MetaMask/EIP docs, HashPack WalletConnect support, the connector's current README, and npm metadata. Hedera connector 2.1.3 recommends AppKit; DAppConnector is legacy. Initial npm metadata lookup failed on sandbox DNS; approved retry succeeded. No dependency installed in this commit.
 
 HashPack is accurately marked unavailable until its next feature. Payment code remains unchanged. No wallet prompt was operated by the agent, no signature/transaction was requested, and no deployment/push/merge occurred.
+
+## 11 — Add configurable native HashPack pairing
+
+Date: 6 November 2026 (Asia/Kolkata). AI assistance: Codex.
+
+- Added a native Hedera testnet WalletConnect adapter and UI with locally rendered QR/copy pairing, explicit numeric-account selection, and unverified status. Requested permission is hedera_signMessage only; no signing or transaction method is invoked. Mainnet/EVM/alias/checksummed IDs and invalid/expired sessions cannot become selected payouts.
+- Cancellation clears local state immediately, attempts session/pairing cleanup, and discards late approval. Session changes clear selections. Concurrent initialization shares one client and listener set. Failures expose sanitized messages, not provider data or pairing secrets.
+- Added an optional pinned SignClient 2.26.0 + qrcode 1.5.4 runtime bundled by esbuild 0.28.2. Used the direct SignClient API to scope permissions to native message claims, instead of importing the broader AppKit example. SDK storage is in-memory, telemetry disabled, and loading/relay initialization occur only after explicit connection. No project ID is invented or embedded in the bundle.
+- Added ignored frontend/.env support and a public-config route exposing only the project ID/readiness. Missing ID/build disables HashPack without breaking drafts/MetaMask. Wallet-page CSP explicitly permits relay/verification domains; draft/sample restrictions remain. Generated files and licenses use explicit routes only.
+- Preserved SDK/qrcode licenses and bundle notices in generated assets. WalletConnect Community License is separate from the project GPL; publication must review applicable distribution/use terms. No external code was relicensed.
+- Owner confirmed steward CLI commands for invite issuance and service freezes; recorded this as the next backend boundary.
+
+Validation: install with lifecycle scripts disabled added 135 packages; npm's install-time audit reported zero known vulnerabilities. Browser bundle build passed (479,263 bytes). All 20 frontend tests passed with approved loopback access, including six native-session regressions and served runtime/notices/configuration checks. Syntax, HTML route/ID/accessibility references, and whitespace checks passed. Real HashPack pairing, QR/clipboard/CSP behavior, and browser layout remain unverified because no project ID exists yet and browser automation is unavailable. No signatures, payments, live claims, deployment, push, or merge occurred.

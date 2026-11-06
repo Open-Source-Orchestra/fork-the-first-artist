@@ -8,6 +8,7 @@
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="/styles.css">
     <script type="module" src="/wallets.mjs"></script>
+    <script type="module" src="/hashpack-ui.mjs"></script>
     <title>Your wallets · Open Source Orchestra</title>
   </head>
   <body>
@@ -44,12 +45,29 @@
         <div class="card">
           <p class="eyebrow">02 / Your Hedera payouts</p>
           <h2 id="hedera-heading">HashPack</h2>
-          <p class="draft-notice">HashPack pairing is not available in this version. Your payout account has not been selected or verified.</p>
+          <p class="draft-notice">Connect a native Hedera testnet account with HashPack. Pairing uses WalletConnect’s relay; session details stay in this tab. No message will be signed during connection.</p>
+          <div class="editor-actions">
+            <button id="connect-hedera" class="primary-button" type="button" disabled>Connect HashPack</button>
+            <button id="forget-hedera" type="button" disabled>Cancel / disconnect</button>
+          </div>
+          <p id="hedera-status" class="editor-status" role="status">Loading wallet configuration…</p>
+          <div id="hedera-pairing" hidden>
+            <img id="hedera-qr" width="280" height="280" alt="HashPack pairing QR code" hidden>
+            <button id="copy-pairing" type="button">Copy pairing link</button>
+            <p class="small">Scan or paste this link only into your HashPack wallet. Do not share it with anyone else.</p>
+            <p id="pairing-copy-status" class="small" role="status"></p>
+          </div>
+          <label for="hedera-account">Testnet payout account — unverified</label>
+          <select id="hedera-account" disabled><option value="">No account selected</option></select>
         </div>
       </section>
       <p class="draft-notice">Claim verification will require both wallets to sign the same claim details. Your ENS name will remain under artist control; OSO must not be able to revoke or reassign it. Registration is not available yet.</p>
       <noscript><p class="draft-notice">JavaScript is required for wallet connection. No wallet request has been made.</p></noscript>
     </main>
-    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra</p></footer>
+    <footer class="wrap">
+      <p>Fork the First Artist · Open Source Orchestra</p>
+      <p>WalletConnect · Portions © 2025 Reown, Inc. All Rights Reserved.</p>
+      <p id="wallet-notices" hidden><a href="/walletconnect-license.txt">WalletConnect license</a> · <a href="/qrcode-license.txt">QR renderer license</a> · <a href="/hashpack-runtime.mjs.LEGAL.txt">Bundle notices</a></p>
+    </footer>
   </body>
 </html>

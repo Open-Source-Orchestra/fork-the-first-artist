@@ -8,7 +8,7 @@
 - 📋 Status: https://opensourceorchestra.org/ethglobalmumbai/
 - 🎬 [Video script](docs/DEMO-SCRIPT.md) · [Submission draft/checklist](docs/SUBMISSION.md)
 - 🔗 [Hedera transaction proof](docs/TX-PROOF.md) · [Arkiv evidence](arkiv/README.md)
-- 📄 [Product target](docs/PLAN.md) · [Prize strategy](docs/PRIZE-STRATEGY.md)
+- 📄 [Product target](docs/PLAN.md) · [Prize strategy](docs/PRIZE-STRATEGY.md) · [Growth roadmap](docs/ROADMAP.md)
 - 🧾 [Implementation history](docs/IMPLEMENTATION-LOG.md) · [Payment/agent review](docs/PR-3-REVIEW.md)
 - ✅ [Frontend demo-readiness evidence](docs/FRONTEND-DEMO-READINESS.md) · [Compute economics](docs/ECONOMICS.md)
 

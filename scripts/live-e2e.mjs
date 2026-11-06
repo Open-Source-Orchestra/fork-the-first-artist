@@ -21,6 +21,12 @@
  *   --out <path>        proof markdown (live default docs/TX-PROOF.md; dev default .tmp/live-e2e/TX-PROOF.dev.md)
  *   --steward direct|agent   deterministic SDK split (default) or the LLM Hedera Agent Kit steward
  *   --question "<text>"
+ *   --artist-name <ens>  pay the artist BY ENS NAME (or env ARTIST_NAME), e.g. demo-artist.osoartist.eth or
+ *                        any .eth with an HBAR/ENSIP-11/ETH address record. The payTo is resolved from ENS via
+ *                        ens/src/resolve-artist.mjs and fails closed (no consent / paused / no record / mismatch).
+ *                        ENS_RPC_URL picks the Ethereum RPC (an anvil fork for --dev rehearsals).
+ *                        ARTIST_EXPECT=<0.0.N|0x…> pins the expected payout (fail on mismatch).
+ *                        Without a name, the legacy fixture label demo-artist.oso.eth is used (no ENS lookup).
  *
  * Secrets: keys are read from the accounts file / key file and passed to child
  * processes through their environment only. Nothing secret is printed or written.
@@ -56,6 +62,8 @@ const PAY_PORT = Number(process.env.E2E_PAYMENTS_PORT ?? 18402);
 const AGENT_PORT = Number(process.env.E2E_AGENT_PORT ?? 18403);
 const PRICE_ASK = process.env.PRICE_ASK ?? '1';
 const PRICE_METER = process.env.PRICE_METER ?? '0.01';
+const LEGACY_LABEL = 'demo-artist.oso.eth'; // fixture label only — never resolved
+const ARTIST_NAME = opt('--artist-name', process.env.ARTIST_NAME ?? '') || null;
 
 const children = [];
 const log = (s) => console.log(s);
@@ -206,6 +214,39 @@ async function main() {
     const fake = (role, id) => ({ role, id, evm: null, tinybar: null, key: '' });
     roles = { fan: fake('fan', '0.0.7777'), artist: fake('artist', '0.0.5555'), compute: fake('compute', '0.0.6666'), meter: fake('meter', '0.0.8888') };
   }
+  // ── artist payTo from ENS (fail closed) ────────────────────────────────
+  let ens = null;
+  if (ARTIST_NAME && ARTIST_NAME !== LEGACY_LABEL) {
+    log(`\n── 0. ENS: resolving payTo for ${ARTIST_NAME}`);
+    const { resolvePayTo, ensMemo } = await import('../ens/src/resolve-artist.mjs');
+    let r;
+    try {
+      r = await resolvePayTo(ARTIST_NAME, { network: 'testnet', rpcUrl: process.env.ENS_RPC_URL, expectAccount: process.env.ARTIST_EXPECT || undefined });
+    } catch (e) {
+      die(`ENS payTo for ${ARTIST_NAME} refused (${e.code ?? 'error'}): ${e.message}`);
+    }
+    let id = r.hederaAccountId;
+    if (!id) {
+      // alias path: pay the artist's own EVM address. The steward needs the account to exist so the forward can
+      // be verified on the mirror; a never-funded alias must first be auto-created (any HBAR transfer to it).
+      if (LIVE) {
+        const acct = await mirror(`/api/v1/accounts/${r.hederaAlias}`);
+        if (!acct?.account) die(`${ARTIST_NAME} pays alias ${r.hederaAlias}, which has no Hedera account yet — send it any HBAR once (hedera-steward/fund_oso_aliases.py) so the hollow account exists, then rerun`);
+        id = acct.account;
+      } else id = `0.0.${r.hederaAlias.slice(2).toLowerCase()}`;
+    }
+    if (LIVE && roles.artist.id && roles.artist.id !== id) log(`  note: accounts.env artist ${roles.artist.id} differs — ENS wins: ${id}`);
+    roles.artist = { ...roles.artist, id, evm: r.hederaAlias ?? roles.artist.evm };
+    const rpc = process.env.ENS_RPC_URL ?? '';
+    ens = {
+      ...ensMemo(r), hederaAccountId: id, network: r.network, hcsTopic: r.hcsTopic, coinType: r.coinType,
+      source: /127\.0\.0\.1|localhost/.test(rpc) ? 'anvil fork of Ethereum mainnet (rehearsal, not mainnet state)' : 'Ethereum mainnet',
+    };
+    log(`✔ ${r.name} → ${id} via ${r.path} (coin ${r.coinType}) · resolver ${r.resolver} · record ${r.recordId} · topic ${r.hcsTopic ?? '—'}`);
+    if (r.hcsTopic && process.env.HCS_TOPIC_ID && r.hcsTopic !== process.env.HCS_TOPIC_ID) log(`  note: ENS hedera.hcs.topic ${r.hcsTopic} ≠ HCS_TOPIC_ID ${process.env.HCS_TOPIC_ID}`);
+    if (new Set([roles.fan.id, roles.artist.id, roles.compute.id, roles.meter.id]).size !== 4) die('ENS payTo collides with the fan/compute/meter account — refusing');
+  }
+
   const zg = REAL_0G ? zeroGKey() : '';
   if (REAL_0G && !zg) die('real 0G requested but no ZEROG_API_KEY / ZEROG_API_KEY_FILE');
 
@@ -305,7 +346,8 @@ async function main() {
     '--amount-hbar',
     amountHbar,
     '--artist-name',
-    process.env.ARTIST_NAME ?? 'demo-artist.oso.eth',
+    ARTIST_NAME ?? LEGACY_LABEL,
+    ...(ens ? ['--ens-json', JSON.stringify(ensMemo4hcs(ens))] : []),
     '--json-out',
     stewardJson,
     ...(LIVE ? [] : ['--dry-run']),
@@ -315,7 +357,7 @@ async function main() {
     ...baseEnv(),
     HEDERA_MIRROR_NODE: MIRROR,
     ...(LIVE
-      ? { STEWARD_ACCOUNTS_ENV: ACCOUNTS, ...(zg ? { ZEROG_API_KEY: zg } : {}) }
+      ? { STEWARD_ACCOUNTS_ENV: ACCOUNTS, ...(ens ? { ARTIST_ACCOUNT_ID: roles.artist.id } : {}), ...(zg ? { ZEROG_API_KEY: zg } : {}) }
       : {
           STEWARD_ACCOUNTS_ENV: join(RUN_DIR, 'no-accounts.env'),
           STEWARD_ACCOUNT_ID: roles.compute.id,
@@ -345,7 +387,9 @@ async function main() {
       hashscan: hashscanTx(m.txId),
     })),
     steward,
+    ens,
   };
+  if (ens && steward.artist_account && steward.artist_account !== ens.hederaAccountId) die(`steward paid ${steward.artist_account}, ENS said ${ens.hederaAccountId}`);
   writeFileSync(join(RUN_DIR, 'proof.json'), JSON.stringify(proof, null, 2));
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, renderProof(proof));
@@ -353,6 +397,11 @@ async function main() {
   assertPublicSafe(OUT, Object.values(roles).map((r) => r.key).concat([zg, token]));
   log(`\n✔ proof written: ${OUT}`);
   cleanup();
+}
+
+/** What goes into the HCS message (≤1024 bytes total): name, path, payTo, resolver, recordId. */
+function ensMemo4hcs(e) {
+  return { name: e.name, path: e.path, payTo: e.payTo, resolver: e.resolver, recordId: e.recordId };
 }
 
 function renderProof(p) {
@@ -393,6 +442,23 @@ function renderProof(p) {
     '',
     `Steward split verified on mirror node: **${s.verified === true}** (steward mode \`${s.mode ?? '?'}\`).`,
     '',
+    ...(p.ens
+      ? [
+          '## Artist resolved by ENS name',
+          '',
+          `Payout for **\`${p.ens.name}\`** was read from ENS (${p.ens.source}, ENSv2 Universal Resolver) — no hard-coded artist id.`,
+          '',
+          '| Field | Value |',
+          '|---|---|',
+          `| path | \`${p.ens.path}\` (coinType ${p.ens.coinType}) |`,
+          `| payTo | \`${p.ens.payTo}\` → Hedera \`${p.ens.hederaAccountId}\` |`,
+          `| resolver | \`${p.ens.resolver ?? '—'}\` (record ${p.ens.recordId ?? '—'}) |`,
+          `| hedera.hcs.topic | \`${p.ens.hcsTopic ?? '—'}\` |`,
+          '',
+          `Verify: https://explorer.ens.domains/ (search \`${p.ens.name}\`). The ENS name + path are inside the HCS message.`,
+          '',
+        ]
+      : []),
     '## 0G inference bound to each meter payment',
     '',
     '| Meter tx | 0G request id | TEE verified | Model |',

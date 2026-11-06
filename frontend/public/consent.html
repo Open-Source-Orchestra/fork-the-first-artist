@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Sign your free Open Source Orchestra consent to get an osoartist.eth name and receive fan payments on Hedera.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <script type="module" src="/consent.mjs"></script>
+    <title>Artist consent · osoartist.eth</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the consent form</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/">Artist circle</a><a href="/steward">Steward</a><a href="/arkiv">Arkiv proof</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="consent-heading">
+        <p class="kicker">ENS · osoartist.eth · free signature, no gas</p>
+        <h1 id="consent-heading">Your name. <em>Your keys. Your payout.</em></h1>
+        <p class="sub">Sign one message with your own Ethereum wallet. OSO then registers <code>&lt;you&gt;.osoartist.eth</code> owned by <strong>your address</strong>, with your own resolver that only you control. OSO pays the gas.</p>
+        <p class="draft-notice">This signature is <strong>not a transaction</strong> and moves no funds. Fans pay you on Hedera: to your Hedera account if you give one, otherwise to <strong>your own Ethereum address as a Hedera alias</strong> (only your key can ever spend it). The OSO steward agent can only write one status field on your name; it can never change your payout.</p>
+      </section>
+
+      <section class="card" aria-labelledby="form-heading">
+        <h2 id="form-heading">1 · Your details</h2>
+        <form id="consent-form" novalidate>
+          <p><button type="button" id="connect">Connect wallet</button> <span id="account" aria-live="polite">not connected</span></p>
+          <p><label for="label">Name label (lowercase a–z, 0–9, hyphens)</label><br>
+            <input id="label" name="label" required pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" autocomplete="off" spellcheck="false" placeholder="shaka"> <span>.osoartist.eth</span></p>
+          <p><label for="hedera">Hedera payout account (optional, e.g. 0.0.12345 — leave empty to be paid to your ETH address as a Hedera alias)</label><br>
+            <input id="hedera" name="hedera" pattern="\d{1,10}\.\d{1,20}\.\d{1,20}" autocomplete="off" spellcheck="false" placeholder="alias"></p>
+          <h2>2 · The exact message you sign</h2>
+          <pre id="message" class="draft-notice" aria-live="polite">Connect your wallet and choose a label.</pre>
+          <p><button type="submit" id="sign" disabled>Sign consent (free)</button></p>
+        </form>
+        <p id="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-labelledby="out-heading" id="out-card" hidden>
+        <h2 id="out-heading">3 · Send this JSON to OSO</h2>
+        <p>Give this to the OSO team (it contains your public address and signature only — no secret).</p>
+        <pre id="json"></pre>
+        <p><button type="button" id="copy">Copy JSON</button> <a id="download" download="consent.json" href="#">Download consent.json</a></p>
+      </section>
+    </main>
+  </body>
+</html>

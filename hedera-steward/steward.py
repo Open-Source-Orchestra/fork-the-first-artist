@@ -483,7 +483,8 @@ def load_config(env: dict, mirror: Optional[Mirror] = None, resolve: bool = True
 
 
 def dry_run(cfg: StewardConfig, *, mode: str, artist_name: str, total_tinybar: int, settled_tx: Optional[str],
-            demo: bool, topic_id: Optional[str], llm: str = "0g", env: Optional[dict] = None) -> dict:
+            demo: bool, topic_id: Optional[str], llm: str = "0g", env: Optional[dict] = None,
+            ens: Optional[dict] = None) -> dict:
     """Compute + validate + show what WOULD be submitted. No chain, mirror, or LLM calls."""
     env = os.environ if env is None else env
     if not settled_tx and not demo:
@@ -511,7 +512,7 @@ def dry_run(cfg: StewardConfig, *, mode: str, artist_name: str, total_tinybar: i
     split = calculate_steward_split(format_hbar(total_tinybar), env)
     marker = "oso-dryrun-" + uuid.uuid4().hex[:8]
     message = build_hcs_message(marker=marker, artist_name=artist_name, artist_account=artist, split=split,
-                                settled_tx=settled_norm, demo=demo)
+                                settled_tx=settled_norm, demo=demo, ens=ens)
     llm_info = None
     if mode == "agent":
         s = llm_settings(llm, env)
@@ -632,7 +633,7 @@ def llm_proof(settings: dict, messages: list) -> dict:
 # ───────────────────────────── message building ─────────────────────────────
 
 def build_hcs_message(*, marker: str, artist_name: str, artist_account: str, split: dict,
-                      settled_tx: Optional[str], demo: bool) -> str:
+                      settled_tx: Optional[str], demo: bool, ens: Optional[dict] = None) -> str:
     msg = {
         "oso": "fork-the-first-artist/steward/v1",
         "marker": marker,
@@ -645,6 +646,8 @@ def build_hcs_message(*, marker: str, artist_name: str, artist_account: str, spl
         "note": f"Paid {split['artist_hbar']} HBAR to {artist_name}; {split['compute_hbar']} HBAR "
                 f"({split['compute_bps'] / 100:.2f}%) retained for 0G agent compute; 0% OSO.",
     }
+    if ens:  # payout resolved from the artist's ENS name (ens/src/resolve-artist.mjs)
+        msg["ens"] = {k: ens.get(k) for k in ("name", "path", "payTo", "resolver", "recordId") if ens.get(k) is not None}
     text = json.dumps(msg, separators=(",", ":"))
     if len(text.encode()) > 1024:
         raise StewardError("HCS message exceeds 1024 bytes")
@@ -764,7 +767,8 @@ def process_artist_payment(cfg: StewardConfig, *, mode: str, artist_name: str, t
                            settled_tx: Optional[str], demo: bool, topic_id: Optional[str],
                            llm: str = "0g", env: Optional[dict] = None,
                            settled_asset: str = "hbar", settled_min: Optional[int] = None,
-                           mirror: Optional[Mirror] = None, timeout_s: float = 30.0) -> dict:
+                           mirror: Optional[Mirror] = None, timeout_s: float = 30.0,
+                           ens: Optional[dict] = None) -> dict:
     env = os.environ if env is None else env
     assert_distinct_artist(cfg.steward_account, cfg.artist_account)
     if not settled_tx and not demo:
@@ -785,7 +789,7 @@ def process_artist_payment(cfg: StewardConfig, *, mode: str, artist_name: str, t
 
     marker = "oso-" + uuid.uuid4().hex[:12]
     message = build_hcs_message(marker=marker, artist_name=artist_name, artist_account=cfg.artist_account,
-                                split=split, settled_tx=settled_tx, demo=demo)
+                                split=split, settled_tx=settled_tx, demo=demo, ens=ens)
     memo = tx_memo(marker, demo)
     since = mirror_now_minus(10)
 
@@ -862,6 +866,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--settled-decimals", type=int, default=None)
     p.add_argument("--artist-name", default="demo-artist.oso.eth")
     p.add_argument("--topic-id", default=None)
+    p.add_argument("--ens-json", default=None, help="ENS payTo resolution (JSON from ens/src/resolve-artist.mjs) to log in HCS")
     p.add_argument("--json-out", default=None)
     p.add_argument("--dry-run", action="store_true", help="validate + print what would be submitted; no network")
     p.add_argument("--timeout", type=float, default=30.0, help="mirror polling seconds")
@@ -879,12 +884,16 @@ def main(argv: Optional[list[str]] = None) -> int:
         if not a.amount_hbar:
             raise StewardError("--amount-hbar is required")
         total = parse_hbar(a.amount_hbar)
+        ens = json.loads(a.ens_json) if a.ens_json else None
+        if ens is not None and not isinstance(ens, dict):
+            raise StewardError("--ens-json must be a JSON object")
         if a.demo_amount:
             print(f"*** {DEMO_LABEL}: {format_hbar(total)} HBAR ***")
         if a.dry_run:
             cfg = load_config(env, resolve=False)
             proof = dry_run(cfg, mode=a.command, artist_name=a.artist_name, total_tinybar=total,
-                            settled_tx=a.settled_tx, demo=a.demo_amount, topic_id=a.topic_id, llm=a.llm, env=env)
+                            settled_tx=a.settled_tx, demo=a.demo_amount, topic_id=a.topic_id, llm=a.llm, env=env,
+                            ens=ens)
             assert_public_safe(proof, _secrets(env, cfg))
             w = proof["would_submit"]
             print(f"DRY RUN ({a.command}) — nothing submitted")
@@ -908,7 +917,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         proof = process_artist_payment(cfg, mode=a.command, artist_name=a.artist_name, total_tinybar=total,
                                        settled_tx=a.settled_tx, demo=a.demo_amount, topic_id=a.topic_id,
                                        llm=a.llm, env=env, settled_asset=a.settled_asset,
-                                       settled_min=settled_min, timeout_s=a.timeout)
+                                       settled_min=settled_min, timeout_s=a.timeout, ens=ens)
         proof["status"] = "verified"
         assert_public_safe(proof, _secrets(env, cfg))
         print(f"VERIFIED transfer {proof['transfer_tx_id']}  {proof['hashscan']['transfer']}")

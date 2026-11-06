@@ -1,0 +1,8 @@
+{
+  "parent": "osoartist.eth",
+  "registry": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+  "activated": false,
+  "updatedAt": "2026-11-06T22:45:00.000Z",
+  "note": "Written by ens/scripts/onboard.mjs (mainnet runs only). status: pending | consented | issued. 'activated' flips true after the parent owner signs setSubregistry.",
+  "artists": {}
+}

@@ -92,7 +92,7 @@ async function main(): Promise<void> {
     provider?: string;
     model?: string;
     degradation?: string;
-    error?: { code: string; message: string };
+    error?: string | { code: string; message: string };
     splitPreview?: { human: string };
     splitVerified?: boolean;
     proof?: {
@@ -115,7 +115,8 @@ async function main(): Promise<void> {
   };
 
   if (paid.status !== 200) {
-    console.error(`✖ HTTP ${paid.status}: ${body.error?.code} — ${body.error?.message}`);
+    const err = body.error;
+    console.error(`✖ HTTP ${paid.status}: ${typeof err === 'string' ? err : `${err?.code} — ${err?.message}`}`);
     process.exitCode = 1;
     return;
   }

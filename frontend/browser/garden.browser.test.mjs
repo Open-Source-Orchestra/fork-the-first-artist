@@ -38,8 +38,19 @@ for (const vp of [{ width: 1280, height: 800 }, { width: 375, height: 812 }]) {
       await page.locator('#detail.open .fork-card').waitFor({ timeout: 10000 });
       assert.match(await page.locator('.fork-card .ens').textContent(), /^shaka\.osoartist\.eth$/);
       assert.match(await page.locator('.fork-card .ens-state').textContent(), /not issued/);
+      assert.equal((await page.locator('.fork-card [data-fork-ask]').textContent()).trim(), "🧠 ask Shaka's steward · live 0G");
       await page.locator('.fork-card [data-fork-open]').click();
       await page.locator('#fork.open').waitFor();
+      // The panel's default steward is still the fictional Mira…
+      assert.equal(await page.locator('#fork [data-steward="mira-modal"]').getAttribute('aria-pressed'), 'true');
+      assert.match(await page.locator('#fork-chips').innerText(), /List Mira's songs/);
+      // …and Shaka's card button switches it to Shaka's own steward.
+      await page.evaluate(() => document.querySelector('.fork-card [data-fork-ask]').click());
+      assert.equal(await page.locator('#fork [data-steward="shaka"]').getAttribute('aria-pressed'), 'true');
+      assert.equal(await page.locator('#fork [data-steward="mira-modal"]').getAttribute('aria-pressed'), 'false');
+      assert.match(await page.locator('#fork-chips').innerText(), /What does Shaka play\?[\s\S]*When is Shaka's talk\?/);
+      assert.match(await page.locator('#fork-who-note').innerText(), /only on his public garden profile/);
+      assert.match(await page.locator('#fork-ask-h').innerText(), /Ask Shaka's steward/);
       await page.waitForFunction(() => /unavailable|live/.test(document.querySelector('#fork-zg-badge')?.textContent || ''));
       assert.equal(await page.locator('#fork-zg-badge').textContent(), 'unavailable');
       assert.equal(await page.locator('#fork-answer').isHidden(), true, 'no mock answer');

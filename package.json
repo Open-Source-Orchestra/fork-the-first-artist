@@ -7,9 +7,9 @@
     "node": ">=22.18"
   },
   "scripts": {
-    "install:all": "npm --prefix payments install && npm --prefix agent install && npm --prefix frontend install --ignore-scripts && npm --prefix claims install --ignore-scripts",
-    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend && npm run test:claims",
-    "typecheck": "npm --prefix payments run typecheck && npm --prefix agent run typecheck",
+    "install:all": "npm --prefix payments install && npm --prefix agent install && npm --prefix frontend install --ignore-scripts && npm --prefix claims install --ignore-scripts && npm --prefix cloudflare install --ignore-scripts",
+    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend && npm run test:claims && npm run test:cloudflare",
+    "typecheck": "npm --prefix payments run typecheck && npm --prefix agent run typecheck && npm --prefix cloudflare run typecheck",
     "dev:payments": "npm --prefix payments start",
     "dev:agent": "npm --prefix agent start",
     "demo": "node agent/scripts/demo.ts",
@@ -21,6 +21,9 @@
     "build:static": "node frontend/scripts/build-static.mjs",
     "test:claims": "npm --prefix claims test",
     "steward": "npm --prefix claims run steward --",
-    "test:claims:arkiv": "npm --prefix claims run test:arkiv"
+    "test:claims:arkiv": "npm --prefix claims run test:arkiv",
+    "test:cloudflare": "npm --prefix cloudflare test",
+    "build:cloudflare": "npm --prefix cloudflare run build",
+    "dev:cloudflare": "npm --prefix cloudflare run dev"
   }
 }

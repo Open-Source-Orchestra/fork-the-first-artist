@@ -308,3 +308,13 @@ Date: 6 November 2026 (UTC). Authors: `ohana-sysadmin` and synthetic test wallet
 - Optional Playwright suite: **11/11 passed**, 120/120 seat centers correct, 12 axe scans with zero violations. Final integrated Arkiv browser read: HTTP/query success at block 302024, one readonly entity, no console errors.
 - `frontend/scripts/build-static.mjs` produced the separate review deployment at https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ with wallets disabled. All primary routes/assets returned 200; its public `/arkiv` read succeeded at block 302205 with no console errors or 375px overflow. Production artist domain and main branch remained unchanged.
 - Still not proven: real Hedera settlement, real 0G inference, HCS, on-chain split, Reown wallet pairing, claims/ENS activation, production hosting. Hedera accounts remained unfunded and 0G credentials were blocked by official CAPTCHA/team-credit provisioning; no mock was substituted for live evidence.
+
+## 17 — Add a replay-safe narrow Cloudflare host
+
+Date: 6 November 2026 (UTC). Author: `ohana-sysadmin`; independent adversarial review included. AI assistance disclosed in the branch history.
+
+- `cloudflare/` implements an optional narrow Worker: `POST /ask` for one x402-protected 0G artist answer, `POST /demo` for a dedicated autonomous fan payer, and `GET /health`. It uses canonical feePayer requirements, a server-only artist payout, bounded 0G input/output, strict status/model/finish handling, and fail-closed settlement.
+- A Durable Object stores payment-claim hashes so concurrent/sequential replay cannot repeat 0G compute before settlement; signed payloads and a spend ledger are not stored. Verification preserves `ZG-Res-Key`, request/provider/model/chat IDs and clearly labels TEE as Router-reported unless independently verified.
+- Exact-origin CORS, public demo rate/concurrency limits, tiny-price configuration checks, `nodejs_compat`, and `global_fetch_strictly_public` are present. Public rate limits are isolate-local; there is **no durable global \$5 ledger**. Only a tiny dedicated fan test balance is allowed.
+- Verification: **25/25 Worker tests**, strict TypeScript, Wrangler dry-run with SQLite Durable Object binding (4606.58 KiB / 621.59 KiB gzip), zero npm audit vulnerabilities, and local health/CORS smoke. Root verification is now **198/198 tests** (56 payments, 72 agent, 33 frontend, 12 claims, 25 Worker) plus all three typechecks.
+- Not deployed and still gated: real 0G key/model response, real Hedera funding/settlement, cold SDK signing, self-fetch, deployed Durable Object behavior, and custom domain. No paid plan/setting was enabled. This narrow slice does not implement split/HCS/ENS/claims or the agent-pays-0G loop. Setup: `docs/HOSTING.md`.

@@ -43,6 +43,8 @@ Browse 40 public artist previews, visit `/home` for the sample OSO profile, open
 
 For the two-service dev demo and the credentialed Hedera/0G path, follow [docs/RUNBOOK.md](docs/RUNBOOK.md). Dev mode deliberately returns `mock-…`, `dev-…`, and `[dev-mock inference]` values. Live mode requires separate fan, artist, compute, and meter-operator accounts and must never silently substitute the mock fan header.
 
+For the narrow single-payment + single-0G-answer public slice, an optional Cloudflare Worker lives in `cloudflare/` with replay protection and bounded fan/0G usage; see [docs/HOSTING.md](docs/HOSTING.md). It has no durable global \$5 ledger and must use only a tiny dedicated fan test balance. It does not implement the split, HCS, claims, ENS, or agent-pays-0G loop.
+
 ## Architecture
 
 ```text
@@ -63,7 +65,8 @@ ENS: artist-controlled identity target; not implemented by this scaffold
 |---|---|
 | `payments/` | x402 resource server, inference meter, exact split arithmetic, HTS/HCS live adapters |
 | `agent/` | steward, fenced artist data, provider adapters, autonomous payer, budgets and demo client |
-| `frontend/` | static artist preview, local draft editor, wallet connection adapters |
+| `frontend/` | public artist-preview circle, local draft editor, wallet adapters, live Arkiv viewer, safe static builder |
+| `cloudflare/` | optional narrow x402 + 0G Worker with autonomous demo fan and replay guard |
 | `claims/` + `arkiv/` | encrypted Arkiv steward CLI, schema and judging evidence |
 | `ens/` | ownership/permission acceptance criteria; no issuer yet |
 | `docs/` | setup, implementation history, review, proof and submission materials |

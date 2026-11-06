@@ -20,13 +20,14 @@ A consent-first artist home where a fan agent discovers an HTTP 402 price, pays 
 
 ## Live links and proof
 
-- App: https://artist.opensourceorchestra.org/
+- Current production preview: https://artist.opensourceorchestra.org/ (older static sample)
+- Integrated review preview: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/ (repaired circle + live Arkiv read; wallets disabled)
 - Repo: https://github.com/Open-Source-Orchestra/fork-the-first-artist
 - Hedera transaction: **[REAL TX ID + HASHSCAN URL]**
 - 0G model + request ID: **[REAL MODEL + REQUEST ID + VERIFIABLE RESPONSE/PROOF]**
 - Arkiv writer: `0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2` (dedicated synthetic Rabdi writer)
 - Arkiv current entity: `0x11b5bb0e5e2771ab7363d506ea2334a336f42ad3271bb22a32aabdda170fa267`; [issue](https://rabdi.explorer.arkiv.network/tx/0xf5ac4a62b1af1bdc066c46c825e325cd4485d377b951d8c777450e5771b09dd8) block 301610 / [revoke](https://rabdi.explorer.arkiv.network/tx/0x88fa7783995c065bf2088aea99e812bed3391b5d91c98b88aed1448b0b2e4c75) block 301613, both status `0x1`
-- Arkiv viewer/query: `/arkiv` on the app (after deployment) + exact keyless query/projection in `arkiv/README.md` and `frontend/public/arkiv-query.mjs`
+- Arkiv viewer/query: https://artist-preview-kzu6ctlpau-ffieyo32.taur.link/arkiv (live manual public read verified at block 302205) + exact keyless query/projection in `arkiv/README.md` and `frontend/public/arkiv-query.mjs`
 - Video: **[2:35–2:50 HUMAN-NARRATED 720p+ VIDEO URL]**
 
 ## Hedera partner answer

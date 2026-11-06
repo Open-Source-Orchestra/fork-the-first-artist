@@ -35,7 +35,7 @@ test('ENS registry starts honest: no artist listed without consent', async () =>
   assert.equal(reg.parent, 'osoartist.eth');
   for (const [slug, a] of Object.entries(reg.artists)) {
     assert.match(slug, /^[a-z0-9-]+$/);
-    assert.ok(['consented', 'issued'].includes(a.status), `${slug} has a status`);
+    assert.ok(['approved', 'issued'].includes(a.status), `${slug} has a status`);
     if (a.status === 'issued') assert.match(a.owner ?? '', /^0x[0-9a-fA-F]{40}$/, `${slug} issued names need the artist's own owner address`);
   }
 });

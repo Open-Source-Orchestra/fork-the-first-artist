@@ -446,3 +446,22 @@ def test_json_out_on_failure_has_verified_false(tmp_path, monkeypatch):
     assert rc == st.EXIT_CONFIG
     data = json.loads(out.read_text())
     assert data["verified"] is False and data["status"] == "error" and "cdcd" not in out.read_text()
+
+
+def test_hcs_message_carries_ens_resolution_and_stays_small():
+    split = st.calculate_steward_split("1")
+    ens = {"name": "demo-artist.osoartist.eth", "path": "hbar", "payTo": ARTIST,
+           "resolver": "0x56a46B36841305968811304d69D5B07D7Aa5BB2e", "recordId": "1", "ignored": "x"}
+    text = st.build_hcs_message(marker="oso-ens", artist_name=ens["name"], artist_account=ARTIST, split=split,
+                                settled_tx=None, demo=False, ens=ens)
+    m = json.loads(text)
+    assert m["ens"] == {k: ens[k] for k in ("name", "path", "payTo", "resolver", "recordId")}
+    assert m["artist"] == "demo-artist.osoartist.eth"
+    assert len(text.encode()) <= 1024
+    assert "ens" not in json.loads(st.build_hcs_message(marker="m", artist_name="a", artist_account=ARTIST,
+                                                        split=split, settled_tx=None, demo=False))
+
+
+def test_cli_rejects_non_object_ens_json(capsys):
+    rc = st.main(["direct", "--dry-run", "--amount-hbar", "1", "--demo-amount", "--ens-json", "[1]"])
+    assert rc != 0

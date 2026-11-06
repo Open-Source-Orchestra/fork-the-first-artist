@@ -116,8 +116,9 @@ function mountPanel() {
     <section class="fork-tile" aria-labelledby="fork-ens-h">
       <h4 id="fork-ens-h">🏷 A name the artist owns <span class="fork-badge" id="fork-ens-badge">ENS</span></h4>
       <p>Each artist can hold <b>&lt;name&gt;.osoartist.eth</b>, owned by <b>their own wallet</b> with their own resolver; it points fans and agents at their Hedera account and their steward. OSO keeps no record rights. Tap any figure in the circle to see their name.</p>
+      <p><b>Claimed by invitation, approved by a steward.</b> The owner of osoartist.eth (today: Shaka) is the root of trust and can grant more stewards. A steward invites an artist → the artist signs consent with their own wallet → a steward approves → only then is the name issued. Every step is a free signature that the issuer re-checks.</p>
       <p class="fork-honest" id="fork-ens-state"></p>
-      <div class="links"><a class="pill" href="https://app.ens.domains/osoartist.eth" target="_blank" rel="noopener">osoartist.eth ↗</a></div>
+      <div class="links"><a class="pill" href="/admin">🌺 steward desk</a><a class="pill" href="/fork/stewards.json">stewards.json</a><a class="pill" href="https://app.ens.domains/osoartist.eth" target="_blank" rel="noopener">osoartist.eth ↗</a></div>
     </section>
 
     <div class="links" style="display:flex;flex-wrap:wrap;gap:6px">
@@ -194,12 +195,12 @@ function fillProofs() {
     kv.innerHTML = `<dt>invitation issued</dt><dd>${ex(arkiv.issueTx)}</dd><dt>revoked</dt><dd>${ex(arkiv.revokeTx)}</dd><dt>entity</dt><dd>${esc(arkiv.entityKey)}</dd><dt>state now</dt><dd>${esc(arkiv.operationalState)} · verified ${esc(arkiv.verifiedAt)}</dd>`;
   }
   const issued = Object.values(registry.artists).filter((a) => a && a.status === 'issued').length;
-  const consented = Object.values(registry.artists).filter((a) => a && (a.status === 'consented' || a.status === 'issued')).length;
+  const consented = Object.values(registry.artists).filter((a) => a && ['approved', 'consented', 'issued'].includes(a.status)).length;
   const badge = $('#fork-ens-badge'), state = $('#fork-ens-state');
   if (badge) { badge.className = 'fork-badge ' + (issued ? 'live' : 'wait'); badge.textContent = issued ? `${issued} issued · mainnet` : 'parent live · names on consent'; }
   if (state) state.textContent = issued
     ? `${issued} artist name${issued > 1 ? 's' : ''} issued on Ethereum mainnet, each owned by the artist's own wallet.`
-    : `osoartist.eth is live on ENS. ${consented ? consented + ' artist' + (consented > 1 ? 's have' : ' has') + ' signed consent; ' : ''}no artist name is issued until that artist signs.`;
+    : `osoartist.eth is live on ENS. ${consented ? consented + ' artist' + (consented > 1 ? 's are' : ' is') + ' approved; ' : ''}no artist name is issued until a steward invites, the artist signs and a steward approves.`;
 }
 
 /* ── per-artist block in the garden's detail panel ─────────────────────────── */
@@ -213,11 +214,11 @@ function artistBlock(slug, a) {
   const first = String(a.name || '').split(/[\s×&·]/)[0] || 'the artist';
   let state;
   if (reg?.status === 'issued') state = `<b>issued</b> · owned by ${esc(reg.owner ? reg.owner.slice(0, 6) + '…' + reg.owner.slice(-4) : 'the artist')}${reg.hedera ? ` · pays to Hedera <a href="${HASHSCAN.replace('/testnet', '/mainnet')}/account/${esc(reg.hedera)}" target="_blank" rel="noopener">${esc(reg.hedera)}</a>` : ''}`;
-  else if (reg?.status === 'consented') state = `<b>consent signed</b> · name being issued to ${esc(first)}'s own wallet`;
-  else state = `<b>not issued</b> · waits for ${esc(first)}'s own signature. Nothing is collected in an artist's name before that.`;
+  else if (reg?.status === 'approved' || reg?.status === 'consented') state = `<b>approved</b>${reg.approvedBy ? ` by ${esc(reg.approvedBy)}` : ''} · ${esc(first)} signed with their own key; the name is being issued to their wallet`;
+  else state = `<b>not issued</b> · by invitation: a steward invites ${esc(first)}, ${esc(first)} signs with their own wallet, a steward approves. Nothing is collected in an artist's name before that.`;
   const links = [];
   if (reg?.status === 'issued') links.push(`<a class="pill teal" href="https://app.ens.domains/${esc(ens)}" target="_blank" rel="noopener">🏷 ${esc(ens)} ↗</a>`);
-  if (registry.consentPage && reg?.status !== 'issued') links.push(`<a class="pill" href="${esc(registry.consentPage)}?artist=${encodeURIComponent(slug)}">✍️ I am ${esc(first)} — sign consent</a>`);
+  if (reg?.status !== 'issued' && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill" href="/admin?artist=${encodeURIComponent(slug)}">🌺 steward? invite ${esc(first)}</a>`);
   links.push(`<button class="pill teal" type="button" data-fork-ask>🧠 ask a steward · live 0G</button>`);
   links.push(`<button class="pill" type="button" data-fork-open>⚡ see a real x402 payment</button>`);
   if (/^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill violet" href="/draft?artist=${encodeURIComponent(slug)}">✏️ draft ${esc(first)}'s home</a>`);
@@ -231,7 +232,7 @@ function artistBlock(slug, a) {
     <div class="fork-split" role="img" aria-label="96.31 percent to ${esc(a.name)}, 3.69 percent steward compute, 0 percent OSO"><span class="a">96.31% → ${esc(first)}</span><span class="c">3.69%</span></div>
     <div class="fork-split-legend"><span>every tip, paid with x402 on Hedera</span><span>steward compute · OSO 0%</span></div>
     <div class="links">${links.join('')}</div>
-    <p class="fine">Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key.</p>`;
+    <p class="fine">Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key. ${esc(first)}: got an invitation link from a steward? Open it to sign.</p>`;
   body.appendChild(card);
   card.querySelector('[data-fork-ask]')?.addEventListener('click', () => openFork(true));
   card.querySelector('[data-fork-open]')?.addEventListener('click', () => openFork(false));

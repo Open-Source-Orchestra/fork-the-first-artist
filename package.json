@@ -7,8 +7,8 @@
     "node": ">=22.18"
   },
   "scripts": {
-    "install:all": "npm --prefix payments install && npm --prefix agent install && npm --prefix frontend install --ignore-scripts && npm --prefix claims install --ignore-scripts && npm --prefix cloudflare install --ignore-scripts",
-    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend && npm run test:claims && npm run test:cloudflare",
+    "install:all": "npm --prefix payments install && npm --prefix agent install && npm --prefix frontend install --ignore-scripts && npm --prefix claims install --ignore-scripts && npm --prefix cloudflare install --ignore-scripts && npm --prefix ens install",
+    "test": "npm --prefix payments test && npm --prefix agent test && npm run test:frontend && npm run test:claims && npm run test:cloudflare && npm run test:ens",
     "typecheck": "npm --prefix payments run typecheck && npm --prefix agent run typecheck && npm --prefix cloudflare run typecheck",
     "dev:payments": "npm --prefix payments start",
     "dev:agent": "npm --prefix agent start",
@@ -29,6 +29,11 @@
     "e2e:dev:0g": "node scripts/live-e2e.mjs --dev --real-0g",
     "e2e:live": "node scripts/live-e2e.mjs --live",
     "steward:check": "${STEWARD_PYTHON:-/workspace/utkarsh-hedera/.venv/bin/python} hedera-steward/steward.py check",
-    "test:steward": "cd hedera-steward && ${STEWARD_PYTHON:-/workspace/utkarsh-hedera/.venv/bin/python} -m pytest -q"
+    "test:steward": "cd hedera-steward && ${STEWARD_PYTHON:-/workspace/utkarsh-hedera/.venv/bin/python} -m pytest -q",
+    "test:ens": "npm --prefix ens test",
+    "ens:fork-test": "node ens/scripts/fork-test.mjs",
+    "ens:onboard": "node ens/scripts/onboard.mjs",
+    "ens:signing-kit": "node ens/scripts/build-signing-kit.mjs",
+    "ens:resolve": "node ens/src/resolve-artist.mjs"
   }
 }

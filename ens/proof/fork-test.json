@@ -1,0 +1,494 @@
+{
+  "generatedAt": "2026-11-06T22:46:18.381Z",
+  "mode": "anvil fork of Ethereum mainnet (nothing broadcast)",
+  "forkBlock": "26358885",
+  "addresses": {
+    "ETHRegistry": "0xf60aba43e1f7f3dab1186ff03b561401c9df85e2",
+    "ETHRegistrar": "0xd6d8369e55c94ae8afa714e6cf7ab5be54d5cc81",
+    "RootRegistry": "0x2553c09be6447beffdb86fa622ad41fb8f77a91e",
+    "VerifiableFactory": "0x77510ba162dfea3d8989e3f0928a691b345730d2",
+    "UserRegistryImpl": "0xfaa23592aca10a6d8875b18ea86954e8eb6d8d72",
+    "PermissionedResolverImpl": "0x565b0f456a04ac9b48758190e90030623cff57c5",
+    "UniversalResolver": "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe",
+    "registry": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+    "ops": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+    "steward": "0x3ED964927a6aA93367B6A7fF8922dd6960ed5434",
+    "demoArtist": "0x611123ad22bB242f05D1F23d58753C48E0825E46",
+    "parentOwner": "0x25965899f4600b3AA5362ee4f34be95E5E62c934"
+  },
+  "parent": {
+    "name": "osoartist.eth",
+    "tokenId": "18788971598184817501331852826333265300141243488095966786240725509410079637504",
+    "expiry": "2027-11-06T22:05:47.000Z"
+  },
+  "onboarded": [
+    {
+      "label": "demo-artist",
+      "name": "demo-artist.osoartist.eth",
+      "owner": "0x611123ad22bB242f05D1F23d58753C48E0825E46",
+      "resolver": "0x56a46B36841305968811304d69D5B07D7Aa5BB2e",
+      "consentHash": "0x716a33a9e932956033d9e411d5bd0ff15e5f9af4565a3e71b8c8488eac8ea414",
+      "salt": "0xb6679153b80bf2c2cec2aa6427ec1adaa0005972c597b034a07799fae06126d6"
+    },
+    {
+      "label": "demo-artist-2",
+      "name": "demo-artist-2.osoartist.eth",
+      "owner": "0xC77d55292CC34E7c329D7082534C374D9aCA0823",
+      "resolver": "0xbe2FE879352F5379156cc3efb5B7c81BCd0E6379",
+      "consentHash": "0xb68bbdb73e4b7cf1ea41ffd0095c76e1efe4a0da6c71d46ab51327f6c3d35947",
+      "salt": "0x712ee3d4f3f074919059512ac12584afef6a50e66f0ba5c4575621f8d5ac97fd"
+    },
+    {
+      "label": "demo-artist-3",
+      "name": "demo-artist-3.osoartist.eth",
+      "owner": "0xcAaB889126D04E562D6E88ec460968C961d202DB",
+      "resolver": "0x14e9C4F6B4b5a6177f8d3322ce0Ab951DDdeC545",
+      "consentHash": "0x0235db9e497c87da6437015ef7f6e7f5c41628665923551303688ea5e2eecabf",
+      "salt": "0x91d3ae44b48c5c490ebde0271ab172cee565315a49d575dab888bce05471cbba"
+    }
+  ],
+  "resolvePayTo": {
+    "name": "demo-artist.osoartist.eth",
+    "network": "testnet",
+    "hcsTopic": "0.0.11345907",
+    "resolver": "0x56a46B36841305968811304d69D5B07D7Aa5BB2e",
+    "recordId": "1",
+    "consent": "active",
+    "stewardStatus": null,
+    "stewardUrl": null,
+    "path": "hbar",
+    "coinType": "3030",
+    "hederaAccountId": "0.0.11345896",
+    "hederaAlias": null,
+    "payTo": "0.0.11345896"
+  },
+  "negatives": {
+    "stewardSetHbar": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "stewardSetUrl": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "opsSetHbar": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "shakaSetHbar": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "opsReRegister": {
+      "reverted": true,
+      "errorName": "LabelAlreadyRegistered"
+    },
+    "OSO registrar:unregister": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "OSO registrar:setResolver": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "OSO registrar:setSubregistry": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "Shaka (parent owner):unregister": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "Shaka (parent owner):setResolver": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    },
+    "Shaka (parent owner):setSubregistry": {
+      "reverted": true,
+      "errorName": "EACUnauthorizedAccountRoles"
+    }
+  },
+  "gas": [
+    {
+      "step": "SHAKA: fund ops key (plain ETH transfer)",
+      "from": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+      "to": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "gasUsed": "21000",
+      "hash": "0x290998ba53e5db63e24a2fedf86fd74660f8b7ba848a9eb7c31be68568fb0a3e",
+      "signer": "shaka",
+      "ethAtCurrentGas": "0.000001143599982"
+    },
+    {
+      "step": "ops: fund steward key (plain ETH transfer)",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0x3ED964927a6aA93367B6A7fF8922dd6960ed5434",
+      "gasUsed": "21000",
+      "hash": "0x3b416ce0f8d6e346ef9c18de274c4540168e6568c43f43694d5c8a3d91f46d16",
+      "ethAtCurrentGas": "0.000001143599982"
+    },
+    {
+      "step": "ops: deploy UserRegistry (VerifiableFactory)",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0x77510ba162dfea3d8989e3f0928a691b345730d2",
+      "gasUsed": "228311",
+      "hash": "0xe33ebad281e2263fb214a7329da9e4cbfa47619c09382c03c37ed97032a80a41",
+      "ethAtCurrentGas": "0.000012433164547162"
+    },
+    {
+      "step": "ops: UserRegistry.setParent(ETHRegistry, \"osoartist\")",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+      "gasUsed": "80783",
+      "hash": "0xdb53565f7b48969bbb253dc869cad0302e93fd8f9bc90ff4b5800b0282550d83",
+      "ethAtCurrentGas": "0.000004399211302186"
+    },
+    {
+      "step": "ops: deploy demo-artist.osoartist.eth PermissionedResolver (records+grants in initialize)",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0x77510ba162dfea3d8989e3f0928a691b345730d2",
+      "gasUsed": "646945",
+      "hash": "0xf8cc9732cb075ebb541933bb080f1676589c390007fb296a70e5ed4a8c849ce5",
+      "ethAtCurrentGas": "0.00003523077573119"
+    },
+    {
+      "step": "ops: register demo-artist.osoartist.eth → owner 0x611123ad22bB242f05D1F23d58753C48E0825E46",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+      "gasUsed": "172872",
+      "hash": "0xbdbf3318408b39606fc39d1e520ae95b35b99e9a4d7fd14a548da6557449b906",
+      "ethAtCurrentGas": "0.000009414115051824"
+    },
+    {
+      "step": "ops: deploy demo-artist-2.osoartist.eth PermissionedResolver (records+grants in initialize)",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0x77510ba162dfea3d8989e3f0928a691b345730d2",
+      "gasUsed": "647389",
+      "hash": "0xca60a1a46424f57388a01b499ba57f24f9cff71948f05adf6a8d4f8f674da0b9",
+      "ethAtCurrentGas": "0.000035254954702238"
+    },
+    {
+      "step": "ops: register demo-artist-2.osoartist.eth → owner 0xC77d55292CC34E7c329D7082534C374D9aCA0823",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+      "gasUsed": "172896",
+      "hash": "0xc044b2700c61eb907b90261789ce12d654ac2b611c0739036fdc89f69d109a4e",
+      "ethAtCurrentGas": "0.000009415422023232"
+    },
+    {
+      "step": "ops: deploy demo-artist-3.osoartist.eth PermissionedResolver (records+grants in initialize)",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0x77510ba162dfea3d8989e3f0928a691b345730d2",
+      "gasUsed": "647389",
+      "hash": "0x2395a37776c041d0f27cb454d21409a35a9b4c24e92a881d80a9d49394f03fc7",
+      "ethAtCurrentGas": "0.000035254954702238"
+    },
+    {
+      "step": "ops: register demo-artist-3.osoartist.eth → owner 0xcAaB889126D04E562D6E88ec460968C961d202DB",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+      "gasUsed": "172896",
+      "hash": "0x04d1161796216afbff64926723e115f1c1f716a3d327d971c0459359250fcf3b",
+      "ethAtCurrentGas": "0.000009415422023232"
+    },
+    {
+      "step": "SHAKA: ETHRegistry.setSubregistry(osoartist.eth, UserRegistry)",
+      "from": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+      "to": "0xf60aba43e1f7f3dab1186ff03b561401c9df85e2",
+      "gasUsed": "57520",
+      "hash": "0xa6b4d59075c8f22f49c13c6adc93f3de4c1b65de2d335f13f1e41ed913e7ee8c",
+      "signer": "shaka",
+      "ethAtCurrentGas": "0.00000313237480784"
+    },
+    {
+      "step": "steward: setText(oso.steward.status, \"live\")",
+      "from": "0x3ED964927a6aA93367B6A7fF8922dd6960ed5434",
+      "to": "0x56a46B36841305968811304d69D5B07D7Aa5BB2e",
+      "gasUsed": "69269",
+      "hash": "0xe51f7ea7767d3d9a2a01c4c945d690ad4f2ebb09968f291bef99126cb2333626",
+      "ethAtCurrentGas": "0.000003772191769198"
+    },
+    {
+      "step": "SHAKA (optional, irreversible): revoke own SET_SUBREGISTRY(+admin) on osoartist.eth",
+      "from": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+      "to": "0xf60aba43e1f7f3dab1186ff03b561401c9df85e2",
+      "gasUsed": "79750",
+      "hash": "0x5e1e85263f082b189732ce43db2843f5f121b2727759c4759a246b8c784dec78",
+      "signer": "shaka",
+      "optional": true,
+      "ethAtCurrentGas": "0.0000043429570745"
+    }
+  ],
+  "cost": {
+    "gasPriceGwei": "0.054457142",
+    "shakaRequiredGas": "78520",
+    "shakaRequiredEth": "0.00000427597478984",
+    "opsGas": "2859750",
+    "opsEth": "0.0001557338118345",
+    "perArtistGas": "820129",
+    "perArtistEth": "0.000044661881411318",
+    "registryFixedGas": "309094",
+    "estimate": {
+      "3_artists": {
+        "gas": "2769481",
+        "eth": "0.000150818020083302",
+        "ethAt1gwei": "0.002769481",
+        "ethAt5xGas": "0.00075409010041651"
+      },
+      "4_artists": {
+        "gas": "3589610",
+        "eth": "0.00019547990149462",
+        "ethAt1gwei": "0.00358961",
+        "ethAt5xGas": "0.0009773995074731"
+      },
+      "5_artists": {
+        "gas": "4409739",
+        "eth": "0.000240141782905938",
+        "ethAt1gwei": "0.004409739",
+        "ethAt5xGas": "0.00120070891452969"
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "osoartist.eth owner is Shaka 0x2596",
+      "ok": true,
+      "detail": "0x25965899f4600b3AA5362ee4f34be95E5E62c934"
+    },
+    {
+      "name": "osoartist.eth has no subregistry yet",
+      "ok": true,
+      "detail": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "name": "UserRegistry deployed via VerifiableFactory",
+      "ok": true,
+      "detail": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48"
+    },
+    {
+      "name": "UserRegistry.isEmancipated() == true (no UPGRADE / unregister / re-point roles at root)",
+      "ok": true
+    },
+    {
+      "name": "NEG forged consent (wrong signer) refused before any transaction",
+      "ok": true,
+      "detail": "consent for forged-artist: signature recovers to 0x3ED964927a6aA93367B6A7fF8922dd6960ed5434, not 0x611123ad22bB242f05D1F23d58753C48E0825E46"
+    },
+    {
+      "name": "demo-artist.osoartist.eth: artist holds ALL resolver roles + admins",
+      "ok": true
+    },
+    {
+      "name": "demo-artist.osoartist.eth: steward holds ONLY setText(oso.steward.status)",
+      "ok": true,
+      "detail": {
+        "root": "0",
+        "status": "16"
+      }
+    },
+    {
+      "name": "demo-artist.osoartist.eth: OSO ops key + factory hold NO resolver roles",
+      "ok": true,
+      "detail": {
+        "ops": "0",
+        "factory": "0"
+      }
+    },
+    {
+      "name": "demo-artist.osoartist.eth: owner = artist's own address",
+      "ok": true,
+      "detail": "0x611123ad22bB242f05D1F23d58753C48E0825E46"
+    },
+    {
+      "name": "demo-artist-2.osoartist.eth: artist holds ALL resolver roles + admins",
+      "ok": true
+    },
+    {
+      "name": "demo-artist-2.osoartist.eth: steward holds ONLY setText(oso.steward.status)",
+      "ok": true,
+      "detail": {
+        "root": "0",
+        "status": "16"
+      }
+    },
+    {
+      "name": "demo-artist-2.osoartist.eth: OSO ops key + factory hold NO resolver roles",
+      "ok": true,
+      "detail": {
+        "ops": "0",
+        "factory": "0"
+      }
+    },
+    {
+      "name": "demo-artist-2.osoartist.eth: owner = artist's own address",
+      "ok": true,
+      "detail": "0xC77d55292CC34E7c329D7082534C374D9aCA0823"
+    },
+    {
+      "name": "demo-artist-3.osoartist.eth: artist holds ALL resolver roles + admins",
+      "ok": true
+    },
+    {
+      "name": "demo-artist-3.osoartist.eth: steward holds ONLY setText(oso.steward.status)",
+      "ok": true,
+      "detail": {
+        "root": "0",
+        "status": "16"
+      }
+    },
+    {
+      "name": "demo-artist-3.osoartist.eth: OSO ops key + factory hold NO resolver roles",
+      "ok": true,
+      "detail": {
+        "ops": "0",
+        "factory": "0"
+      }
+    },
+    {
+      "name": "demo-artist-3.osoartist.eth: owner = artist's own address",
+      "ok": true,
+      "detail": "0xcAaB889126D04E562D6E88ec460968C961d202DB"
+    },
+    {
+      "name": "before activation demo-artist.osoartist.eth does not resolve (fails closed)",
+      "ok": true,
+      "detail": "no-consent"
+    },
+    {
+      "name": "SHAKA setSubregistry(osoartist.eth → UserRegistry) succeeds",
+      "ok": true
+    },
+    {
+      "name": "viem getEnsAddress(demo-artist.osoartist.eth, coinType 3030) = HBAR 0.0.11345896",
+      "ok": true,
+      "detail": "0x0000000000000000000000000000000000ad1fe8"
+    },
+    {
+      "name": "resolvePayTo(demo-artist.osoartist.eth) → path hbar, payTo 0.0.11345896",
+      "ok": true,
+      "detail": {
+        "path": "hbar",
+        "payTo": "0.0.11345896",
+        "topic": "0.0.11345907",
+        "resolver": "0x56a46B36841305968811304d69D5B07D7Aa5BB2e",
+        "recordId": "1"
+      }
+    },
+    {
+      "name": "hedera.hcs.topic text resolves",
+      "ok": true,
+      "detail": "0.0.11345907"
+    },
+    {
+      "name": "resolvePayTo(demo-artist-2.osoartist.eth) → path hedera-evm alias = artist's own ETH address",
+      "ok": true,
+      "detail": {
+        "path": "hedera-evm",
+        "payTo": "0xC77d55292CC34E7c329D7082534C374D9aCA0823"
+      }
+    },
+    {
+      "name": "resolvePayTo(demo-artist-3.osoartist.eth) → path hedera-evm alias = artist's own ETH address",
+      "ok": true,
+      "detail": {
+        "path": "hedera-evm",
+        "payTo": "0xcAaB889126D04E562D6E88ec460968C961d202DB"
+      }
+    },
+    {
+      "name": "addr(60) of demo-artist.osoartist.eth = artist's own address",
+      "ok": true,
+      "detail": "0x611123ad22bB242f05D1F23d58753C48E0825E46"
+    },
+    {
+      "name": "steward CAN set oso.steward.status",
+      "ok": true,
+      "detail": "live"
+    },
+    {
+      "name": "NEG steward CANNOT set addr(3030) payout",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG steward CANNOT set any other text (url)",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG OSO ops key CANNOT set addr(3030) payout",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG parent owner (Shaka) CANNOT set an artist's payout",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG OSO registrar CANNOT re-register a live artist name",
+      "ok": true,
+      "detail": "LabelAlreadyRegistered"
+    },
+    {
+      "name": "NEG OSO registrar CANNOT unregister the artist's subname",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG OSO registrar CANNOT setResolver the artist's subname",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG OSO registrar CANNOT setSubregistry the artist's subname",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG OSO registrar CANNOT grant itself UPGRADE on the UserRegistry",
+      "ok": true,
+      "detail": "EACCannotGrantRoles"
+    },
+    {
+      "name": "NEG Shaka (parent owner) CANNOT unregister the artist's subname",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG Shaka (parent owner) CANNOT setResolver the artist's subname",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG Shaka (parent owner) CANNOT setSubregistry the artist's subname",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "NEG Shaka (parent owner) CANNOT grant itself UPGRADE on the UserRegistry",
+      "ok": true,
+      "detail": "EACCannotGrantRoles"
+    },
+    {
+      "name": "artist CAN change their own addr(3030) payout (simulated)",
+      "ok": true
+    },
+    {
+      "name": "steward status \"paused\" → resolvePayTo fails closed (steward-paused)",
+      "ok": true,
+      "detail": "steward-paused"
+    },
+    {
+      "name": "OPTIONAL LOCK: after revoke, even Shaka CANNOT re-point osoartist.eth subregistry",
+      "ok": true,
+      "detail": "EACUnauthorizedAccountRoles"
+    },
+    {
+      "name": "OPTIONAL LOCK: artist name still resolves after lock",
+      "ok": true,
+      "detail": "0.0.11345896"
+    }
+  ],
+  "passed": 43,
+  "failed": 0
+}

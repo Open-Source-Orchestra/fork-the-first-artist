@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <script type="application/json" id="kit">__KIT_JSON__</script>
+    <script type="module" src="/ens-sign.mjs"></script>
+    <title>osoartist.eth · Shaka signing kit</title>
+  </head>
+  <body>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/consent">Artist consent</a><a href="/steward">Steward</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro">
+        <p class="kicker">ENSv2 · Ethereum mainnet · only for the owner of osoartist.eth</p>
+        <h1>Shaka's signing kit</h1>
+        <p class="sub" id="summary"></p>
+        <p class="draft-notice">Each button opens MetaMask with exactly the transaction shown. Nothing is sent unless you confirm in MetaMask. Agents never see your key.</p>
+        <p><button type="button" id="connect">Connect MetaMask</button> <span id="who" aria-live="polite"></span></p>
+      </section>
+      <div id="txs"></div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>

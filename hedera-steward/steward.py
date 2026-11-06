@@ -860,7 +860,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--settled-asset", default="hbar", help="'hbar' or HTS token id the settlement paid in")
     p.add_argument("--settled-amount", help="settled token amount (decimal) when --settled-asset is a token")
     p.add_argument("--settled-decimals", type=int, default=None)
-    p.add_argument("--artist-name", default="aniket.oso.eth")
+    p.add_argument("--artist-name", default="demo-artist.oso.eth")
     p.add_argument("--topic-id", default=None)
     p.add_argument("--json-out", default=None)
     p.add_argument("--dry-run", action="store_true", help="validate + print what would be submitted; no network")

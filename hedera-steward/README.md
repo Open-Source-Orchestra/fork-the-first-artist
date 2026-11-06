@@ -43,7 +43,7 @@ Input (choose one):
 cd hedera-steward
 python -m venv .venv && .venv/bin/pip install -r requirements.txt   # or reuse an existing venv
 .venv/bin/python steward.py check
-.venv/bin/python steward.py direct --amount-hbar 1 --demo-amount --artist-name aniket.oso.eth --json-out proof.json
+.venv/bin/python steward.py direct --amount-hbar 1 --demo-amount --artist-name demo-artist.oso.eth --json-out proof.json
 .venv/bin/python steward.py direct --settled-tx 0.0.1234@1793999000.123456789 --amount-hbar 1 --json-out proof.json
 .venv/bin/python steward.py agent  --llm 0g --amount-hbar 1 --demo-amount --topic-id 0.0.XXXX --json-out proof-agent.json
 .venv/bin/python steward.py direct --settled-tx mock-x402-1 --amount-hbar 1 --dry-run --json-out dry.json

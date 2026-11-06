@@ -92,7 +92,7 @@ cd agent && PAYMENTS_MODE=live HEDERA_ASSET=0.0.0 HEDERA_ASSET_DECIMALS=8 PAYER_
 cd agent && PAYMENTS_MODE=live HEDERA_ASSET=0.0.0 HEDERA_FAN_ACCOUNT_ID=<fan> HEDERA_FAN_PRIVATE_KEY=<fan key> \
   node scripts/demo.ts "Who are you?"
 # split the settled payment (tx id from the demo output / ledger)
-$PY hedera-steward/steward.py direct --settled-tx <ask tx id> --amount-hbar 1 --artist-name aniket.oso.eth --json-out proof.json
+$PY hedera-steward/steward.py direct --settled-tx <ask tx id> --amount-hbar 1 --artist-name demo-artist.oso.eth --json-out proof.json
 ```
 
 ## Honest notes

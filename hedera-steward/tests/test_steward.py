@@ -367,7 +367,7 @@ def test_direct_mode_end_to_end_mocked(monkeypatch, tmp_path):
 
     monkeypatch.setattr(st, "execute_direct", fake_direct)
     cfg = st.StewardConfig("testnet", st.DEFAULT_MIRROR, STEWARD, ARTIST, FAKE_KEY)
-    proof = st.process_artist_payment(cfg, mode="direct", artist_name="aniket.oso.eth", total_tinybar=10**9,
+    proof = st.process_artist_payment(cfg, mode="direct", artist_name="demo-artist.oso.eth", total_tinybar=10**9,
                                       settled_tx=None, demo=True, topic_id=None, env={}, timeout_s=0)
     assert proof["verified"] and proof["hcs_topic_id"] == "0.0.7777" and proof["hcs_sequence"] == 3
     assert proof["label"] == st.DEMO_LABEL
@@ -403,7 +403,7 @@ def test_requires_settled_or_demo():
 
 def test_hcs_message_size_and_label():
     split = st.calculate_steward_split("10")
-    m = json.loads(st.build_hcs_message(marker="oso-1", artist_name="aniket.oso.eth", artist_account=ARTIST,
+    m = json.loads(st.build_hcs_message(marker="oso-1", artist_name="demo-artist.oso.eth", artist_account=ARTIST,
                                         split=split, settled_tx="0.0.1@2.3", demo=False))
     assert m["settled_tx"] == "0.0.1-2-000000003" and m["artist_tinybar"] == 963_100_000 and m["oso_cut_tinybar"] == 0
 
@@ -418,7 +418,7 @@ def test_dry_run_no_network_mock_settled(tmp_path, monkeypatch, capsys):
     out = tmp_path / "proof.json"
     for cmd in ("direct", "agent"):
         rc = st.main([cmd, "--env-file", str(envf), "--settled-tx", "mock-x402-123", "--amount-hbar", "1",
-                      "--artist-name", "aniket.oso.eth", "--json-out", str(out), "--dry-run"])
+                      "--artist-name", "demo-artist.oso.eth", "--json-out", str(out), "--dry-run"])
         assert rc == 0
         proof = json.loads(out.read_text())
         assert proof["mode"] == "dry-run" and proof["status"] == "not-submitted" and proof["verified"] is False

@@ -305,7 +305,7 @@ async function main() {
     '--amount-hbar',
     amountHbar,
     '--artist-name',
-    process.env.ARTIST_NAME ?? 'aniket.oso.eth',
+    process.env.ARTIST_NAME ?? 'demo-artist.oso.eth',
     '--json-out',
     stewardJson,
     ...(LIVE ? [] : ['--dry-run']),

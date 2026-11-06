@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "about": "Who may invite and approve artists of the circle. The root is the owner of osoartist.eth. Every other steward needs a grant the root signed (trust-message.mjs buildGrantMessage). Add a steward with /admin → 'grow the circle', then commit the grant here.",
+  "root": {
+    "address": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+    "name": "Shaka",
+    "why": "owner of osoartist.eth — the first point of trust"
+  },
+  "stewards": []
+}

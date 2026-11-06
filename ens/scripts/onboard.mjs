@@ -20,6 +20,7 @@ import { mainnet } from 'viem/chains';
 import { PARENT } from '../src/constants.mjs';
 import { deployArtistResolverTx, deployUserRegistryTx, registerTx, saltFor, setParentTx, setSubregistryTx, subname } from '../src/plan.mjs';
 import { verifyConsent } from '../src/consent.mjs';
+import { loadTrusted, verifyTrustChain } from '../src/trust.mjs';
 import { ensureRegistry, onboardArtists, parentState, predict, REGISTRY_SALT } from '../src/onboard.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -58,11 +59,18 @@ for (const c of consents) {
 console.log(`${consents.length} consent(s) · rpc ${isLocal ? RPC : RPC.replace(/\/\/([^/]+).*/, '//$1')} · ${SEND ? 'SEND' : 'PLAN ONLY'}`);
 
 // 1. verify every consent first — nothing is sent if any is bad
+// Trust chain (invitation + approval by stewards in frontend/public/fork/stewards.json) is REQUIRED,
+// except for local anvil rehearsals with synthetic fixtures that pass --rehearsal-no-trust explicitly.
+const SKIP_TRUST = flag('--rehearsal-no-trust');
+if (SKIP_TRUST && !/127\.0\.0\.1|localhost/.test(RPC)) die('--rehearsal-no-trust is only allowed against a local fork');
+const trusted = await loadTrusted();
 const verified = [];
 for (const c of consents) {
   const v = await verifyConsent(c).catch((e) => die(e.message));
-  verified.push({ c, v });
-  console.log(`✔ consent ${subname(c.label)} signed by ${v.signer} · payout ${c.hederaPayout} · ${v.messageHash.slice(0, 18)}…`);
+  const t = SKIP_TRUST ? null : await verifyTrustChain(c, trusted).catch((e) => die(e.message));
+  if (t) c.slug = t.slug;
+  verified.push({ c, v, t });
+  console.log(`✔ consent ${subname(c.label)} signed by ${v.signer} · payout ${c.hederaPayout} · ${v.messageHash.slice(0, 18)}…${t ? ` · invited by ${t.inviter.name}, approved by ${t.approver.name}` : ' · (rehearsal: trust chain skipped)'}`);
 }
 const isLocalRpc = /127\.0\.0\.1|localhost/.test(RPC);
 const CONSENT_DIR = join(VAULT, isLocalRpc ? 'consents-fork-rehearsal' : 'consents');
@@ -131,7 +139,7 @@ function updateGarden(entries) {
   for (const e of entries) g.artists[e.slug] = { ...(g.artists[e.slug] ?? {}), ...e.data };
   writeFileSync(GARDEN, `${JSON.stringify(g, null, 2)}\n`);
 }
-updateGarden(verified.map(({ c }) => ({ slug: c.slug ?? c.label, data: { ens: subname(c.label), status: 'consented', owner: getAddress(c.ethAddress), hedera: c.hederaPayout } })));
+updateGarden(verified.map(({ c, t }) => ({ slug: c.slug ?? c.label, data: { ens: subname(c.label), status: 'approved', ...(t ? { invitedBy: t.inviter.name, approvedBy: t.approver.name } : {}), owner: getAddress(c.ethAddress), hedera: c.hederaPayout } })));
 
 if (!SEND) {
   writeFileSync(out, JSON.stringify(record, (_, x) => (typeof x === 'bigint' ? x.toString() : x), 2));

@@ -40,6 +40,12 @@ const assets = new Map(await Promise.all([
   ['/arkiv-proof.json', 'arkiv-proof.json', 'application/json; charset=utf-8'],
   ['/arkiv.css', 'arkiv.css', 'text/css; charset=utf-8'],
   ['/steward', 'steward.html', 'text/html; charset=utf-8'],
+  // The circle's chain of trust: steward desk (invite/approve/grant), invited artist consent, ENS signing kit.
+  ['/admin', 'admin.html', 'text/html; charset=utf-8'],
+  ['/consent', 'consent.html', 'text/html; charset=utf-8'],
+  ['/ens-sign', 'ens-sign.html', 'text/html; charset=utf-8'],
+  ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
+  ['/trust.css', 'trust.css', 'text/css; charset=utf-8'],
   ['/steward.mjs', 'steward.mjs', 'text/javascript; charset=utf-8'],
   ['/styles.css', 'styles.css', 'text/css; charset=utf-8'],
   ['/draft.mjs', 'draft.mjs', 'text/javascript; charset=utf-8'],
@@ -83,6 +89,9 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const arkivPolicy = route === '/arkiv'
       ? " connect-src 'self' https://rpc.rabdi.db-chain.testnet.arkiv.network;"
       : '';
+    const trustPolicy = route === '/admin' || route === '/consent'
+      ? " connect-src 'self';"
+      : '';
     const stewardPolicy = route === '/steward'
       ? " connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev;"
       : '';
@@ -91,7 +100,7 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const gardenPolicy = route === '/'
       ? "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org; base-uri 'none'; form-action 'none'; frame-ancestors 'none';"
       : null;
-    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy));
+    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy + trustPolicy));
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

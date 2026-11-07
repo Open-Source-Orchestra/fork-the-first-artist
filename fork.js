@@ -265,7 +265,10 @@ function artistBlock(slug, a) {
   if (reg?.status !== 'issued' && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill" href="/admin?artist=${encodeURIComponent(slug)}">🌺 steward? invite ${esc(first)}</a>`);
   if (Object.hasOwn(STEWARDS, slug) && slug !== 'mira-modal') links.push(`<button class="pill teal" type="button" data-fork-ask="${esc(slug)}">🧠 ask ${esc(STEWARDS[slug].short)}'s steward · live 0G</button>`);
   else links.push(`<button class="pill teal" type="button" data-fork-ask="mira-modal">🧠 ask the demo steward · live 0G</button>`);
-  links.push(`<button class="pill" type="button" data-fork-open>⚡ see a real x402 payment</button>`);
+  // Only an issued artist with a payout on their own ENS name gets a pay button; the Worker re-reads
+  // that ENS name before every payment and refuses otherwise, so this button can never pay anyone else.
+  if (reg?.status === 'issued' && reg.hedera && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill gold" href="/pay?artist=${encodeURIComponent(slug)}" data-fork-pay>💸 pay ${esc(first)} · x402 testnet</a>`);
+  links.push(`<button class="pill" type="button" data-fork-open>⚡ see an example x402 payment</button>`);
   if (/^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill violet" href="/draft?artist=${encodeURIComponent(slug)}">✏️ draft ${esc(first)}'s home</a>`);
   const card = document.createElement('section');
   card.className = 'fork-card';

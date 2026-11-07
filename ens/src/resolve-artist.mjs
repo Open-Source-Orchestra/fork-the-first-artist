@@ -35,7 +35,10 @@ const RECORD_ID_ABI = [{ type: 'function', name: 'getRecordId', stateMutability:
 /** One RPC URL, or a comma-separated list tried in order (viem fallback) — public RPCs rate-limit shared egress IPs. */
 export function makeClient(rpcUrl = globalThis.process?.env?.ENS_RPC_URL ?? 'https://ethereum-rpc.publicnode.com') {
   const urls = String(rpcUrl).split(',').map((u) => u.trim()).filter(Boolean);
-  const transport = urls.length > 1 ? fallback(urls.map((u) => http(u, { timeout: 10_000, retryCount: 1 }))) : http(urls[0], { timeout: 20_000 });
+  // batch: the ~9 reads of one resolution go out as ONE JSON-RPC batch request per endpoint (public RPCs rate-limit bursts)
+  const transport = urls.length > 1
+    ? fallback(urls.map((u) => http(u, { timeout: 10_000, retryCount: 2, retryDelay: 400, batch: { wait: 10 } })))
+    : http(urls[0], { timeout: 20_000, batch: { wait: 10 } });
   return createPublicClient({ chain: mainnet, transport, batch: { multicall: false } });
 }
 

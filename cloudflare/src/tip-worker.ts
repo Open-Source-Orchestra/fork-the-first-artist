@@ -116,7 +116,7 @@ export function tipConfig(env: TipEnv) {
     // hard ceilings: ≤10 HBAR per run, ≤500 HBAR per UTC day, ≤200 runs per day
     maxTipTinybar: BigInt(Math.round(Math.min(Math.max(Number(env.MAX_TIP_HBAR ?? '10') || 10, 0.01), Number(HARD_MAX_TIP_TINYBAR) / 1e8) * 1e8)),
     dailyHbarCapTinybar: BigInt(Math.round(Math.min(Math.max(Number(env.DAILY_HBAR_CAP ?? '100') || 100, 1), 500) * 1e8)),
-    ensRpcUrl: env.ENS_RPC_URL?.trim() || 'https://eth.drpc.org,https://1rpc.io/eth,https://ethereum-rpc.publicnode.com',
+    ensRpcUrl: env.ENS_RPC_URL?.trim() || 'https://eth.drpc.org,https://rpc.mevblocker.io,https://eth-mainnet.public.blastapi.io,https://1rpc.io/eth,https://eth.rpc.blxrbdn.com,https://ethereum-rpc.publicnode.com',
     dailyCap: Math.min(Math.max(Number(env.DAILY_CAP ?? '20') || 20, 1), 200),
     minGapMs: Math.min(Math.max(Number(env.MIN_GAP_SECONDS ?? '60') || 60, 30), 3600) * 1000,
     facilitatorUrl: (env.FACILITATOR_URL ?? 'https://x402.org/facilitator').replace(/\/+$/, ''),
@@ -167,18 +167,35 @@ export function stewardFor(target: ArtistTarget | null): StewardArtist | undefin
 /** Successful ENS resolutions only, 60 s per isolate: a payout change on ENS shows up within a minute. */
 const ENS_CACHE = new Map<string, { value: ResolvedPayTo; until: number }>();
 
-export function targetDeps(cfg: { ensRpcUrl: string; mirror: string }, fetchImpl: typeof fetch = fetch): TargetDeps {
+/** ENS answers that are authoritative refusals (from resolve-artist.mjs) — never papered over with a stored read. */
+const PAYTO_REFUSALS = new Set(['bad-name', 'network-mismatch', 'no-consent', 'steward-paused', 'bad-record', 'no-payout', 'claim-inactive', 'mismatch']);
+export const LAST_GOOD_MAX_MS = 6 * 3600_000;
+
+/** Durable last-good store (TipGate) so a public-RPC rate limit doesn't break a judge's click. */
+export interface LastGoodStore {
+  get(name: string): Promise<{ value: ResolvedPayTo; at: number } | null>;
+  put(name: string, value: ResolvedPayTo): Promise<void>;
+}
+
+export function targetDeps(cfg: { ensRpcUrl: string; mirror: string }, fetchImpl: typeof fetch = fetch, store: LastGoodStore | null = null,
+  live: (name: string) => Promise<ResolvedPayTo> = (name) => resolvePayTo(name, { network: 'testnet', requireConsent: true, rpcUrl: cfg.ensRpcUrl })): TargetDeps {
   return {
     resolve: async (name) => {
       const hit = ENS_CACHE.get(name);
       if (hit && hit.until > Date.now()) return hit.value;
       try {
-        const value = await resolvePayTo(name, { network: 'testnet', requireConsent: true, rpcUrl: cfg.ensRpcUrl });
+        const value = await live(name);
         ENS_CACHE.set(name, { value, until: Date.now() + 60_000 });
+        await store?.put(name, value).catch(() => {});
         return value;
       } catch (e) {
-        console.error('ens resolve failed', name, (e as { code?: string })?.code ?? '', String((e as Error)?.message ?? e).slice(0, 300));
-        throw e;
+        const code = (e as { code?: string })?.code ?? '';
+        console.error('ens resolve failed', name, code, String((e as Error)?.message ?? e).slice(0, 300));
+        if (PAYTO_REFUSALS.has(code) || !store) throw e;
+        // transport failure (rate limit / timeout): use the last LIVE read, if recent, and say so
+        const last = await store.get(name).catch(() => null);
+        if (!last || Date.now() - last.at > LAST_GOOD_MAX_MS) throw e;
+        return { ...last.value, lastLiveReadAt: new Date(last.at).toISOString() };
       }
     },
     aliasAccount: async (evm) => {
@@ -254,6 +271,15 @@ async function realDeps(env: TipEnv, cfg: ReturnType<typeof tipConfig>, run: Run
 
 const DEFAULT_QUESTION = 'Who are you, and which song should a first-time fan hear?';
 const ARTIST_QUESTION = 'Who is this artist, and what should a first-time fan know?';
+function gateStore(gate: GateStub): LastGoodStore {
+  return {
+    get: async (name) => {
+      const b = (await (await gate.fetch('https://gate/ens-get', { method: 'POST', body: JSON.stringify({ name }) })).json()) as { value?: ResolvedPayTo; at?: number };
+      return b.value && typeof b.at === 'number' ? { value: b.value, at: b.at } : null;
+    },
+    put: async (name, value) => { await gate.fetch('https://gate/ens-put', { method: 'POST', body: JSON.stringify({ name, value }) }); },
+  };
+}
 const reservedAccounts = (cfg: ReturnType<typeof tipConfig>) => [cfg.accounts.fan, cfg.accounts.steward, cfg.accounts.meter];
 
 export default {
@@ -292,7 +318,7 @@ export default {
     if (url.pathname === '/artist') {
       if (request.method !== 'GET') return json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, 405, origin, { allow: 'GET' });
       try {
-        const t = await resolveArtistTarget(url.searchParams.get('name') ?? '', targetDeps(cfg), reservedAccounts(cfg));
+        const t = await resolveArtistTarget(url.searchParams.get('name') ?? '', targetDeps(cfg, fetch, gateStore(gate)), reservedAccounts(cfg));
         return json({ ok: true, network: NETWORK, artist: t, resolvedFrom: 'Ethereum mainnet ENS (the artist\'s own resolver), read just now' }, 200, origin);
       } catch (e) {
         const err = e instanceof TipRequestError ? e : new TipRequestError('ARTIST_NOT_PAYABLE', 'could not resolve the artist — nothing was paid');
@@ -306,7 +332,7 @@ export default {
     let question: string;
     try {
       const req = parseTipRequest(await request.text(), cfg.maxTipTinybar);
-      const target = req.artist ? await resolveArtistTarget(req.artist, targetDeps(cfg), reservedAccounts(cfg)) : null;
+      const target = req.artist ? await resolveArtistTarget(req.artist, targetDeps(cfg, fetch, gateStore(gate)), reservedAccounts(cfg)) : null;
       run = { tipTinybar: req.tipTinybar, meterTinybar: meterFor(req.tipTinybar), target };
       question = req.question ?? (target ? ARTIST_QUESTION : DEFAULT_QUESTION);
     } catch (e) {
@@ -354,6 +380,14 @@ export class TipGate {
   }
 
   async fetch(request: Request): Promise<Response> {
+    const p = new URL(request.url).pathname;
+    if (p === '/ens-get' || p === '/ens-put') {
+      const b = (await request.json()) as { name?: string; value?: unknown };
+      if (typeof b.name !== 'string' || !/^[a-z0-9-]{1,40}\.osoartist\.eth$/.test(b.name)) return Response.json({});
+      if (p === '/ens-get') return Response.json((await this.state.storage.get<Record<string, unknown>>(`ens:${b.name}`)) ?? {});
+      await this.state.storage.put({ [`ens:${b.name}`]: { value: b.value, at: Date.now() } });
+      return Response.json({ ok: true });
+    }
     const { cap, gapMs, hbarCap, tinybar } = (await request.json()) as { cap: number; gapMs: number; hbarCap?: string; tinybar?: string };
     const budget = BigInt(hbarCap ?? '0');
     const want = BigInt(tinybar ?? '0');

@@ -76,6 +76,8 @@ export interface ResolvedPayTo {
   hederaAccountId: string | null;
   hederaAlias: string | null;
   resolver: string | null;
+  /** set only when the live ENS read failed (rate limit) and the last live read (≤6 h old) was used */
+  lastLiveReadAt?: string;
 }
 
 export interface ArtistTarget {
@@ -89,6 +91,7 @@ export interface ArtistTarget {
   path: string;
   resolver: string | null;
   source: string;
+  lastLiveReadAt: string | null;
 }
 
 export interface TargetDeps {
@@ -137,8 +140,9 @@ export async function resolveArtistTarget(label: string, deps: TargetDeps, reser
     alias,
     path: r.path,
     resolver: r.resolver,
-    source: r.path === 'hbar' ? 'their ENS record addr(3030) → Hedera account'
+    lastLiveReadAt: r.lastLiveReadAt ?? null,
+    source: (r.lastLiveReadAt ? `last live ENS read ${r.lastLiveReadAt.slice(11, 16)}Z (the public ENS node is busy right now): ` : '') + (r.path === 'hbar' ? 'their ENS record addr(3030) → Hedera account'
       : r.path === 'hedera-evm' ? 'their ENS record for Hedera testnet (ENSIP-11) → their own wallet as a Hedera alias'
-      : 'their ENS ETH address → their own wallet as a Hedera alias',
+      : 'their ENS ETH address → their own wallet as a Hedera alias'),
   };
 }

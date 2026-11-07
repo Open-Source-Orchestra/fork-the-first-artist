@@ -281,7 +281,7 @@ function artistBlock(slug, a) {
     <div class="fork-split-legend"><span>every tip, paid with x402 on Hedera</span><span>steward compute · OSO 0%</span></div>
     <div class="links">${links.join('')}</div>
     <p class="fine">${slug === 'shaka'
-      ? `Shaka asked for his own steward: it answers live through 0G, grounded <b>only</b> on his public garden profile. His name and payout still wait for his own signature, like everyone's.`
+      ? `Shaka asked for his own steward: it answers live through 0G, grounded <b>only</b> on his public garden profile. ${reg?.status === 'issued' ? 'His name is issued to his own wallet, and his payout is read from it before every tip.' : "His name and payout still wait for his own signature, like everyone's."}`
       : `Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key. ${esc(first)}: got an invitation link from a steward? Open it to sign.`}</p>`;
   body.appendChild(card);
   card.querySelector('[data-fork-ask]')?.addEventListener('click', (e) => openFork(true, e.currentTarget.dataset.forkAsk));

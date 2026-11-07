@@ -42,6 +42,7 @@ for (const vp of [{ width: 1280, height: 800 }, { width: 375, height: 812 }]) {
       assert.equal(await page.locator('.fork-card [data-fork-pay]').getAttribute('href'), '/pay?artist=shaka');
       assert.equal((await page.locator('.fork-card [data-fork-pay]').textContent()).trim(), '💸 pay Shaka · x402 testnet');
       assert.equal((await page.locator('.fork-card [data-fork-open]').textContent()).trim(), '⚡ see an example x402 payment');
+      assert.match(await page.locator('.fork-card .fine').innerText(), /His name is issued to his own wallet/);
       assert.equal((await page.locator('.fork-card [data-fork-ask]').textContent()).trim(), "🧠 ask Shaka's steward · live 0G");
       await page.locator('.fork-card [data-fork-open]').click();
       await page.locator('#fork.open').waitFor();

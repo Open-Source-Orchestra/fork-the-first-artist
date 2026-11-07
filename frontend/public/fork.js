@@ -257,7 +257,7 @@ function artistBlock(slug, a) {
   const ens = reg?.ens || `${label}.${registry.parent || 'osoartist.eth'}`;
   const first = String(a.name || '').split(/[\s×&·]/)[0] || 'the artist';
   let state;
-  if (reg?.status === 'issued') state = `<b>issued</b> · owned by ${esc(reg.owner ? reg.owner.slice(0, 6) + '…' + reg.owner.slice(-4) : 'the artist')}${reg.hedera ? ` · pays to Hedera <a href="${HASHSCAN.replace('/testnet', '/mainnet')}/account/${esc(reg.hedera)}" target="_blank" rel="noopener">${esc(reg.hedera)}</a>` : ''}`;
+  if (reg?.status === 'issued') state = `<b>issued</b> · owned by ${esc(reg.owner ? reg.owner.slice(0, 6) + '…' + reg.owner.slice(-4) : 'the artist')}${reg.hedera === 'alias' ? ` · tips go to ${esc(first)}'s own Ethereum address on Hedera (alias — only their key can spend it)` : reg.hedera ? ` · tips go to Hedera account <a href="${HASHSCAN}/account/${esc(reg.hedera)}" target="_blank" rel="noopener">${esc(reg.hedera)}</a>` : ''}${reg.tx ? ` · <a href="https://etherscan.io/tx/${esc(reg.tx)}" target="_blank" rel="noopener">mainnet tx ↗</a>` : ''}`;
   else if (reg?.status === 'approved' || reg?.status === 'consented') state = `<b>approved</b>${reg.approvedBy ? ` by ${esc(reg.approvedBy)}` : ''} · ${esc(first)} signed with their own key; the name is being issued to their wallet`;
   else state = `<b>not issued</b> · by invitation: a steward invites ${esc(first)}, ${esc(first)} signs with their own wallet, a steward approves. Nothing is collected in an artist's name before that.`;
   const links = [];

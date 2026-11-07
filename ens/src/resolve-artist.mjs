@@ -14,7 +14,7 @@
 // Fail closed when: no payout record; artist consent text `oso.consent` is not "active" (requireConsent);
 // `oso.steward.status` says the OSO service is paused/frozen/disputed/revoked; `hedera.network` disagrees
 // with the network we pay on; an external claim check says not active; or an expected account mismatches.
-import { createPublicClient, http, getAddress, namehash } from 'viem';
+import { createPublicClient, fallback, http, getAddress, namehash } from 'viem';
 import { mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
 import { ADDR, COIN, TEXT } from './constants.mjs';
@@ -32,8 +32,11 @@ export class PayToError extends Error {
 export const BLOCKING_STEWARD_STATUS = new Set(['paused', 'frozen', 'disputed', 'revoked', 'suspended']);
 const RECORD_ID_ABI = [{ type: 'function', name: 'getRecordId', stateMutability: 'view', inputs: [{ name: 'node', type: 'bytes32' }], outputs: [{ type: 'uint256' }] }];
 
-export function makeClient(rpcUrl = process.env.ENS_RPC_URL ?? 'https://ethereum-rpc.publicnode.com') {
-  return createPublicClient({ chain: mainnet, transport: http(rpcUrl, { timeout: 20_000 }) });
+/** One RPC URL, or a comma-separated list tried in order (viem fallback) — public RPCs rate-limit shared egress IPs. */
+export function makeClient(rpcUrl = globalThis.process?.env?.ENS_RPC_URL ?? 'https://ethereum-rpc.publicnode.com') {
+  const urls = String(rpcUrl).split(',').map((u) => u.trim()).filter(Boolean);
+  const transport = urls.length > 1 ? fallback(urls.map((u) => http(u, { timeout: 10_000, retryCount: 1 }))) : http(urls[0], { timeout: 20_000 });
+  return createPublicClient({ chain: mainnet, transport, batch: { multicall: false } });
 }
 
 const isZeroHex = (h) => !h || /^0x0*$/i.test(h);

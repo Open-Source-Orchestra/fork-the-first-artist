@@ -35,7 +35,7 @@
           <p><button type="button" id="connect">Connect wallet</button> <span id="account" aria-live="polite">not connected</span></p>
           <p><label for="label">Name label (lowercase a–z, 0–9, hyphens)</label><br>
             <input id="label" name="label" required pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" autocomplete="off" spellcheck="false" placeholder="shaka"> <span>.osoartist.eth</span></p>
-          <p><label for="hedera">Hedera payout account (optional, e.g. 0.0.12345 — leave empty to be paid to your ETH address as a Hedera alias)</label><br>
+          <p><label for="hedera">Hedera <b>testnet</b> payout account (optional, e.g. 0.0.12345). <b>Easiest: leave it empty</b> — fans then pay your own wallet address on Hedera (no Hedera account needed; the first payment creates it and only your key can spend it).</label><br>
             <input id="hedera" name="hedera" pattern="\d{1,10}\.\d{1,20}\.\d{1,20}" autocomplete="off" spellcheck="false" placeholder="alias"></p>
           <h2>2 · The exact message you sign</h2>
           <pre id="message" class="draft-notice" aria-live="polite">Connect your wallet and choose a label.</pre>

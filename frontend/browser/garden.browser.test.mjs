@@ -37,7 +37,11 @@ for (const vp of [{ width: 1280, height: 800 }, { width: 375, height: 812 }]) {
       assert.equal(await page.locator('#fallback').isHidden(), true, '3D circle started (no list fallback)');
       await page.locator('#detail.open .fork-card').waitFor({ timeout: 10000 });
       assert.match(await page.locator('.fork-card .ens').textContent(), /^shaka\.osoartist\.eth$/);
-      assert.match(await page.locator('.fork-card .ens-state').textContent(), /not issued/);
+      // shaka.osoartist.eth is issued on mainnet (PR #8) → a real "pay Shaka" button next to the example one
+      assert.match(await page.locator('.fork-card .ens-state').textContent(), /^issued · owned by 0x2596…c934/);
+      assert.equal(await page.locator('.fork-card [data-fork-pay]').getAttribute('href'), '/pay?artist=shaka');
+      assert.equal((await page.locator('.fork-card [data-fork-pay]').textContent()).trim(), '💸 pay Shaka · x402 testnet');
+      assert.equal((await page.locator('.fork-card [data-fork-open]').textContent()).trim(), '⚡ see an example x402 payment');
       assert.equal((await page.locator('.fork-card [data-fork-ask]').textContent()).trim(), "🧠 ask Shaka's steward · live 0G");
       await page.locator('.fork-card [data-fork-open]').click();
       await page.locator('#fork.open').waitFor();

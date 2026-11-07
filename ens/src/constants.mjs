@@ -3,7 +3,8 @@
 // contracts/deployments/mainnet/addresses.md (deployed 2026-10-26, ENSv2 live 2026-10-27).
 import { createRequire } from 'node:module';
 
-const require = createRequire(import.meta.url);
+// createRequire is called lazily so this module also loads in a Cloudflare Worker (no import.meta.url there).
+let requireAbi;
 
 export const CHAIN_ID = 1;
 
@@ -103,5 +104,6 @@ export const USER_REGISTRY_ROOT = Object.freeze({
 });
 
 export function loadAbi(name) {
-  return require(`../abi/${name}.json`);
+  requireAbi ??= createRequire(import.meta.url);
+  return requireAbi(`../abi/${name}.json`);
 }

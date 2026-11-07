@@ -1,13 +1,16 @@
 /**
  * Worker `oso-tip-loop`: public judge-clickable "⚡ tip the artist" demo.
  *
- *   GET  /health  -> config summary (public ids only) + today's remaining runs
- *   POST /tip     -> runs the REAL x402 loop on Hedera testnet, NDJSON stream of steps
+ *   GET  /health          -> config summary (public ids only) + today's remaining runs / HBAR
+ *   GET  /artist?name=x   -> who `x.osoartist.eth` pays, resolved live from their own ENS records
+ *   POST /tip             -> runs the REAL x402 loop on Hedera testnet, NDJSON stream of steps
+ *                            body { question?, amountHbar? (0.01–10), artist? (garden slug) }
  *
- * Abuse/spend controls: one run per 60 s globally and a small UTC-daily cap, both held
- * in a single Durable Object (`TipGate`) so they are global, not per isolate. Amounts
- * are fixed server-side (0.1 HBAR tip, 0.00369 HBAR meter) — the caller only sends a
- * question. Testnet only; synthetic demo accounts; keys are Worker secrets.
+ * No `artist`: the example loop pays the synthetic demo artist (Mira Modal). With `artist`, the
+ * steward forwards 96.31% to the payout the artist set on their OWN ENS name — the request can
+ * never name an account. Spend controls (one Durable Object `TipGate`, global): one run per gap,
+ * a UTC-daily run cap AND a UTC-daily HBAR budget; per-run ceiling 10 HBAR. Testnet only; the
+ * fan and steward are demo accounts whose keys are Worker secrets.
  */
 import './window-shim.ts';
 import type { Config } from '../../payments/src/config.ts';
@@ -15,6 +18,10 @@ import { createHederaGate } from '../../payments/src/gate/hedera.ts';
 import { spendControlsFor } from '../../agent/src/rails/payer.ts';
 import { callZeroG } from './zero-g.ts';
 import { runTipLoop, type TipDeps, type TipEvent } from './tip-loop.ts';
+import { STEWARDS, type StewardArtist } from './zero-g.ts';
+import { HARD_MAX_TIP_TINYBAR, MIN_TIP_TINYBAR, TipRequestError, meterFor, parseTipRequest, resolveArtistTarget, type ArtistTarget, type ResolvedPayTo, type TargetDeps } from './pay-target.ts';
+// @ts-expect-error — plain ESM module shared with the ENS leg (tested there)
+import { resolvePayTo } from '../../ens/src/resolve-artist.mjs';
 
 /** Minimal Workers runtime types (this package does not depend on @cloudflare/workers-types). */
 interface GateStub { fetch(url: string, init?: RequestInit): Promise<Response> }
@@ -40,7 +47,10 @@ export interface TipEnv {
   TIP_TINYBAR?: string;
   METER_TINYBAR?: string;
   DAILY_CAP?: string;
+  DAILY_HBAR_CAP?: string;
+  MAX_TIP_HBAR?: string;
   MIN_GAP_SECONDS?: string;
+  ENS_RPC_URL?: string;
   FACILITATOR_URL?: string;
   MIRROR_URL?: string;
 }
@@ -99,11 +109,15 @@ export function tipConfig(env: TipEnv) {
   return {
     accounts,
     amounts: {
-      // hard server-side ceilings: a tip can never exceed 0.5 HBAR, a meter call 0.05 HBAR
+      // defaults for the example run; a caller may pick any amount in [0.01, maxTip]
       tipTinybar: tinybar(env.TIP_TINYBAR, 10_000_000n, 50_000_000n),
       meterTinybar: tinybar(env.METER_TINYBAR, 369_000n, 5_000_000n),
     },
-    dailyCap: Math.min(Math.max(Number(env.DAILY_CAP ?? '20') || 20, 1), 50),
+    // hard ceilings: ≤10 HBAR per run, ≤500 HBAR per UTC day, ≤200 runs per day
+    maxTipTinybar: BigInt(Math.round(Math.min(Math.max(Number(env.MAX_TIP_HBAR ?? '10') || 10, 0.01), Number(HARD_MAX_TIP_TINYBAR) / 1e8) * 1e8)),
+    dailyHbarCapTinybar: BigInt(Math.round(Math.min(Math.max(Number(env.DAILY_HBAR_CAP ?? '100') || 100, 1), 500) * 1e8)),
+    ensRpcUrl: env.ENS_RPC_URL?.trim() || 'https://eth.drpc.org,https://1rpc.io/eth,https://ethereum-rpc.publicnode.com',
+    dailyCap: Math.min(Math.max(Number(env.DAILY_CAP ?? '20') || 20, 1), 200),
     minGapMs: Math.min(Math.max(Number(env.MIN_GAP_SECONDS ?? '60') || 60, 30), 3600) * 1000,
     facilitatorUrl: (env.FACILITATOR_URL ?? 'https://x402.org/facilitator').replace(/\/+$/, ''),
     mirror: (env.MIRROR_URL ?? 'https://testnet.mirrornode.hedera.com').replace(/\/+$/, ''),
@@ -136,10 +150,51 @@ async function hederaClient(accountId: string, privateKey: string) {
   return { sdk, client };
 }
 
-async function realDeps(env: TipEnv, cfg: ReturnType<typeof tipConfig>): Promise<TipDeps> {
+export interface RunPlan {
+  tipTinybar: bigint;
+  meterTinybar: bigint;
+  target: ArtistTarget | null;
+}
+
+/** The 0G steward speaks for: the artist's public garden steward if one exists, else a minimal consented-artist profile. */
+export function stewardFor(target: ArtistTarget | null): StewardArtist | undefined {
+  if (!target) return undefined; // example run: the fictional demo artist (callZeroG default)
+  const known = Object.hasOwn(STEWARDS, target.label) ? STEWARDS[target.label] : undefined;
+  if (known && !known.fictional) return known;
+  return { slug: target.label, fictional: false, label: target.ens, data: { name: target.ens, note: 'A real artist in the Open Source Orchestra garden who consented with their own key and owns this ENS name. No further public profile is loaded into this steward yet.' } };
+}
+
+/** Successful ENS resolutions only, 60 s per isolate: a payout change on ENS shows up within a minute. */
+const ENS_CACHE = new Map<string, { value: ResolvedPayTo; until: number }>();
+
+export function targetDeps(cfg: { ensRpcUrl: string; mirror: string }, fetchImpl: typeof fetch = fetch): TargetDeps {
+  return {
+    resolve: async (name) => {
+      const hit = ENS_CACHE.get(name);
+      if (hit && hit.until > Date.now()) return hit.value;
+      try {
+        const value = await resolvePayTo(name, { network: 'testnet', requireConsent: true, rpcUrl: cfg.ensRpcUrl });
+        ENS_CACHE.set(name, { value, until: Date.now() + 60_000 });
+        return value;
+      } catch (e) {
+        console.error('ens resolve failed', name, (e as { code?: string })?.code ?? '', String((e as Error)?.message ?? e).slice(0, 300));
+        throw e;
+      }
+    },
+    aliasAccount: async (evm) => {
+      const r = await fetchImpl(`${cfg.mirror}/api/v1/accounts/${evm.toLowerCase()}`, { signal: AbortSignal.timeout(6000) });
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error(`mirror ${r.status}`);
+      const b = (await r.json()) as { account?: string; evm_address?: string };
+      return typeof b.account === 'string' && /^0\.0\.\d+$/.test(b.account) && b.evm_address?.toLowerCase() === evm.toLowerCase() ? b.account : null;
+    },
+  };
+}
+
+async function realDeps(env: TipEnv, cfg: ReturnType<typeof tipConfig>, run: RunPlan): Promise<TipDeps> {
   const gate = createHederaGate({ network: NETWORK, facilitatorUrl: cfg.facilitatorUrl, asset: { id: '0.0.0', decimals: 8 } } as Config);
-  const fanSign = await x402Signer(cfg.accounts.fan, env.FAN_PRIVATE_KEY!, cfg.amounts.tipTinybar);
-  const stewardSign = await x402Signer(cfg.accounts.steward, env.STEWARD_PRIVATE_KEY!, cfg.amounts.meterTinybar);
+  const fanSign = await x402Signer(cfg.accounts.fan, env.FAN_PRIVATE_KEY!, run.tipTinybar);
+  const stewardSign = await x402Signer(cfg.accounts.steward, env.STEWARD_PRIVATE_KEY!, run.meterTinybar);
   const { sdk, client } = await hederaClient(cfg.accounts.steward, env.STEWARD_PRIVATE_KEY!);
   const zcfg = {
     upstreamApiKey: env.UPSTREAM_API_KEY!,
@@ -148,20 +203,23 @@ async function realDeps(env: TipEnv, cfg: ReturnType<typeof tipConfig>): Promise
     upstreamTrustMode: 'verified',
     maxOutputTokens: 320,
   };
+  const t = run.target;
+  const steward = stewardFor(t);
   return {
     gate,
-    accounts: cfg.accounts,
-    amounts: cfg.amounts,
+    accounts: t ? { ...cfg.accounts, artist: t.payTo, artistLabel: t.ens } : cfg.accounts,
+    amounts: { tipTinybar: run.tipTinybar, meterTinybar: run.meterTinybar },
+    target: t ? { ens: t.ens, payTo: t.payTo, accountId: t.accountId, alias: t.alias, source: t.source } : null,
     fanSign,
     stewardSign,
     zeroG: async (q) => {
-      const r = await callZeroG(q, zcfg, fetch);
+      const r = await callZeroG(q, zcfg, fetch, steward);
       return { answer: r.answer, requestId: r.provenance.requestId, model: r.provenance.model, teeVerified: r.provenance.routerReportedTeeVerified };
     },
     forward: async (to, amount, memo) => {
       const tx = await new sdk.TransferTransaction()
         .addHbarTransfer(sdk.AccountId.fromString(cfg.accounts.steward), sdk.Hbar.fromTinybars(`-${amount}`))
-        .addHbarTransfer(sdk.AccountId.fromString(to), sdk.Hbar.fromTinybars(amount.toString()))
+        .addHbarTransfer(/^0x[0-9a-fA-F]{40}$/.test(to) ? sdk.AccountId.fromEvmAddress(0, 0, to) : sdk.AccountId.fromString(to), sdk.Hbar.fromTinybars(amount.toString()))
         // No transaction memo: protobufjs' Buffer string path (utf8Write) throws ERR_OUT_OF_RANGE in
         // workerd for any memo string; the HCS record below carries the settled-tx link instead.
         .execute(client);
@@ -194,16 +252,9 @@ async function realDeps(env: TipEnv, cfg: ReturnType<typeof tipConfig>): Promise
   };
 }
 
-async function readQuestion(request: Request): Promise<string> {
-  const text = await request.text();
-  if (text.length > 2048) throw new Error('body too large');
-  let q = 'Who are you, and which song should a first-time fan hear?';
-  if (text.trim()) {
-    const body = JSON.parse(text) as { question?: unknown };
-    if (typeof body.question === 'string' && body.question.trim()) q = body.question.trim().slice(0, 280);
-  }
-  return q;
-}
+const DEFAULT_QUESTION = 'Who are you, and which song should a first-time fan hear?';
+const ARTIST_QUESTION = 'Who is this artist, and what should a first-time fan know?';
+const reservedAccounts = (cfg: ReturnType<typeof tipConfig>) => [cfg.accounts.fan, cfg.accounts.steward, cfg.accounts.meter];
 
 export default {
   async fetch(request: Request, env: TipEnv, ctx?: WaitCtx): Promise<Response> {
@@ -221,35 +272,54 @@ export default {
     const gate = env.TIP_GATE.get(env.TIP_GATE.idFromName('global'));
 
     if (url.pathname === '/health') {
-      const state = (await (await gate.fetch('https://gate/state', { method: 'POST', body: JSON.stringify({ cap: cfg.dailyCap, gapMs: cfg.minGapMs }) })).json()) as Record<string, unknown>;
+      const state = (await (await gate.fetch('https://gate/state', { method: 'POST', body: JSON.stringify({ cap: cfg.dailyCap, gapMs: cfg.minGapMs, hbarCap: cfg.dailyHbarCapTinybar.toString() }) })).json()) as Record<string, unknown>;
       return json({
         ok: true,
         service: 'oso-tip-loop',
-        routes: ['POST /tip', 'GET /health'],
+        routes: ['POST /tip', 'GET /artist?name=<slug>', 'GET /health'],
         network: NETWORK,
         asset: 'HBAR (0.0.0)',
         tipHbar: Number(cfg.amounts.tipTinybar) / 1e8,
         meterHbar: Number(cfg.amounts.meterTinybar) / 1e8,
+        amount: { minHbar: Number(MIN_TIP_TINYBAR) / 1e8, maxHbar: Number(cfg.maxTipTinybar) / 1e8, defaultHbar: Number(cfg.amounts.tipTinybar) / 1e8, meter: '3.69% of the tip' },
         split: { artist: '96.31%', compute: '3.69%', oso: '0%' },
         accounts: cfg.accounts,
         facilitator: cfg.facilitatorUrl,
-        limits: { oneRunEverySeconds: cfg.minGapMs / 1000, dailyCap: cfg.dailyCap, ...state },
-        synthetic: 'all four accounts are synthetic testnet demo accounts; no real artist is paid',
+        limits: { oneRunEverySeconds: cfg.minGapMs / 1000, dailyCap: cfg.dailyCap, dailyHbarCap: Number(cfg.dailyHbarCapTinybar) / 1e8, ...state },
+        synthetic: 'the fan, steward and meter are testnet demo accounts; without `artist` the example pays the fictional demo artist, with `artist` the payout comes from that artist\'s own ENS name',
       }, 200, origin);
     }
-    if (url.pathname !== '/tip') return json({ ok: false, error: 'NOT_FOUND', message: 'use GET /health or POST /tip' }, 404, origin);
+    if (url.pathname === '/artist') {
+      if (request.method !== 'GET') return json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, 405, origin, { allow: 'GET' });
+      try {
+        const t = await resolveArtistTarget(url.searchParams.get('name') ?? '', targetDeps(cfg), reservedAccounts(cfg));
+        return json({ ok: true, network: NETWORK, artist: t, resolvedFrom: 'Ethereum mainnet ENS (the artist\'s own resolver), read just now' }, 200, origin);
+      } catch (e) {
+        const err = e instanceof TipRequestError ? e : new TipRequestError('ARTIST_NOT_PAYABLE', 'could not resolve the artist — nothing was paid');
+        return json({ ok: false, error: err.code, message: err.message }, err.code === 'BAD_ARTIST' ? 400 : 404, origin);
+      }
+    }
+    if (url.pathname !== '/tip') return json({ ok: false, error: 'NOT_FOUND', message: 'use GET /health, GET /artist?name=<slug> or POST /tip' }, 404, origin);
     if (request.method !== 'POST') return json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, 405, origin, { allow: 'POST' });
 
+    let run: RunPlan;
     let question: string;
     try {
-      question = await readQuestion(request);
-    } catch {
-      return json({ ok: false, error: 'BAD_REQUEST', message: 'send {"question": "..."} (≤280 chars) or an empty body' }, 400, origin);
+      const req = parseTipRequest(await request.text(), cfg.maxTipTinybar);
+      const target = req.artist ? await resolveArtistTarget(req.artist, targetDeps(cfg), reservedAccounts(cfg)) : null;
+      run = { tipTinybar: req.tipTinybar, meterTinybar: meterFor(req.tipTinybar), target };
+      question = req.question ?? (target ? ARTIST_QUESTION : DEFAULT_QUESTION);
+    } catch (e) {
+      const err = e instanceof TipRequestError ? e : new TipRequestError('BAD_REQUEST', 'send {"question"?, "amountHbar"?, "artist"?} or an empty body');
+      return json({ ok: false, error: err.code, message: err.message }, err.code === 'ARTIST_NOT_PAYABLE' ? 404 : 400, origin);
     }
 
-    const permit = (await (await gate.fetch('https://gate/acquire', { method: 'POST', body: JSON.stringify({ cap: cfg.dailyCap, gapMs: cfg.minGapMs }) })).json()) as { ok: boolean; reason?: string; retryAfterSeconds?: number; runsToday?: number };
+    const permit = (await (await gate.fetch('https://gate/acquire', { method: 'POST', body: JSON.stringify({ cap: cfg.dailyCap, gapMs: cfg.minGapMs, hbarCap: cfg.dailyHbarCapTinybar.toString(), tinybar: run.tipTinybar.toString() }) })).json()) as { ok: boolean; reason?: string; retryAfterSeconds?: number; runsToday?: number; remainingHbarToday?: number };
     if (!permit.ok) {
-      return json({ ok: false, error: 'RATE_LIMITED', reason: permit.reason, retryAfterSeconds: permit.retryAfterSeconds, message: permit.reason === 'daily-cap' ? 'today’s live-run cap is used up — see the recorded proof' : 'someone just ran the live loop — try again shortly', proof: PROOF_URL }, 429, origin, { 'retry-after': String(permit.retryAfterSeconds ?? 60) });
+      const message = permit.reason === 'daily-cap' ? 'today’s live-run cap is used up — see the recorded proof'
+        : permit.reason === 'hbar-cap' ? `that would pass today’s testnet HBAR budget (${permit.remainingHbarToday ?? 0} HBAR left) — try a smaller amount`
+        : 'someone just ran the live loop — try again shortly';
+      return json({ ok: false, error: 'RATE_LIMITED', reason: permit.reason, retryAfterSeconds: permit.retryAfterSeconds, remainingHbarToday: permit.remainingHbarToday, message, proof: PROOF_URL }, 429, origin, { 'retry-after': String(permit.retryAfterSeconds ?? 60) });
     }
 
     const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
@@ -260,7 +330,7 @@ export default {
     };
     const work = (async () => {
       try {
-        const deps = await realDeps(env, cfg);
+        const deps = await realDeps(env, cfg, run);
         await runTipLoop(deps, question, url.origin, emit);
       } catch {
         await emit({ step: 'error', ok: false, failedStep: 'setup', message: 'the live loop could not start; nothing was paid', moneyMoved: 'nothing has moved yet', proof: PROOF_URL });
@@ -284,23 +354,31 @@ export class TipGate {
   }
 
   async fetch(request: Request): Promise<Response> {
-    const { cap, gapMs } = (await request.json()) as { cap: number; gapMs: number };
+    const { cap, gapMs, hbarCap, tinybar } = (await request.json()) as { cap: number; gapMs: number; hbarCap?: string; tinybar?: string };
+    const budget = BigInt(hbarCap ?? '0');
+    const want = BigInt(tinybar ?? '0');
     const now = Date.now();
     const day = new Date(now).toISOString().slice(0, 10);
     const last = ((await this.state.storage.get<number>('last')) ?? 0);
     const storedDay = (await this.state.storage.get<string>('day')) ?? day;
     const count = storedDay === day ? ((await this.state.storage.get<number>('count')) ?? 0) : 0;
+    const spent = storedDay === day ? BigInt((await this.state.storage.get<string>('spent')) ?? '0') : 0n;
+    const leftHbar = budget > 0n ? Number(budget > spent ? budget - spent : 0n) / 1e8 : null;
     const path = new URL(request.url).pathname;
     const nextInSeconds = Math.max(0, Math.ceil((last + gapMs - now) / 1000));
     if (path === '/state') {
-      return Response.json({ runsToday: count, remainingToday: Math.max(0, cap - count), nextRunInSeconds: nextInSeconds });
+      return Response.json({ runsToday: count, remainingToday: Math.max(0, cap - count), nextRunInSeconds: nextInSeconds, hbarSpentToday: Number(spent) / 1e8, remainingHbarToday: leftHbar });
     }
     if (count >= cap) {
       const midnight = Date.parse(`${day}T00:00:00Z`) + 86_400_000;
       return Response.json({ ok: false, reason: 'daily-cap', retryAfterSeconds: Math.ceil((midnight - now) / 1000), runsToday: count });
     }
+    if (budget > 0n && spent + want > budget) {
+      const midnight = Date.parse(`${day}T00:00:00Z`) + 86_400_000;
+      return Response.json({ ok: false, reason: 'hbar-cap', retryAfterSeconds: Math.ceil((midnight - now) / 1000), runsToday: count, remainingHbarToday: leftHbar });
+    }
     if (nextInSeconds > 0) return Response.json({ ok: false, reason: 'cooldown', retryAfterSeconds: nextInSeconds, runsToday: count });
-    await this.state.storage.put({ last: now, day, count: count + 1 });
-    return Response.json({ ok: true, runsToday: count + 1 });
+    await this.state.storage.put({ last: now, day, count: count + 1, spent: (spent + want).toString() });
+    return Response.json({ ok: true, runsToday: count + 1, remainingHbarToday: budget > 0n ? Number(budget - spent - want) / 1e8 : null });
   }
 }

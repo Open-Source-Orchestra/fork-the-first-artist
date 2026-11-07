@@ -67,7 +67,7 @@ test('resolveArtistTarget fails closed: no consent, paused, wrong name, OSO demo
 
 test('stewardFor: example run = demo artist; Shaka = his public profile; others = minimal consented profile', () => {
   assert.equal(stewardFor(null), undefined);
-  const base = { ens: 'x.osoartist.eth', payTo: '0.0.1', accountId: '0.0.1', alias: null, path: 'hbar', resolver: null, source: '' };
+  const base = { ens: 'x.osoartist.eth', payTo: '0.0.1', accountId: '0.0.1', alias: null, path: 'hbar', resolver: null, source: '', lastLiveReadAt: null };
   assert.equal(stewardFor({ ...base, label: 'shaka', ens: 'shaka.osoartist.eth' })!.label, 'Shaka');
   const other = stewardFor({ ...base, label: 'lexi', ens: 'lexi.osoartist.eth' })!;
   assert.equal(other.fictional, false);
@@ -153,4 +153,37 @@ test('worker: bad amount / bad artist are refused before any permit or payment',
   r = await worker.fetch(new Request('https://w/artist?name=..%2Fx'), env);
   assert.equal(r.status, 400);
   assert.deepEqual(touched, [], 'no permit was taken');
+});
+
+test('targetDeps: rate-limited live read falls back to the stored last LIVE read (≤6 h, labelled); refusals never do', async () => {
+  const mem = new Map<string, { value: never; at: number }>();
+  const store = { get: async (n: string) => mem.get(n) ?? null, put: async (n: string, v: never) => { mem.set(n, { value: v, at: Date.now() }); } };
+  const cfg = { ensRpcUrl: 'x', mirror: 'https://m' };
+  const ok = resolved({ name: 'fb1.osoartist.eth' });
+  // 1) live works → stored
+  await targetDeps(cfg, fetch, store as never, async () => ok as never).resolve('fb1.osoartist.eth');
+  assert.ok(mem.has('fb1.osoartist.eth'));
+  // 2) a different isolate (no in-memory cache): live 429 → stored read, labelled
+  const r429 = async () => { throw new Error('Request exceeds defined limit. Status: 429'); };
+  mem.set('fb2.osoartist.eth', { value: resolved({ name: 'fb2.osoartist.eth' }) as never, at: Date.now() - 60_000 });
+  const got = await targetDeps(cfg, fetch, store as never, r429).resolve('fb2.osoartist.eth');
+  assert.match(String((got as { lastLiveReadAt?: string }).lastLiveReadAt), /^\d{4}-\d\d-\d\dT/);
+  const t = await resolveArtistTarget('fb2', { resolve: async () => got, aliasAccount: async () => '0.0.11347291' });
+  assert.match(t.source, /^last live ENS read \d\d:\d\dZ/);
+  // 3) too old → fail closed
+  mem.set('fb3.osoartist.eth', { value: resolved({ name: 'fb3.osoartist.eth' }) as never, at: Date.now() - 7 * 3600_000 });
+  await assert.rejects(targetDeps(cfg, fetch, store as never, r429).resolve('fb3.osoartist.eth'), /429/);
+  // 4) an authoritative refusal (consent revoked) is NEVER replaced by a stored read
+  mem.set('fb4.osoartist.eth', { value: resolved({ name: 'fb4.osoartist.eth' }) as never, at: Date.now() });
+  await assert.rejects(targetDeps(cfg, fetch, store as never, async () => { throw Object.assign(new Error('no consent'), { code: 'no-consent' }); }).resolve('fb4.osoartist.eth'), /no consent/);
+});
+
+test('TipGate stores last-good ENS reads only for <label>.osoartist.eth', async () => {
+  const st = new Map<string, unknown>();
+  const gate = new TipGate({ storage: { get: async <T>(k: string) => st.get(k) as T | undefined, put: async (e: Record<string, unknown>) => { for (const [k, v] of Object.entries(e)) st.set(k, v); } } });
+  const post = async (path: string, body: unknown) => (await gate.fetch(new Request(`https://gate${path}`, { method: 'POST', body: JSON.stringify(body) }))).json() as Promise<Record<string, unknown>>;
+  await post('/ens-put', { name: 'shaka.osoartist.eth', value: { payTo: '0.0.1' } });
+  await post('/ens-put', { name: 'evil.eth', value: { payTo: '0.0.2' } });
+  assert.deepEqual((await post('/ens-get', { name: 'shaka.osoartist.eth' })).value, { payTo: '0.0.1' });
+  assert.deepEqual(await post('/ens-get', { name: 'evil.eth' }), {});
 });

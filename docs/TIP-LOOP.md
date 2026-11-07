@@ -24,6 +24,37 @@ payment or a 0G failure settles nothing; any failure after settlement emits an `
 states exactly which transfers already landed. The page never shows a success it did not receive,
 and links only to `https://hashscan.io/testnet/...`.
 
+## 💸 Pay this artist (real artist, testnet HBAR)
+
+The fork card of every **issued** artist (name issued on mainnet, payout on their ENS name) shows two buttons:
+
+- **⚡ see an example x402 payment** — the recorded/example loop below (fictional Mira Modal, synthetic artist account).
+- **💸 pay <artist> · x402 testnet** → `/pay?artist=<slug>` — the same loop, but the steward forwards **96.31% to the artist's own account**.
+
+**Who gets paid is never taken from the browser.** `POST /tip {artist:"shaka", amountHbar:"1"}` only carries a garden slug. Before
+every payment the Worker resolves `<slug>.osoartist.eth` **live on Ethereum mainnet** through the artist's own resolver
+(`ens/src/resolve-artist.mjs`) and refuses (HTTP 404, nothing paid) unless the name has `oso.consent=active`, no paused steward
+status, no network mismatch and a payout record. Payout order: `addr(3030)` Hedera account → ENSIP-11 Hedera-testnet EVM address →
+ETH address; an EVM address is paid as a Hedera **alias** (mapped to its existing `0.0.N` via the mirror node, else auto-created —
+only the artist's key can spend it). `GET /artist?name=<slug>` shows the same resolution to the page before paying.
+
+**Amount:** any amount from 0.01 to 10 testnet HBAR per run. The 0G meter price is the 3.69% compute share of that tip; the
+artist gets 96.31%; OSO 0%. Spend controls (global Durable Object): one run per 30 s, 80 runs and **100 HBAR** per UTC day.
+The fan wallet (0.0.11345895) was topped up with 200 testnet HBAR from a teammate's testnet account on 7 Nov 2026.
+
+**Live proof, 7 Nov 2026 01:56Z (pay Shaka 1 HBAR):** fan→steward settled `0.0.9185802@1794015789.333874366`; 0G meter
+`0.0.9185802@1794015789.852442311` (0.0369 HBAR, real 0G answer); steward→**Shaka 0.0.11347291** `0.0.11345897@1794015798.079972902`
+(0.9631 HBAR); HCS topic 0.0.11345907 sequence 11 carries `payout_from: ENS shaka.osoartist.eth`.
+
+### How an artist adds (or changes) their testnet ID
+
+1. A steward invites them; on `/consent` they sign with their own wallet. The **Hedera testnet payout** field is optional:
+   **leave it empty (recommended)** → fans pay their own wallet address on Hedera (no Hedera account needed); or paste `0.0.N`.
+2. A steward approves; `ens/scripts/onboard.mjs` issues `<label>.osoartist.eth` to their wallet with that payout in the record.
+3. The pay button appears on their fork card; every payment re-reads their ENS name, so **they** stay in control.
+4. To change it later they edit their own name's record (they own it; OSO can't), e.g. on app.ens.domains. A guided `/payout`
+   page is planned after the hackathon.
+
 ## Accounts and money (testnet, synthetic)
 
 | Role | Account | Per run |

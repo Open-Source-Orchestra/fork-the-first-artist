@@ -57,6 +57,8 @@ export interface TipDeps {
   hcs: (topic: string, message: string) => Promise<{ txId: string; status: string; sequence: string | null }>;
   /** mirror node lookup: true once the tx is visible with result SUCCESS */
   mirrorSuccess: (txId: string) => Promise<boolean>;
+  /** set when a real artist is paid: how their payout was resolved (ENS name, source, account) */
+  target?: { ens: string; payTo: string; accountId: string | null; alias: string | null; source: string } | null;
   now?: () => Date;
 }
 
@@ -144,6 +146,7 @@ export async function runTipLoop(
     split: { artistHbar: hbar(split.artist), computeHbar: hbar(split.compute), artistPct: '96.31', computePct: '3.69', osoPct: '0' },
     accounts: { fan: a.fan, steward: a.steward, artist: a.artist, meter: a.meter, hcsTopic: a.topic },
     artistLabel: a.artistLabel,
+    target: deps.target ?? null,
   });
 
   try {
@@ -224,8 +227,9 @@ export async function runTipLoop(
     const record = {
       v: 1,
       kind: 'oso-steward-split',
-      source: 'oso-tip-loop worker (public judge demo)',
+      source: deps.target ? 'oso-tip-loop worker (pay this artist, testnet)' : 'oso-tip-loop worker (public judge demo)',
       artist: a.artistLabel,
+      ...(deps.target ? { artist_pay_to: deps.target.payTo, artist_account: deps.target.accountId, payout_from: `ENS ${deps.target.ens}` } : {}),
       settled_tx: askTx,
       tip_tinybar: tip.toString(),
       artist_tinybar: split.artist.toString(),

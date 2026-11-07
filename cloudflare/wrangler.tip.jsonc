@@ -23,8 +23,10 @@
     "UPSTREAM_MODEL": "0gm-1.0-35b-a3b",
     "TIP_TINYBAR": "10000000",
     "METER_TINYBAR": "369000",
-    "DAILY_CAP": "20",
-    "MIN_GAP_SECONDS": "60"
+    "DAILY_CAP": "80",
+    "DAILY_HBAR_CAP": "100",
+    "MAX_TIP_HBAR": "10",
+    "MIN_GAP_SECONDS": "30"
   },
   "durable_objects": { "bindings": [{ "name": "TIP_GATE", "class_name": "TipGate" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TipGate"] }],

@@ -73,3 +73,5 @@
 .fork-tile #fork-pay-go{display:inline-block;margin:12px 0 2px;white-space:normal;text-align:center;line-height:1.4;text-decoration:none}
 /* keep the garden's floating finder from covering an open side panel (QA 7 Nov) */
 body:has(.panel.open) #gh-fab{opacity:0;pointer-events:none}
+.fork-card .pill.gold{border-color:var(--gold2,#f0c464);color:var(--gold2,#f0c464);background:rgba(240,196,100,.12);font-weight:600}
+.fork-card .pill.gold:hover,.fork-card .pill.gold:focus-visible{background:rgba(240,196,100,.22)}

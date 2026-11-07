@@ -157,6 +157,7 @@ if (typeof document !== 'undefined') {
       Object.assign(document.createElement('strong'), { textContent: 'Testnet HBAR, not real money. ' }),
       document.createTextNode(`The fan agent and the steward run server-side with demo testnet accounts (no wallet or key in your browser). The artist is real: ${first()} receives the 96.31% on the account above. Nothing touches mainnet.`),
     );
+    $('#pay-sub').replaceChildren(document.createTextNode(`One click runs the whole money loop on Hedera testnet, right now: a fan agent asks ${first()}’s steward, gets HTTP 402, pays the amount you pick with x402; the steward pays the 0G meter its 3.69% for a real answer, forwards 96.31% to ${first()} and logs the split to HCS. Every step links to HashScan as it lands.`));
     $('#pay-question').value = `What should a first-time fan know about ${first()}?`;
     $('#pay-hint').textContent = `Up to 280 characters. The paid answer comes from real 0G inference about ${first()}’s public profile.`;
     LABEL = `💸 pay ${first()} — run the real x402 loop on Hedera testnet`;

@@ -83,6 +83,8 @@ AI assisted implementation, review, tests and documentation as disclosed in thos
 - **Shaka** — artist + product/demo lead.
 - **Prince Keshri** — frontend, wallets, claims/Arkiv.
 - **Rajarshi Roy** — payments, agent and Hedera integration.
+- **Utkarsh Tiwari** — Hedera Agent Kit steward (forward 96.31% + HCS split log); funded the live testnet demo accounts.
+- **Yuuki Shimizu** — team member at ETHGlobal Mumbai.
 - Additional accepted contributors must be listed with their actual contribution and Telegram/X contact in [SUBMISSION.md](docs/SUBMISSION.md); AI agents are not human teammates.
 
 ## Contribution and safety rules

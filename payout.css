@@ -1,0 +1,12 @@
+/* /payout — an artist changes the Hedera payout on their own name. */
+#payout-form fieldset { border: 1px solid rgba(240, 196, 100, .18); border-radius: 12px; padding: 12px 16px; margin: 0 0 14px; }
+#payout-form legend { font-family: var(--sans); font-size: .8rem; color: var(--gold); padding: 0 6px; }
+#payout-form label { display: flex; align-items: center; gap: 10px; font-family: var(--sans); font-size: .9rem; color: var(--cream-dim); margin: 6px 0; min-height: 32px; }
+#payout-form input[type="radio"] { width: 24px; height: 24px; flex: none; margin: 0; }
+#payout-form #account-id { margin: 2px 0 8px 34px; max-width: 16rem; }
+#current { display: grid; grid-template-columns: minmax(10rem, max-content) 1fr; gap: 6px 16px; font-family: var(--sans); font-size: .85rem; color: var(--cream-dim); margin-top: 16px; }
+#current dt { color: var(--cream); }
+#current dd { margin: 0; overflow-wrap: anywhere; }
+#current code, #plan, #calldata { overflow-wrap: anywhere; }
+#checks li:not(.ok):not(.bad) { color: var(--cream-dim); }
+@media (max-width: 560px) { #current { grid-template-columns: 1fr; } #current dd { margin-bottom: 6px; } }

@@ -42,6 +42,7 @@ for (const vp of [{ width: 1280, height: 800 }, { width: 375, height: 812 }]) {
       assert.equal(await page.locator('.fork-card [data-fork-pay]').getAttribute('href'), '/pay?artist=shaka');
       assert.equal((await page.locator('.fork-card [data-fork-pay]').textContent()).trim(), '💸 pay Shaka · x402 testnet');
       assert.equal((await page.locator('.fork-card [data-fork-open]').textContent()).trim(), '⚡ see an example x402 payment');
+      assert.equal(await page.locator('.fork-card [data-fork-payout]').getAttribute('href'), '/payout?artist=shaka');
       assert.match(await page.locator('.fork-card .fine').innerText(), /His name is issued to his own wallet/);
       assert.equal((await page.locator('.fork-card [data-fork-ask]').textContent()).trim(), "🧠 ask Shaka's steward · live 0G");
       await page.locator('.fork-card [data-fork-open]').click();
@@ -102,6 +103,7 @@ test('every garden artist gets their own preview steward on the fork card; the h
   try {
     await openArtist(page, 'dj-chalk', 'DJ Chalk');
     const ask = page.locator('.fork-card [data-fork-ask]');
+    assert.equal(await page.locator('.fork-card [data-fork-payout]').count(), 0, 'no payout link before a name is issued');
     assert.equal(await ask.getAttribute('data-fork-ask'), 'dj-chalk');
     assert.equal((await ask.textContent()).trim(), "🧠 ask DJ Chalk's steward · live 0G");
     assert.match(await page.locator('.fork-card .fine').innerText(), /preview that only repeats DJ Chalk's public garden profile/);

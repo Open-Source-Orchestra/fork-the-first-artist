@@ -6,7 +6,8 @@
   "description": "ENSv2 artist names for Fork the First Artist: resolve payTo by ENS name, per-artist PermissionedResolver, signing kit",
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "fork-test": "node scripts/fork-test.mjs"
+    "fork-test": "node scripts/fork-test.mjs",
+    "fork-test:payout": "node scripts/fork-test-payout.mjs"
   },
   "dependencies": {
     "viem": "^2.21.0"

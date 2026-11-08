@@ -32,6 +32,7 @@
     "test:steward": "cd hedera-steward && ${STEWARD_PYTHON:-/workspace/utkarsh-hedera/.venv/bin/python} -m pytest -q",
     "test:ens": "npm --prefix ens test",
     "ens:fork-test": "node ens/scripts/fork-test.mjs",
+    "ens:fork-test:payout": "node ens/scripts/fork-test-payout.mjs",
     "ens:onboard": "node ens/scripts/onboard.mjs",
     "ens:signing-kit": "node ens/scripts/build-signing-kit.mjs",
     "ens:resolve": "node ens/src/resolve-artist.mjs"

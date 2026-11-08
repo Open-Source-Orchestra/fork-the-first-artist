@@ -84,6 +84,12 @@ test('preview serves only public assets and refuses writes and repository paths'
   assert.match(pay.headers['content-security-policy'], /script-src 'self';/);
   assert.match((await get('/pay.css')).headers['content-type'], /^text\/css/);
   assert.doesNotMatch(steward.headers['content-security-policy'], /oso-tip-loop/);
+  const payout = await get('/payout?artist=shaka');
+  assert.equal(payout.status, 200);
+  assert.match(payout.body, /Only you can change it\./);
+  assert.match(payout.headers['content-security-policy'], /connect-src 'self' https:\/\/ethereum-rpc\.publicnode\.com https:\/\/eth\.drpc\.org https:\/\/1rpc\.io;/);
+  assert.match(payout.headers['content-security-policy'], /script-src 'self';/);
+  assert.doesNotMatch(pay.headers['content-security-policy'], /publicnode/);
   const config = JSON.parse((await get('/wallet-config.json')).body);
   assert.equal(config.projectId, '');
   assert.equal(config.enabled, false);
@@ -93,7 +99,7 @@ test('preview serves only public assets and refuses writes and repository paths'
       assert.equal((await get(path)).status, 200, path);
     }
   }
-  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs', '/steward.mjs', '/pay.mjs']) {
+  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs', '/steward.mjs', '/pay.mjs', '/payout.mjs', '/payout-plan.mjs', '/vendor/viem-ens.min.js']) {
     const module = await get(path);
     assert.equal(module.status, 200);
     assert.match(module.headers['content-type'], /^text\/javascript/);

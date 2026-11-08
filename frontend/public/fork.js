@@ -200,7 +200,7 @@ function mountPanel() {
       <p>Each artist can hold <b>&lt;name&gt;.osoartist.eth</b>, owned by <b>their own wallet</b> with their own resolver; it points fans and agents at their Hedera account and their steward. OSO keeps no record rights. Tap any figure in the circle to see their name.</p>
       <p><b>Claimed by invitation, approved by a steward.</b> The owner of osoartist.eth (today: Shaka) is the root of trust and can grant more stewards. A steward invites an artist → the artist signs consent with their own wallet → a steward approves → only then is the name issued. Every step is a free signature that the issuer re-checks.</p>
       <p class="fork-honest" id="fork-ens-state"></p>
-      <div class="links"><a class="pill" href="/admin">🌺 steward desk</a><a class="pill" href="/fork/stewards.json">stewards.json</a><a class="pill" href="https://app.ens.domains/osoartist.eth" target="_blank" rel="noopener">osoartist.eth ↗</a></div>
+      <div class="links"><a class="pill" href="/admin">🌺 steward desk</a><a class="pill" href="/payout">🔧 artists: change your payout</a><a class="pill" href="/fork/stewards.json">stewards.json</a><a class="pill" href="https://app.ens.domains/osoartist.eth" target="_blank" rel="noopener">osoartist.eth ↗</a></div>
     </section>
 
     <div class="links" style="display:flex;flex-wrap:wrap;gap:6px">
@@ -333,6 +333,8 @@ function artistBlock(slug, a) {
   // Only an issued artist with a payout on their own ENS name gets a pay button; the Worker re-reads
   // that ENS name before every payment and refuses otherwise, so this button can never pay anyone else.
   if (reg?.status === 'issued' && reg.hedera && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill gold" href="/pay?artist=${encodeURIComponent(slug)}" data-fork-pay>💸 pay ${esc(first)} · x402 testnet</a>`);
+  // The owner changes their own payout on their own name (their wallet signs; OSO cannot).
+  if (reg?.status === 'issued' && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill" href="/payout?artist=${encodeURIComponent(slug)}" data-fork-payout>🔧 ${esc(first)}: change your payout</a>`);
   links.push(`<button class="pill" type="button" data-fork-open>⚡ see an example x402 payment</button>`);
   if (/^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill violet" href="/draft?artist=${encodeURIComponent(slug)}">✏️ draft ${esc(first)}'s home</a>`);
   const card = document.createElement('section');

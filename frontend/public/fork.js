@@ -15,23 +15,85 @@ const PROOF = {
   zeroGRequest: 'f8ff36e7-159e-408c-8e6a-6a0e419183a9',
 };
 
-// Stewards the public 0G Worker may speak for (it enforces the same allowlist server-side).
+// Stewards the public 0G Worker may speak for (it enforces the same allowlist server-side):
+// the fictional demo, Shaka (asked for his own), and a *preview* steward for every other garden
+// artist, registered on demand from their public garden profile (registerArtistSteward).
 const STEWARDS = {
   'mira-modal': {
-    name: 'Mira Modal', short: 'Mira', tag: 'fictional',
-    who: '<b>Mira Modal, a fictional demo artist</b>. Every real artist\'s steward wakes only after that artist consents.',
+    name: 'Mira Modal', short: 'Mira', tag: 'fictional', mode: 'demo',
+    who: '<b>Mira Modal, a fictional demo artist</b>. Every real artist\'s own steward wakes only after that artist consents; until then a garden artist\'s steward is a <b>preview</b> built from their public profile.',
     chips: [["List Mira's songs", "List Mira's songs."], ['What does Mira make music from?', 'What does Mira make music from?'], ['Who is Mira?', 'Who is Mira Modal?']],
   },
   shaka: {
-    name: 'Shaka', short: 'Shaka', tag: 'real · asked for it',
-    who: '<b>Shaka</b>, a real artist and the project lead, who asked for his own steward. It is grounded <b>only on his public garden profile</b>; other artists\' stewards wake after their own consent.',
+    name: 'Shaka', short: 'Shaka', tag: 'real · asked for it', mode: 'asked',
+    who: '<b>Shaka</b>, a real artist and the project lead, who asked for his own steward. It is grounded <b>only on his public garden profile</b>; other artists\' own stewards wake after their own consent.',
     chips: [['What does Shaka play?', 'What does Shaka play?'], ["When is Shaka's talk?", "When is Shaka's talk?"], ['What is Shaka\'s headline?', 'What is the headline on Shaka\'s garden profile?']],
   },
 };
 let steward = 'mira-modal';
+// Held back from every steward surface (the Worker has no steward for them either).
+const HELD = new Set(['perrie']);
+const STATIC_STEWARDS = new Set(Object.keys(STEWARDS));
+let dynamicSlug = null;
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// A short first name for buttons and chips: "Shaka 🤙" → Shaka, "DJ Chalk" → DJ Chalk,
+// "the ʻohana 🗿" → ʻohana, "Alaska × Subcult — live coding" → Alaska, "Dex (dextroalien)" → Dex.
+const SHORT_OVERRIDE = { 'open-source-orchestra': 'Open Source Orchestra' };
+const TITLES = new Set(['dj', 'mc', 'dr', 'dr.', 'mr', 'mr.', 'ms', 'ms.']);
+function shortName(a, slug = '') {
+  if (Object.hasOwn(SHORT_OVERRIDE, slug)) return SHORT_OVERRIDE[slug];
+  const clean = String(a?.name ?? '')
+    .replace(/[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\uFE0F\u200D]/gu, '')
+    .replace(/\([^)]*\)/g, ' ')
+    .split(/\s[—×&·|-]\s/)[0]
+    .replace(/^the\s+/i, '')
+    .trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (!words.length) return 'the artist';
+  return TITLES.has(words[0].toLowerCase()) && words[1] ? `${words[0]} ${words[1]}` : words[0];
+}
+const plainName = (a) => String(a?.name ?? '').replace(/[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\uFE0F\u200D]/gu, '').replace(/\s+/g, ' ').trim();
+const SLUG_OK = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+
+/** True when the public 0G Worker has a steward for this garden artist (everyone but the held-back). */
+const hasSteward = (slug) => typeof slug === 'string' && SLUG_OK.test(slug) && !HELD.has(slug) && slug !== 'mira-modal';
+
+/** A preview steward built client-side from the artist's public garden entry (mirrors the Worker's). */
+function registerArtistSteward(slug, a) {
+  if (!hasSteward(slug) || !a) return null;
+  if (STATIC_STEWARDS.has(slug)) return STEWARDS[slug];
+  const name = plainName(a) || slug;
+  const short = shortName(a, slug);
+  STEWARDS[slug] = {
+    name, short, tag: 'preview', mode: 'preview',
+    who: `<b>${esc(name)}</b>, a real artist in the Open Source Orchestra garden. This is a <b>preview</b>: it only repeats ${esc(short)}'s <b>public garden profile</b> and does not speak for them. ${esc(short)}'s own steward wakes only when they consent with their own key.`,
+    chips: [[`Who is ${short}?`, `Who is ${name}?`], [`When does ${short} play?`, `When does ${short} play?`], [`Where can I follow ${short}?`, `Where can I follow ${short}?`]],
+  };
+  return STEWARDS[slug];
+}
+
+/** One toggle button for the current (non-static) artist, next to Mira and Shaka. */
+function mountDynamicToggle(slug) {
+  const group = $('#fork .fork-who');
+  if (!group) return;
+  if (dynamicSlug && dynamicSlug !== slug && !STATIC_STEWARDS.has(dynamicSlug)) group.querySelector('[data-steward-dynamic]')?.remove();
+  if (STATIC_STEWARDS.has(slug) || !Object.hasOwn(STEWARDS, slug)) return;
+  dynamicSlug = slug;
+  let b = group.querySelector('[data-steward-dynamic]');
+  if (!b) {
+    b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.stewardDynamic = '';
+    b.addEventListener('click', () => setSteward(b.dataset.steward));
+    group.appendChild(b);
+  }
+  b.dataset.steward = slug;
+  b.setAttribute('aria-pressed', String(steward === slug));
+  b.innerHTML = `${esc(STEWARDS[slug].short)} <small>preview</small>`;
+}
+
 const ensLabel = (slug) => String(slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '').slice(0, 40);
 
 let registry = { parent: 'osoartist.eth', consentPage: null, artists: {} };
@@ -172,9 +234,10 @@ function setSteward(slug) {
   if (ans) ans.hidden = true;
 }
 
-function openFork(focusAsk = false, who = null) {
+function openFork(focusAsk = false, who = null, artist = null) {
   mountPanel();
-  if (who) setSteward(who);
+  if (who && artist && !Object.hasOwn(STEWARDS, who)) registerArtistSteward(who, artist);
+  if (who) { mountDynamicToggle(who); setSteward(who); }
   document.querySelectorAll('.panel.open').forEach((x) => { if (x.id !== 'fork') x.classList.remove('open'); });
   $('#fork').classList.add('open');
   if (focusAsk) setTimeout(() => { $('#fork-ask-tile').scrollIntoView({ behavior: 'smooth', block: 'start' }); const q = $('#fork-q'); if (q && !q.disabled) q.focus({ preventScroll: true }); }, 320);
@@ -214,7 +277,8 @@ async function wireAsk() {
       if (!r.ok || !b.ok || !b.reply?.text || !b.proof?.requestId || b.artist?.slug !== asked) throw new Error('degraded');
       if (steward !== asked) { st.textContent = ''; return; } // switched stewards mid-flight: don't show the other steward's answer
       const s = STEWARDS[asked];
-      $('#fork-said-who').textContent = `${s.name}'s steward (${b.artist.fictional ? 'fictional demo profile' : 'public garden profile only'}) said:`;
+      const grounding = b.artist.fictional ? 'fictional demo profile' : b.artist.mode === 'preview' ? 'preview · public garden profile only' : 'public garden profile only';
+      $('#fork-said-who').textContent = `${s.name}'s steward (${grounding}) said:`;
       $('#fork-said').textContent = b.reply.text;
       $('#fork-rid').textContent = b.proof.requestId;
       $('#fork-model').textContent = b.proof.model || b.proof.requestedModel || '—';
@@ -255,7 +319,8 @@ function artistBlock(slug, a) {
   const reg = registry.artists[slug] || null;
   const label = ensLabel(slug);
   const ens = reg?.ens || `${label}.${registry.parent || 'osoartist.eth'}`;
-  const first = String(a.name || '').split(/[\s×&·]/)[0] || 'the artist';
+  const first = shortName(a, slug);
+  const ask = hasSteward(slug) ? registerArtistSteward(slug, a) : null;
   let state;
   if (reg?.status === 'issued') state = `<b>issued</b> · owned by ${esc(reg.owner ? reg.owner.slice(0, 6) + '…' + reg.owner.slice(-4) : 'the artist')}${reg.hedera === 'alias' ? ` · tips go to ${esc(first)}'s own Ethereum address on Hedera (alias — only their key can spend it)` : reg.hedera ? ` · tips go to Hedera account <a href="${HASHSCAN}/account/${esc(reg.hedera)}" target="_blank" rel="noopener">${esc(reg.hedera)}</a>` : ''}${reg.tx ? ` · <a href="https://etherscan.io/tx/${esc(reg.tx)}" target="_blank" rel="noopener">mainnet tx ↗</a>` : ''}`;
   else if (reg?.status === 'approved' || reg?.status === 'consented') state = `<b>approved</b>${reg.approvedBy ? ` by ${esc(reg.approvedBy)}` : ''} · ${esc(first)} signed with their own key; the name is being issued to their wallet`;
@@ -263,8 +328,8 @@ function artistBlock(slug, a) {
   const links = [];
   if (reg?.status === 'issued') links.push(`<a class="pill teal" href="https://app.ens.domains/${esc(ens)}" target="_blank" rel="noopener">🏷 ${esc(ens)} ↗</a>`);
   if (reg?.status !== 'issued' && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill" href="/admin?artist=${encodeURIComponent(slug)}">🌺 steward? invite ${esc(first)}</a>`);
-  if (Object.hasOwn(STEWARDS, slug) && slug !== 'mira-modal') links.push(`<button class="pill teal" type="button" data-fork-ask="${esc(slug)}">🧠 ask ${esc(STEWARDS[slug].short)}'s steward · live 0G</button>`);
-  else links.push(`<button class="pill teal" type="button" data-fork-ask="mira-modal">🧠 ask the demo steward · live 0G</button>`);
+  if (ask) links.push(`<button class="pill teal" type="button" data-fork-ask="${esc(slug)}">🧠 ask ${esc(ask.short)}'s steward · live 0G</button>`);
+  else if (!HELD.has(slug)) links.push(`<button class="pill teal" type="button" data-fork-ask="mira-modal">🧠 ask the demo steward · live 0G</button>`);
   // Only an issued artist with a payout on their own ENS name gets a pay button; the Worker re-reads
   // that ENS name before every payment and refuses otherwise, so this button can never pay anyone else.
   if (reg?.status === 'issued' && reg.hedera && /^[a-z0-9-]+$/.test(slug)) links.push(`<a class="pill gold" href="/pay?artist=${encodeURIComponent(slug)}" data-fork-pay>💸 pay ${esc(first)} · x402 testnet</a>`);
@@ -282,9 +347,9 @@ function artistBlock(slug, a) {
     <div class="links">${links.join('')}</div>
     <p class="fine">${slug === 'shaka'
       ? `Shaka asked for his own steward: it answers live through 0G, grounded <b>only</b> on his public garden profile. ${reg?.status === 'issued' ? 'His name is issued to his own wallet, and his payout is read from it before every tip.' : "His name and payout still wait for his own signature, like everyone's."}`
-      : `Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key. ${esc(first)}: got an invitation link from a steward? Open it to sign.`}</p>`;
+      : `Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key.${ask ? ` The steward above is a <b>preview</b> that only repeats ${esc(first)}'s public garden profile.` : ''} ${esc(first)}: got an invitation link from a steward? Open it to sign.`}</p>`;
   body.appendChild(card);
-  card.querySelector('[data-fork-ask]')?.addEventListener('click', (e) => openFork(true, e.currentTarget.dataset.forkAsk));
+  card.querySelector('[data-fork-ask]')?.addEventListener('click', (e) => openFork(true, e.currentTarget.dataset.forkAsk, a));
   card.querySelector('[data-fork-open]')?.addEventListener('click', () => openFork(false));
 }
 

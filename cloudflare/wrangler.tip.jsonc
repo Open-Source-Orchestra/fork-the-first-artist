@@ -26,7 +26,14 @@
     "DAILY_CAP": "80",
     "DAILY_HBAR_CAP": "100",
     "MAX_TIP_HBAR": "10",
-    "MIN_GAP_SECONDS": "30"
+    "MIN_GAP_SECONDS": "30",
+    // Fan-wallet direct split (POST /wallet/*): testnet uses STEWARD_ACCOUNT_ID / HCS_TOPIC_ID / FACILITATOR_URL above.
+    // THE MAINNET SWITCH — only the exact string "true" turns it on. Leave "false" until Shaka's go.
+    // When on, ALL of these must be set (else every mainnet request is refused): MAINNET_FACILITATOR_URL,
+    // MAINNET_STEWARD_ACCOUNT_ID, MAINNET_HCS_TOPIC_ID, MAINNET_DAILY_CAP (+ optional MAINNET_MAX_TIP_USDC ≤5,
+    // MAINNET_MAX_TIP_HBAR ≤25, MAINNET_DAILY_USDC, MAINNET_DAILY_HBAR, MAINNET_CURRENCIES) and the secret
+    // MAINNET_STEWARD_PRIVATE_KEY (signs only the HCS ledger line). See docs/MAINNET-PAY.md.
+    "MAINNET_ENABLED": "false"
   },
   "durable_objects": { "bindings": [{ "name": "TIP_GATE", "class_name": "TipGate" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TipGate"] }],

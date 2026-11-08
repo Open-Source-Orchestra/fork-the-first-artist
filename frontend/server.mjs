@@ -44,6 +44,9 @@ const assets = new Map(await Promise.all([
   ['/pay', 'pay.html', 'text/html; charset=utf-8'],
   ['/pay.mjs', 'pay.mjs', 'text/javascript; charset=utf-8'],
   ['/pay.css', 'pay.css', 'text/css; charset=utf-8'],
+  // 🔐 the fan pays from their own wallet (HashPack via WalletConnect): two direct x402 payments.
+  ['/fan-pay.mjs', 'fan-pay.mjs', 'text/javascript; charset=utf-8'],
+  ['/hedera-body.mjs', 'hedera-body.mjs', 'text/javascript; charset=utf-8'],
   // The circle's chain of trust: steward desk (invite/approve/grant), invited artist consent, ENS signing kit.
   ['/admin', 'admin.html', 'text/html; charset=utf-8'],
   ['/trust', 'trust.html', 'text/html; charset=utf-8'],
@@ -109,8 +112,9 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const payoutPolicy = route === '/payout'
       ? " connect-src 'self' https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io;"
       : '';
+    // /pay talks to the tip Worker, and (fan wallet) to the WalletConnect relay + verify service like /wallets.
     const payPolicy = route === '/pay'
-      ? " connect-src 'self' https://oso-tip-loop.shakaverse.workers.dev;"
+      ? " connect-src 'self' https://oso-tip-loop.shakaverse.workers.dev wss://relay.walletconnect.com wss://relay.walletconnect.org https://verify.walletconnect.com https://verify.walletconnect.org; frame-src https://verify.walletconnect.com https://verify.walletconnect.org;"
       : '';
     // The garden circle front door carries inline style/script from the upstream OSO page and fetches
     // the live 0G steward + the garden's public keys; every other route keeps the strict policy.

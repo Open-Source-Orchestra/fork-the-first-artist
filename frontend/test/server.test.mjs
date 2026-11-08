@@ -80,7 +80,10 @@ test('preview serves only public assets and refuses writes and repository paths'
   const pay = await get('/pay');
   assert.equal(pay.status, 200);
   assert.match(pay.body, /tip the artist — run the real x402 loop on Hedera testnet/);
-  assert.match(pay.headers['content-security-policy'], /connect-src 'self' https:\/\/oso-tip-loop\.shakaverse\.workers\.dev;/);
+  assert.match(pay.headers['content-security-policy'], /connect-src 'self' https:\/\/oso-tip-loop\.shakaverse\.workers\.dev wss:\/\/relay\.walletconnect\.com wss:\/\/relay\.walletconnect\.org https:\/\/verify\.walletconnect\.com https:\/\/verify\.walletconnect\.org;/);
+  assert.match(pay.body, /sign &amp; pay from my wallet/);
+  assert.match((await get('/fan-pay.mjs')).headers['content-type'], /^text\/javascript/);
+  assert.match((await get('/hedera-body.mjs')).headers['content-type'], /^text\/javascript/);
   assert.match(pay.headers['content-security-policy'], /script-src 'self';/);
   assert.match((await get('/pay.css')).headers['content-type'], /^text\/css/);
   assert.doesNotMatch(steward.headers['content-security-policy'], /oso-tip-loop/);

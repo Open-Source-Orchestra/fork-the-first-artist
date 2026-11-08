@@ -94,3 +94,24 @@ test('cancel and retry during initialization share one client and install listen
   assert.equal(client.listenerCount('session_update'), 1);
   assert.equal(connection.getState().status, 'select-account');
 });
+
+test('fan mode: chain + method are parameters (mainnet, hedera_signTransaction); request() only on the selected account', async () => {
+  const MAIN = 'hedera:mainnet:0.0.456';
+  const s = () => ({ topic: TOPIC, expiry: 2_000_000_000, namespaces: { hedera: { methods: ['hedera_signTransaction'], accounts: [MAIN] } } });
+  assert.deepEqual(sessionAccounts(s(), 0, { chain: 'hedera:mainnet', method: 'hedera_signTransaction' }), [MAIN]);
+  assert.throws(() => sessionAccounts(s(), 0), 'defaults stay testnet + signMessage');
+  assert.throws(() => sessionAccounts(s(), 0, { chain: 'hedera:previewnet', method: 'hedera_signTransaction' }), /Unsupported/);
+  const client = new Client();
+  client.approval = async () => s();
+  const requests = [];
+  client.request = async (r) => { requests.push(r); return { signatureMap: 'c2ln' }; };
+  const connection = createHederaConnection({ createClient: async () => client, onChange() {}, now: () => 1_000_000_000_000, chain: 'hedera:mainnet', methods: ['hedera_signTransaction'], messages: { connected: 'paying from this account' } });
+  await assert.rejects(connection.request('hedera_signTransaction', {}), /Connect and select/);
+  await connection.connect();
+  assert.deepEqual(client.requested.requiredNamespaces.hedera, { chains: ['hedera:mainnet'], methods: ['hedera_signTransaction'], events: ['accountsChanged', 'chainChanged'] });
+  connection.selectAccount(MAIN);
+  assert.equal(connection.getState().message, 'paying from this account');
+  await assert.rejects(connection.request('hedera_signAndExecuteTransaction', {}), /not requested/);
+  assert.deepEqual(await connection.request('hedera_signTransaction', { transactionBody: 'AA==' }), { signatureMap: 'c2ln' });
+  assert.deepEqual(requests, [{ topic: TOPIC, chainId: 'hedera:mainnet', request: { method: 'hedera_signTransaction', params: { transactionBody: 'AA==' } } }]);
+});

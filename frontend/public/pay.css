@@ -25,3 +25,9 @@
 .pay-custom input { width: 6.5em; min-height: 40px; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(240, 196, 100, .45); background: rgba(0, 0, 0, .25); color: var(--cream); font: inherit; }
 .pay-custom input[aria-invalid="true"] { border-color: #ffaba0; }
 #pay-split.bad { color: #ffaba0; }
+.fan-wallet { border-color: rgba(126, 226, 184, .35); }
+.fan-row { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; font-family: var(--sans); }
+.fan-row select, .fan-row input, #fan-account { min-height: 40px; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(240, 196, 100, .45); background: rgba(0, 0, 0, .25); color: var(--cream); font: 1rem var(--sans); max-width: 100%; }
+#fan-split.bad { color: #ffaba0; }
+#fan-pairing:not([hidden]) { margin: 10px 0; display: grid; gap: 8px; justify-items: start; }
+#fan-pay { white-space: normal; text-align: left; }

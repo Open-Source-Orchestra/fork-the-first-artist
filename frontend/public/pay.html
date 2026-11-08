@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/arkiv.css">
     <link rel="stylesheet" href="/pay.css">
     <script type="module" src="/pay.mjs"></script>
+    <script type="module" src="/fan-pay.mjs"></script>
     <title>⚡ Tip the artist · live x402 loop on Hedera testnet</title>
   </head>
   <body>
@@ -32,9 +33,43 @@
         <p id="pay-artist-detail" class="editor-status"></p>
       </section>
 
+
+      <section id="fan-wallet" class="card fan-wallet" aria-labelledby="fan-heading">
+        <p class="eyebrow">01 / Pay from your own wallet</p>
+        <h2 id="fan-heading">🔐 Your wallet signs — two payments, straight to the artist and the steward</h2>
+        <p class="editor-status">HashPack signs <b>two x402 payments</b>: <b>96.31%</b> straight to the artist’s own Hedera account (read from their ENS name) and <b>3.69%</b> straight to the steward that answers for them on 0G. OSO never holds the money and never sees a key. Before your wallet is asked, this page decodes both transactions and refuses anything but exactly those two transfers.</p>
+        <form id="fan-form" class="editor-form" autocomplete="off">
+          <fieldset id="fan-fields" disabled>
+            <legend class="visually-hidden">Pay from your own Hedera wallet</legend>
+            <div class="fan-row">
+              <label for="fan-network">Network</label>
+              <select id="fan-network"><option value="testnet" selected>Hedera testnet</option><option value="mainnet" disabled>Hedera mainnet — switched off</option></select>
+              <label for="fan-currency">Currency</label>
+              <select id="fan-currency"><option value="HBAR" selected>HBAR</option><option value="USDC">USDC</option></select>
+              <label for="fan-amount">Amount</label>
+              <input id="fan-amount" type="text" inputmode="decimal" value="0.1" autocomplete="off" spellcheck="false" aria-describedby="fan-split">
+            </div>
+            <p id="fan-split" class="field-hint" aria-live="polite"></p>
+            <div class="editor-actions">
+              <button id="fan-connect" class="secondary-button" type="button" disabled>Connect HashPack</button>
+              <button id="fan-forget" class="secondary-button" type="button" disabled>Disconnect</button>
+              <label for="fan-account" class="visually-hidden">Account you pay from</label>
+              <select id="fan-account" disabled><option value="">Select the account you pay from</option></select>
+            </div>
+            <p id="fan-wallet-status" class="editor-status" role="status">Checking wallet pairing…</p>
+            <div id="fan-pairing" hidden><img id="fan-qr" alt="WalletConnect pairing QR code for HashPack" width="220" height="220" hidden><button id="fan-copy" class="secondary-button" type="button">Copy pairing link</button></div>
+            <div class="editor-actions"><button id="fan-pay" class="primary-button" type="submit" disabled>🔐 sign &amp; pay from my wallet</button></div>
+          </fieldset>
+        </form>
+        <p class="field-hint">USDC: the artist must have associated USDC (or allow auto-association) — the service checks before you sign. A payout set as “my wallet address” with no Hedera account yet can’t be paid this way.</p>
+        <p id="fan-status" class="editor-status" role="status" aria-live="polite"></p>
+        <ol id="fan-steps" class="pay-steps"></ol>
+        <button id="fan-retry" class="secondary-button" type="button" hidden>Retry the unpaid payment (same tip — never charged twice)</button>
+      </section>
+
       <section class="card" aria-labelledby="run-heading">
-        <p class="eyebrow">01 / Run it</p>
-        <h2 id="run-heading">Trigger one live tip</h2>
+        <p class="eyebrow">02 / Or run the demo fan · testnet only</p>
+        <h2 id="run-heading">DEMO: a server-side testnet fan pays — not you</h2>
         <p id="pay-service" class="editor-status" role="status">Checking the live loop…</p>
         <form id="pay-form" class="editor-form" autocomplete="off">
           <fieldset id="pay-fields" disabled>
@@ -60,7 +95,7 @@
       </section>
 
       <section class="card" id="pay-steps-card" aria-labelledby="steps-heading" hidden>
-        <p class="eyebrow">02 / The loop, step by step</p>
+        <p class="eyebrow">03 / The demo loop, step by step</p>
         <h2 id="steps-heading" tabindex="-1">What just happened on-chain</h2>
         <ol id="pay-steps" class="pay-steps"></ol>
         <div id="pay-answer" class="pay-answer" hidden>

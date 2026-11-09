@@ -1,0 +1,727 @@
+{
+ "version": 1,
+ "verifiedAt": "2026-11-09T11:34:33Z",
+ "note": "Every USDC address: from the issuer list (Circle; BNB = Binance-Peg via BscScan) AND checked onchain (code, symbol, decimals, totalSupply>0, eth_chainId, fresh block). Regenerate: /workspace/multichain/verify.py + gen-chains.py. The page re-checks code/symbol/decimals in the fan's wallet before any prompt.",
+ "chains": [
+  {
+   "chainId": 1,
+   "key": "ethereum",
+   "name": "Ethereum",
+   "family": "Ethereum L1",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://ethereum-rpc.publicnode.com"
+   ],
+   "explorer": "https://etherscan.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD Coin",
+    "codeBytes": 2186
+   }
+  },
+  {
+   "chainId": 8453,
+   "key": "base",
+   "name": "Base",
+   "family": "L2 \u00b7 Base Stack",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://mainnet.base.org"
+   ],
+   "explorer": "https://basescan.org",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD Coin",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 10,
+   "key": "optimism",
+   "name": "OP Mainnet",
+   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://mainnet.optimism.io"
+   ],
+   "explorer": "https://optimistic.etherscan.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD Coin",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 42161,
+   "key": "arbitrum",
+   "name": "Arbitrum One",
+   "family": "L2 \u00b7 Arbitrum",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://arb1.arbitrum.io/rpc"
+   ],
+   "explorer": "https://arbiscan.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD Coin",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 480,
+   "key": "worldchain",
+   "name": "World Chain",
+   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://worldchain-mainnet.g.alchemy.com/public"
+   ],
+   "explorer": "https://worldscan.org",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x79A02482A880bCe3F13E09da970dC34dB4cD24D1",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 130,
+   "key": "unichain",
+   "name": "Unichain",
+   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://mainnet.unichain.org"
+   ],
+   "explorer": "https://uniscan.xyz",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x078D782b760474a361dDA0AF3839290b0EF57AD6",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 57073,
+   "key": "ink",
+   "name": "Ink",
+   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc-gel.inkonchain.com"
+   ],
+   "explorer": "https://explorer.inkonchain.com",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x2D270e6886d130D724215A266106e6832161EAEd",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 42220,
+   "key": "celo",
+   "name": "Celo",
+   "family": "L2 \u00b7 OP Stack",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "CELO",
+    "symbol": "CELO",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://forno.celo.org"
+   ],
+   "explorer": "https://celoscan.io",
+   "nativeTip": false,
+   "usdc": {
+    "address": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 59144,
+   "key": "linea",
+   "name": "Linea",
+   "family": "L2 \u00b7 zk rollup",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Linea Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc.linea.build"
+   ],
+   "explorer": "https://lineascan.build",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x176211869cA2b568f2A7D4EE941E073a821EE1ff",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 324,
+   "key": "zksync",
+   "name": "ZKsync Era",
+   "family": "L2 \u00b7 zk rollup",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://mainnet.era.zksync.io"
+   ],
+   "explorer": "https://explorer.zksync.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 8672
+   }
+  },
+  {
+   "chainId": 137,
+   "key": "polygon",
+   "name": "Polygon PoS",
+   "family": "Polygon PoS chain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "POL",
+    "symbol": "POL",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://polygon-bor-rpc.publicnode.com"
+   ],
+   "explorer": "https://polygonscan.com",
+   "nativeTip": false,
+   "usdc": {
+    "address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD Coin",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 56,
+   "key": "bnb",
+   "name": "BNB Smart Chain",
+   "family": "BNB Chain L1",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "BNB Chain Native Token",
+    "symbol": "BNB",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://bsc-dataseed1.bnbchain.org"
+   ],
+   "explorer": "https://bscscan.com",
+   "nativeTip": false,
+   "usdc": {
+    "address": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+    "symbol": "USDC",
+    "decimals": 18,
+    "issuer": "Binance (Binance-Peg USDC, not issued by Circle)",
+    "source": "https://bscscan.com/token/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d (label: binance-pegged); ethskills/addresses notes 18 decimals",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD Coin",
+    "codeBytes": 1596
+   }
+  },
+  {
+   "chainId": 534352,
+   "key": "scroll",
+   "name": "Scroll",
+   "family": "L2 \u00b7 zk rollup",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc.scroll.io"
+   ],
+   "explorer": "https://scrollscan.com",
+   "nativeTip": true,
+   "usdc": null
+  },
+  {
+   "chainId": 1868,
+   "key": "soneium",
+   "name": "Soneium",
+   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc.soneium.org"
+   ],
+   "explorer": "https://soneium.blockscout.com",
+   "nativeTip": true,
+   "usdc": null
+  },
+  {
+   "chainId": 7777777,
+   "key": "zora",
+   "name": "Zora",
+   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc.zora.energy"
+   ],
+   "explorer": "https://explorer.zora.energy",
+   "nativeTip": true,
+   "usdc": null
+  },
+  {
+   "chainId": 34443,
+   "key": "mode",
+   "name": "Mode",
+   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://mainnet.mode.network"
+   ],
+   "explorer": "https://explorer.mode.network",
+   "nativeTip": true,
+   "usdc": null
+  },
+  {
+   "chainId": 11155111,
+   "key": "sepolia",
+   "name": "Ethereum Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 1,
+   "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://ethereum-sepolia-rpc.publicnode.com"
+   ],
+   "explorer": "https://sepolia.etherscan.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 84532,
+   "key": "base-sepolia",
+   "name": "Base Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 8453,
+   "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://sepolia.base.org"
+   ],
+   "explorer": "https://sepolia.basescan.org",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 11155420,
+   "key": "op-sepolia",
+   "name": "OP Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 10,
+   "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://sepolia.optimism.io"
+   ],
+   "explorer": "https://sepolia-optimism.etherscan.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x5fd84259d66Cd46123540766Be93DFE6D43130D7",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 421614,
+   "key": "arbitrum-sepolia",
+   "name": "Arbitrum Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 42161,
+   "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://sepolia-rollup.arbitrum.io/rpc"
+   ],
+   "explorer": "https://sepolia.arbiscan.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD Coin",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 4801,
+   "key": "worldchain-sepolia",
+   "name": "World Chain Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 480,
+   "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://worldchain-sepolia.g.alchemy.com/public"
+   ],
+   "explorer": "https://sepolia.worldscan.org",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x66145f38cBAC35Ca6F1Dfb4914dF98F1614aeA88",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 1301,
+   "key": "unichain-sepolia",
+   "name": "Unichain Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 130,
+   "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://sepolia.unichain.org"
+   ],
+   "explorer": "https://sepolia.uniscan.xyz",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0x31d0220469e10c4E71834a79b1f276d740d3768F",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 763373,
+   "key": "ink-sepolia",
+   "name": "Ink Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 57073,
+   "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc-gel-sepolia.inkonchain.com"
+   ],
+   "explorer": "https://explorer-sepolia.inkonchain.com",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0xFabab97dCE620294D2B0b0e46C68964e326300Ac",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 11142220,
+   "key": "celo-sepolia",
+   "name": "Celo Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 42220,
+   "nativeCurrency": {
+    "name": "CELO",
+    "symbol": "CELO",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://forno.celo-sepolia.celo-testnet.org"
+   ],
+   "explorer": "https://celo-sepolia.blockscout.com",
+   "nativeTip": false,
+   "usdc": {
+    "address": "0x01C5C0122039549AD1493B8220cABEdD739BC44E",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  },
+  {
+   "chainId": 59141,
+   "key": "linea-sepolia",
+   "name": "Linea Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 59144,
+   "nativeCurrency": {
+    "name": "Linea Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc.sepolia.linea.build"
+   ],
+   "explorer": "https://sepolia.lineascan.build",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0xFEce4462D57bD51A6A552365A011b95f0E16d9B7",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USD//C",
+    "codeBytes": 1852
+   }
+  },
+  {
+   "chainId": 300,
+   "key": "zksync-sepolia",
+   "name": "ZKsync Sepolia",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 324,
+   "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://sepolia.era.zksync.dev"
+   ],
+   "explorer": "https://sepolia.explorer.zksync.io",
+   "nativeTip": true,
+   "usdc": {
+    "address": "0xAe045DE5638162fa134807Cb558E15A3F5A7F853",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 8672
+   }
+  },
+  {
+   "chainId": 80002,
+   "key": "polygon-amoy",
+   "name": "Polygon Amoy",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 137,
+   "nativeCurrency": {
+    "name": "POL",
+    "symbol": "POL",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://polygon-amoy-bor-rpc.publicnode.com"
+   ],
+   "explorer": "https://amoy.polygonscan.com",
+   "nativeTip": false,
+   "usdc": {
+    "address": "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    "symbol": "USDC",
+    "decimals": 6,
+    "issuer": "Circle",
+    "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "name": "USDC",
+    "codeBytes": 1798
+   }
+  }
+ ]
+}

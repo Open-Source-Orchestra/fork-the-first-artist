@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fork the First Artist · The Full Circle · Open Source Orchestra 🎻</title>
 <meta name="description" content="Fork the First Artist (ETHGlobal Mumbai): every artist of the Open Source Orchestra garden can hold a name they own, a steward agent on 0G and an x402 tip jar on Hedera that pays 96.31% straight to them — OSO takes zero. Not a stage. A circle on the floor. Every artist of the Devcon 8 Music Space in the virtual sanctuary — add anyone, add everyone. The dream is that we all play together. Jio World Centre, Mumbai, Nov 3–6 2026.">
@@ -282,7 +283,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
   <h1>The <em>Full Circle</em></h1>
   <p>Not a stage. A circle on the floor at the Jio World Centre, Nov 3–6. Every artist of the garden has a place in it — the ones with a set time, the ones in the garden, the ones who'll be here next time.</p>
   <p><b style="color:var(--gold-bright)">Add anyone. Add everyone.</b> The dream is that we all play together.</p>
-  <p style="font-size:.92em">Now every artist in the circle can be <b style="color:var(--gold-bright)">forked</b>: a name they own on ENS, a steward agent on <b>0G</b>, and an <b>x402</b> tip jar on <b>Hedera</b> that pays <b style="color:var(--gold-bright)">96.31% straight to them</b>. Invitations live on <b>Arkiv</b>. OSO takes zero.</p>
+  <p style="font-size:.92em">Now every artist in the circle can be <b style="color:var(--gold-bright)">forked</b>: a name they own on ENS, a steward agent on <b>0G</b>, and an <b>x402</b> tip jar on <b>Hedera</b> that pays <b style="color:var(--gold-bright)">96.31% straight to them</b> — and now 💸 tips straight into their own wallet on <b>Ethereum, its layer 2s and BNB Chain</b>. Invitations live on <b>Arkiv</b>. OSO takes zero.</p>
   <button class="big" id="enter"><span id="enter-label"><span class="spin">◌</span> warming the room…</span></button>
   <div class="fine">Three.js in your browser · photos from four years of the orchestra · nothing to install · the garden circle comes from <a href="https://opensourceorchestra.org/garden/circle/">opensourceorchestra.org</a></div>
   <div class="fine takedown" style="margin-top:10px">📸 Your face or name here and you’d rather it wasn’t? Tell any steward on the floor, or write to the ʻohana at <a href="mailto:<!--email_off--><!--email_off-->aloha@myagentohana.com<!--/email_off--><!--/email_off-->"><!--email_off-->aloha@myagentohana.com<!--/email_off--></a> — we take it down first and ask questions second. <a href="https://opensourceorchestra.org/takedown/">how a takedown works →</a></div>
@@ -335,5 +336,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
 <link rel="stylesheet" href="./fork.css?v=20261107a">
 <script type="module" src="./fork.js?v=20261107a"></script>
 <script type="module" src="./app.js?v=20261107a"></script>
+<link rel="stylesheet" href="./tip.css?v=20261109a">
+<script type="module" src="./tip.mjs?v=20261109a"></script>
 </body>
 </html>

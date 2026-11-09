@@ -295,17 +295,25 @@ async function buildPlan(intent, { record = null, cache = null } = {}) {
   if (!plan.ok) throw stop(plan.problems.join('; '));
   // balances + gas for what is still to be sent, read through the fan's own wallet
   const pending = record ? plan.legs.filter((l, i) => record.legs[i]?.state !== 'confirmed') : plan.legs;
-  const need = pending.reduce((s, l) => s + l.amount, 0n);
-  const bal = a.kind === 'erc20' ? core.hexToBigInt(await rq('eth_call', [{ to: a.address, data: core.encodeBalanceOf(intent.fan) }, 'latest'])) : core.hexToBigInt(await rq('eth_getBalance', [intent.fan, 'latest']));
-  if (bal < need) throw stop(`this wallet holds ${core.fromAtomic(bal, a.decimals)} ${a.symbol} on ${c.name} — not enough for ${core.fromAtomic(need, a.decimals)}`);
-  const gasBal = a.kind === 'native' ? bal : core.hexToBigInt(await rq('eth_getBalance', [intent.fan, 'latest']));
-  if (gasBal === 0n) throw stop(`this wallet has no ${c.nativeCurrency.symbol} on ${c.name} to pay the network fee`);
   for (const l of pending) {
     try {
       l.gas = await rq('eth_estimateGas', [l.tx]);
     } catch (e) {
       throw stop(`the transfer to ${l.label} would fail: ${core.walletErrorText(e)}`);
     }
+  }
+  let need = pending.reduce((s, l) => s + l.amount, 0n);
+  if (c.stablecoinFees) {
+    // Tempo has no gas token: a plain transfer pays its fee in the transferred stablecoin (fee in attodollars/gas ÷ 10^12
+    // = base units), so the wallet must hold the tip PLUS every transfer's max fee (+20% margin).
+    const price = core.hexToBigInt(await rq('eth_gasPrice', []));
+    for (const l of pending) need += (core.hexToBigInt(l.gas) * price * 12n / 10n + 10n ** 12n - 1n) / 10n ** 12n;
+  }
+  const bal = a.kind === 'erc20' ? core.hexToBigInt(await rq('eth_call', [{ to: a.address, data: core.encodeBalanceOf(intent.fan) }, 'latest'])) : core.hexToBigInt(await rq('eth_getBalance', [intent.fan, 'latest']));
+  if (bal < need) throw stop(`this wallet holds ${core.fromAtomic(bal, a.decimals)} ${a.symbol} on ${c.name} — not enough for ${core.fromAtomic(need, a.decimals)}${c.stablecoinFees ? ' (tip + network fee, paid in the same stablecoin)' : ''}`);
+  if (!c.stablecoinFees) {
+    const gasBal = a.kind === 'native' ? bal : core.hexToBigInt(await rq('eth_getBalance', [intent.fan, 'latest']));
+    if (gasBal === 0n) throw stop(`this wallet has no ${c.nativeCurrency.symbol} on ${c.name} to pay the network fee`);
   }
   return { ...plan, kind: intent.kind, intent, chain: c, skipped };
 }
@@ -844,7 +852,7 @@ function render() {
 
   html += `<fieldset class="tip-step" ${lockForm}><legend>2 · where</legend>
     <div class="tip-net" role="group" aria-label="network type"><button class="pill ${S.network === 'mainnet' ? 'on' : ''}" data-net="mainnet" aria-pressed="${S.network === 'mainnet'}" ${cfg.mainnetLive === true ? '' : 'disabled'}>mainnets · real money</button><button class="pill ${S.network === 'testnet' ? 'on' : ''}" data-net="testnet" aria-pressed="${S.network === 'testnet'}">testnets · practice</button></div>
-    <div class="tip-chains" id="tip-chains" role="radiogroup" aria-label="chain">${vis.map((x) => `<label class="tip-chain${S.chainId === x.chainId ? ' on' : ''}"><input type="radio" name="tip-chain" value="${x.chainId}" ${S.chainId === x.chainId ? 'checked' : ''}><b>${esc(x.name)}</b><small>${esc(x.testnet ? 'testnet · ' + (S.byId.get(x.testnetOf)?.name ?? '') : x.family)} · ${[x.usdc ? 'USDC' : null, x.nativeTip ? 'ETH' : null].filter(Boolean).join(' + ')}</small></label>`).join('')}</div></fieldset>`;
+    <div class="tip-chains" id="tip-chains" role="radiogroup" aria-label="chain">${vis.map((x) => `<label class="tip-chain${S.chainId === x.chainId ? ' on' : ''}"><input type="radio" name="tip-chain" value="${x.chainId}" ${S.chainId === x.chainId ? 'checked' : ''}><b>${esc(x.name)}</b><small>${esc(x.testnet ? 'testnet · ' + (S.byId.get(x.testnetOf)?.name ?? '') : x.family)} · ${[x.usdc ? x.usdc.symbol : null, x.nativeTip ? 'ETH' : null].filter(Boolean).join(' + ')}</small></label>`).join('')}</div></fieldset>`;
 
   if (c) {
     let split = esc(amt.message ?? '');
@@ -855,11 +863,11 @@ function render() {
     } else if (amt.ok && isHost) split = `${money(amt.total)} → the orchestra itself (osoartist.eth, held by Shaka) — this card’s wallet is also the steward wallet, so the whole tip is one transfer`;
     else if (amt.ok) split = `${money(amt.artist)} → artist (96.31%) · ${money(amt.steward)} → steward (3.69%) · <b>no platform fee</b>`;
     html += `<fieldset class="tip-step" ${lockForm}><legend>3 · how much</legend>
-      <div class="tip-net" role="group" aria-label="token"><button class="pill ${S.asset === 'usdc' ? 'on' : ''}" data-asset="usdc" aria-pressed="${S.asset === 'usdc'}" ${c.usdc ? '' : 'disabled'}>USDC</button><button class="pill ${S.asset === 'native' ? 'on' : ''}" data-asset="native" aria-pressed="${S.asset === 'native'}" ${c.nativeTip ? '' : 'disabled'}>${esc(c.nativeTip ? c.nativeCurrency.symbol : 'ETH')}</button></div>
+      <div class="tip-net" role="group" aria-label="token"><button class="pill ${S.asset === 'usdc' ? 'on' : ''}" data-asset="usdc" aria-pressed="${S.asset === 'usdc'}" ${c.usdc ? '' : 'disabled'}>${esc(c.usdc?.symbol ?? 'USDC')}</button><button class="pill ${S.asset === 'native' ? 'on' : ''}" data-asset="native" aria-pressed="${S.asset === 'native'}" ${c.nativeTip ? '' : 'disabled'}>${esc(c.nativeTip ? c.nativeCurrency.symbol : 'ETH')}</button></div>
       ${a ? `<label class="tip-amt"><span>amount (${esc(a.symbol)})</span><input id="tip-amount" inputmode="decimal" autocomplete="off" value="${esc(S.amount)}" aria-describedby="tip-split"></label>
       <div class="tip-row">${(a.ui === 'eth' ? ['0.001', '0.005', '0.01'] : ['1', '5', '10', '25']).map((v) => `<button class="pill" data-quick="${v}">${v}</button>`).join('')}</div>
       <p id="tip-split" class="tip-split-txt">${split}</p>
-      <p class="fine">${a.kind === 'erc20' ? `Token: ${esc(a.symbol)} <a href="${esc(core.explorerAddress(c, a.address))}" target="_blank" rel="noopener">${esc(core.shortAddress(a.address))} ↗</a> · issued by ${esc(a.issuer)}${c.chainId === 56 ? ' · 18 decimals on BNB Chain' : ''}.` : `Native ${esc(a.symbol)} on ${esc(c.name)}.`} You pay the network fee in ${esc(c.nativeCurrency.symbol)}. The steward wallet is <code>osoartist.eth</code>, held by Shaka, who pays the AI stewards’ compute from it.</p>` : '<p class="fine">Pick a token.</p>'}
+      <p class="fine">${a.kind === 'erc20' ? `Token: ${esc(a.symbol)} <a href="${esc(core.explorerAddress(c, a.address))}" target="_blank" rel="noopener">${esc(core.shortAddress(a.address))} ↗</a> · issued by ${esc(a.issuer)}${c.chainId === 56 ? ' · 18 decimals on BNB Chain' : ''}.` : `Native ${esc(a.symbol)} on ${esc(c.name)}.`} ${c.stablecoinFees ? `Tempo has no gas token: the small network fee (≈ $0.001) is paid in ${esc(a.symbol)} itself, unless your wallet set another fee token.` : `You pay the network fee in ${esc(c.nativeCurrency.symbol)}.`} The steward wallet is <code>osoartist.eth</code>, held by Shaka, who pays the AI stewards’ compute from it.</p>` : '<p class="fine">Pick a token.</p>'}
     </fieldset>`;
   }
 

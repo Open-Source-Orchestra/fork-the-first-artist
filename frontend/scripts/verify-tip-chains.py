@@ -17,6 +17,7 @@ CHAINS = [
  (57073,'ink','Ink','https://rpc-gel.inkonchain.com','0x2D270e6886d130D724215A266106e6832161EAEd','circle'),
  (137,'polygon','Polygon PoS','https://polygon-bor-rpc.publicnode.com','0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359','circle'),
  (56,'bnb','BNB Smart Chain','https://bsc-dataseed1.bnbchain.org','0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d','binance-peg (bscscan label)'),
+ (4217,'tempo','Tempo','https://rpc.tempo.xyz','0x20c0000000000000000000006a37da5c996874be','tempo docs: tempo.xyz/developers/docs/guide/ousd'),
  (534352,'scroll','Scroll','https://rpc.scroll.io',None,''),
  (1868,'soneium','Soneium','https://rpc.soneium.org',None,''),
  (7777777,'zora','Zora','https://rpc.zora.energy',None,''),
@@ -33,6 +34,7 @@ CHAINS = [
  (11142220,'celo-sepolia','Celo Sepolia','https://forno.celo-sepolia.celo-testnet.org','0x01C5C0122039549AD1493B8220cABEdD739BC44E','circle'),
  (763373,'ink-sepolia','Ink Sepolia','https://rpc-gel-sepolia.inkonchain.com','0xFabab97dCE620294D2B0b0e46C68964e326300Ac','circle'),
  (80002,'polygon-amoy','Polygon Amoy','https://polygon-amoy-bor-rpc.publicnode.com','0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582','circle'),
+ (42431,'tempo-moderato','Tempo Moderato','https://rpc.moderato.tempo.xyz','0x20c0000000000000000000006a37da5c996874be','tempo docs (testnet OUSD, same address)'),
  (97,'bnb-testnet','BNB Smart Chain Testnet','https://data-seed-prebsc-1-s1.bnbchain.org:8545',None,''),
 ]
 def rpc(url, method, params):
@@ -56,7 +58,7 @@ for cid,key,label,url,usdc,src in CHAINS:
             r['symbol']=dstr(call(url,usdc,'0x95d89b41')); r['name']=dstr(call(url,usdc,'0x06fdde03'))
             r['decimals']=int(call(url,usdc,'0x313ce567'),16); r['totalSupply']=int(call(url,usdc,'0x18160ddd'),16)
             r['totalSupplyHuman']=r['totalSupply']/10**r['decimals']
-        r['ok'] = r['rpcChainId']==cid and r['blockAgeS']<300 and (not usdc or (r['codeBytes']>0 and r['totalSupply']>0 and r['symbol'] in ('USDC','USDC.e')))
+        r['ok'] = r['rpcChainId']==cid and r['blockAgeS']<300 and (not usdc or (r['codeBytes']>0 and r['totalSupply']>0 and r['symbol'] in ('USDC','OUSD')))
     except Exception as e:
         r['error']=str(e)[:200]; r['ok']=False
     out.append(r); print(json.dumps({k:r.get(k) for k in ('chainId','label','rpcChainId','blockAgeS','symbol','name','decimals','totalSupplyHuman','codeBytes','ok','error')}), flush=True)

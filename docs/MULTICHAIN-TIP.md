@@ -79,6 +79,16 @@ Left out: Blast (public RPC dead/403), Polygon zkEVM (shut down 2026-07-03), Rob
 ETH-only chains have no Circle-issued USDC (only bridged variants) — no token address is involved there.
 Re-verify: `python3 frontend/scripts/verify-tip-chains.py` — checks code, symbol, decimals, totalSupply, eth_chainId, block age.
 
+## Tempo (added 9 Nov 2026, phase 3)
+Tempo Mainnet (chain 4217, https://rpc.tempo.xyz, Stripe × Paradigm) is an EVM **L1** for stablecoin payments with **no gas token**:
+a plain `transfer` on a TIP-20 pays its fee in that same token (fee-token precedence rule 3), so the page requires
+tip + max fee (+20%) in the stablecoin. Token: **OUSD** `0x20c0000000000000000000006a37da5c996874be` (Open Standard;
+docs tempo.xyz/developers/docs/guide/ousd; onchain: OpenUSD / OUSD / 6 decimals / supply ≈ 622M; code = TIP-20 precompile `0xef`).
+`eth_getBalance` returns a placeholder, so no native-balance check there. TIP-20 receive policies (T6) may refuse a transfer
+→ it reverts, nothing moves. **Real testnet proof (Moderato 42431, real page code, throwaway testnet key):**
+1 leg 1.5 OUSD → shaka `0x12536a8e019cd6dec3740b3744061406ed86cfc260bd6be0d5a1c838b413de7c` (artist +1.500000, fee 0.000319 OUSD);
+2 legs (fork-only stand-in steward) `0x0cddb068…bc854` + `0x0a7a9c27…cb9a4` = 1.444650 + 0.055350 exactly.
+
 ## Tests
 - `node --test frontend/test/tip-core.test.mjs` — amounts, split (30k exhaustive + random), calldata vs viem, ENSIP-11, payout
   rules, receipts, ledger, chain table.

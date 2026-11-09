@@ -485,7 +485,8 @@ async function checkLeg(record, i, confirm) {
   const label = `transfer ${i + 1}${record.legs.length > 1 ? ` of ${record.legs.length}` : ''} (${l.label})`;
   if (await isContractAccount(record.fan)) {
     // smart-account wallets keep their nonce elsewhere — the page can't prove nothing went out
-    if (l.state === 'rejected' || confirm.confirmLeg === i) return 'send';
+    if (l.state === 'rejected' || (confirm.confirmLeg === i && record.asset.kind !== 'native')) return 'send';
+    if (record.asset.kind === 'native') { l.state = 'mismatch'; l.note = 'smart account + ETH: cannot be proven'; saveRecord(record); throw stop(`your wallet is a smart account, so this page can’t prove ${label} didn’t go out — check your wallet’s activity; it does not re-send ETH transfers`); }
     S.confirm = { kind: 'leg', i, text: `Your wallet is a smart account, so this page can’t prove ${label} didn’t go out. Check your wallet’s activity first. Only if it is NOT there, press “send it again”.` };
     throw stop(`check your wallet’s activity for ${label} before sending it again`, 'confirm');
   }
@@ -496,7 +497,14 @@ async function checkLeg(record, i, confirm) {
     saveRecord(record);
     throw stop(`a transaction from this wallet may already have gone out for ${label} — check the explorer; this page will not send it again`);
   }
-  if (l.state === 'rejected' || confirm.confirmLeg === i) return 'send';
+  if (l.state === 'rejected' || (confirm.confirmLeg === i && record.asset.kind !== 'native')) return 'send';
+  if (record.asset.kind === 'native') {
+    // ETH has no transfer log to find a late approval with — never offer a blind re-send (QA4 H9)
+    l.state = 'mismatch';
+    l.note = 'an earlier ETH request may still be open or approved in the wallet';
+    saveRecord(record);
+    throw stop(`the earlier wallet request for ${label} may still be open or already approved — check your wallet’s activity; this page does not re-send ETH transfers`);
+  }
   S.confirm = { kind: 'leg', i, text: `Check your wallet’s activity first: if ${label} is listed there — even as pending — do NOT press. Otherwise reject/close any request still open in your wallet, then press “send it again”.` };
   throw stop(`close any open request in your wallet, then confirm to send ${label} again`, 'confirm');
 }
@@ -697,6 +705,7 @@ async function settleBatch(record, c, confirm) {
         await new Promise((res) => setTimeout(res, 3000));
         continue;
       }
+      if (S.config.batch !== true) { b.state = 'unknown'; saveRecord(record); throw stop('batches are switched off right now — check your wallet’s activity; this batch is not sent again'); }
       if (await isContractAccount(record.fan)) { b.state = 'unknown'; saveRecord(record); throw stop('your wallet is a smart account, so this page can’t prove the batch didn’t go out — check your wallet’s activity; nothing is re-sent automatically'); }
       if ((await nonceOf(record.fan, 'pending')) !== BigInt(b.nonce)) { b.state = 'unknown'; saveRecord(record); throw stop('a transaction from this wallet went out since the batch was prepared — check the explorer; nothing is re-sent automatically'); }
       if (!confirm.confirmBatch) {

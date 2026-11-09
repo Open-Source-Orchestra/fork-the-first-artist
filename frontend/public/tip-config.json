@@ -1,7 +1,7 @@
 {
   "_doc": "KILL SWITCH for the multichain tip (frontend/public/tip.mjs). enabled:false stops every tip; mainnet:false leaves only testnets. Fail closed: if this file can't be read, tips are off. Edit on gh-pages + push: the page re-reads it (cache-busted) before every review and every transfer; GitHub Pages' CDN may serve the old file for up to ~10 minutes.",
   "enabled": true,
-  "mainnet": false,
+  "mainnet": true,
   "batch": false,
   "stewardEns": "osoartist.eth",
   "stewardPin": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",

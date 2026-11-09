@@ -1,8 +1,8 @@
 // Batch onboarding of OSO artists under osoartist.eth (ENSv2). The ops key pays gas; artists sign only
 // the free consent message; Shaka signs only setSubregistry (once, ever) on his parent name.
-import { getAddress, keccak256, toBytes, zeroAddress } from 'viem';
+import { decodeFunctionResult, encodeFunctionData, getAddress, keccak256, namehash, toBytes, zeroAddress } from 'viem';
 import { ADDR, PARENT, RES, TEXT, RESOLVER_OWNER_ROLES } from './constants.mjs';
-import { ABI, deployArtistResolverTx, deployUserRegistryTx, registerTx, saltFor, setParentTx, subname } from './plan.mjs';
+import { ABI, deployArtistResolverTx, deployUserRegistryTx, dnsEncode, registerTx, saltFor, setParentTx, subname } from './plan.mjs';
 import { verifyConsent } from './consent.mjs';
 
 export const REGISTRY_SALT = saltFor('user-registry', PARENT.name);
@@ -58,6 +58,41 @@ export async function ensureRegistry({ pub, ops, parentOwner = PARENT.owner, gas
   return registry;
 }
 
+const ERC1155_RECEIVED = '0xf23a6e61';
+const RECEIVER_ABI = [{ type: 'function', name: 'onERC1155Received', stateMutability: 'nonpayable', inputs: [{ type: 'address' }, { type: 'address' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'bytes' }], outputs: [{ type: 'bytes4' }] }];
+const ADDR_ABI = [{ type: 'function', name: 'addr', stateMutability: 'view', inputs: [{ type: 'bytes32' }, { type: 'uint256' }], outputs: [{ type: 'bytes' }] }];
+const isDelegation = (code) => /^0xef0100[0-9a-f]{40}$/i.test(code ?? '');
+
+/**
+ * Can this artist wallet RECEIVE the name token? The UserRegistry mints an ERC-1155; a wallet with code — a smart-contract
+ * wallet or an EIP-7702-delegated EOA — only gets it if it answers onERC1155Received. Checked BEFORE any gas is spent.
+ */
+export async function receiverPreflight(pub, { registry, artist }) {
+  const code = (await pub.getCode({ address: artist })) ?? '0x';
+  if (code === '0x') return { ok: true, kind: 'eoa' };
+  const kind = isDelegation(code) ? 'EIP-7702-delegated wallet' : 'smart-contract wallet';
+  try {
+    const data = encodeFunctionData({ abi: RECEIVER_ABI, functionName: 'onERC1155Received', args: [getAddress(registry), zeroAddress, 1n, 1n, '0x'] });
+    const r = await pub.call({ account: getAddress(registry), to: getAddress(artist), data });
+    if ((r?.data ?? '').slice(0, 10).toLowerCase() === ERC1155_RECEIVED) return { ok: true, kind };
+  } catch { /* falls through */ }
+  return { ok: false, kind, message: `${artist} is a ${kind} that cannot receive the ENS name token (it does not accept ERC-1155 transfers). Ask the artist for a plain key-held address they control as the name owner — tips can still go to the smart wallet through a per-chain address record — or have them switch the wallet's delegation to one with a token receiver, then retry.` };
+}
+
+/** Is an already-deployed resolver at `resolver` really configured for THIS artist (all root roles + ETH record = artist)? */
+export async function resolverMatchesArtist(pub, { resolver, name, artist }) {
+  const roles = BigInt(await pub.readContract({ address: resolver, abi: ABI.resolver, functionName: 'roles', args: [0n, getAddress(artist)] }));
+  let eth = null;
+  try {
+    const inner = encodeFunctionData({ abi: ADDR_ABI, functionName: 'addr', args: [namehash(name), 60n] });
+    const out = await pub.readContract({ address: resolver, abi: ABI.resolver, functionName: 'resolve', args: [dnsEncode(name), inner] });
+    const bytes = decodeFunctionResult({ abi: ADDR_ABI, functionName: 'addr', data: out });
+    eth = bytes && bytes !== '0x' ? getAddress(bytes) : null;
+  } catch { eth = undefined; }
+  const ok = roles === RESOLVER_OWNER_ROLES && eth != null && getAddress(eth) === getAddress(artist);
+  return { ok, roles, eth };
+}
+
 /**
  * artists[i] = consent JSON { label, ethAddress, hederaPayout: '0.0.N'|'alias', timestamp, chainId, signature, message? }
  *              (+ optional url, stewardUrl)
@@ -71,13 +106,40 @@ export async function onboardArtists({ pub, ops, registry, artists, steward, hcs
     const status = await pub.readContract({ address: registry, abi: ABI.userRegistry, functionName: 'findOwner', args: [label] });
     if (status !== zeroAddress) {
       if (getAddress(status) === getAddress(a.ethAddress)) {
-        results.push({ label, name, skipped: 'already registered to this artist' });
+        // already theirs — but say so loudly if the name's resolver still points tips at someone else
+        let warning = null;
+        try {
+          const r = await pub.readContract({ address: registry, abi: ABI.userRegistry, functionName: 'getResolver', args: [label] });
+          if (r && r !== zeroAddress && !(await resolverMatchesArtist(pub, { resolver: r, name, artist: a.ethAddress })).ok) warning = `resolver ${r} is NOT configured for ${a.ethAddress} — tips would go elsewhere; the artist must fix their records (or set a new resolver) before tips are switched on`;
+        } catch { warning = 'could not verify the existing resolver — check by hand'; }
+        results.push({ label, name, skipped: 'already registered to this artist', ...(warning ? { warning } : {}) });
         continue;
       }
       throw new Error(`${name} is already owned by ${status}; refusing`);
     }
-    const salt = saltFor('resolver', name);
-    const resolver = await predict(pub, ops.account.address, salt);
+    // 1 · the wallet must be able to receive the name token — refuse before any gas is spent
+    const rec = await receiverPreflight(pub, { registry, artist: a.ethAddress });
+    if (!rec.ok) throw new Error(`${name}: ${rec.message}`);
+    // 2 · a resolver left by an earlier, half-finished attempt is only reused if it belongs to THIS artist;
+    //     otherwise a fresh one is deployed at an artist-keyed salt (deterministic, so retries land on it again)
+    let salt = saltFor('resolver', name);
+    let resolver = await predict(pub, ops.account.address, salt);
+    if (await hasCode(pub, resolver)) {
+      const m = await resolverMatchesArtist(pub, { resolver, name, artist: a.ethAddress });
+      if (!m.ok) {
+        salt = saltFor(`resolver:${getAddress(a.ethAddress).toLowerCase()}`, name);
+        resolver = await predict(pub, ops.account.address, salt);
+        if (await hasCode(pub, resolver) && !(await resolverMatchesArtist(pub, { resolver, name, artist: a.ethAddress })).ok) {
+          throw new Error(`${name}: existing resolvers are configured for a different wallet; refusing (check by hand)`);
+        }
+      }
+    }
+    // 3 · simulate the registration first: if it would revert, stop before deploying anything
+    try {
+      await pub.call({ account: ops.account.address, ...registerTx({ registry, label, owner: a.ethAddress, resolver, expiry }) });
+    } catch (e) {
+      throw new Error(`${name}: registration would fail (${String(e?.shortMessage ?? e?.message ?? e).slice(0, 160)}); nothing was sent`);
+    }
     if (!(await hasCode(pub, resolver))) {
       const tx = deployArtistResolverTx({
         name,

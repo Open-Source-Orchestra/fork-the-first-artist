@@ -54,8 +54,8 @@ for (const vp of [{ width: 1280, height: 800 }, { width: 375, height: 812 }]) {
       await page.evaluate(() => document.querySelector('.fork-card [data-fork-ask]').click());
       assert.equal(await page.locator('#fork [data-steward="shaka"]').getAttribute('aria-pressed'), 'true');
       assert.equal(await page.locator('#fork [data-steward="mira-modal"]').getAttribute('aria-pressed'), 'false');
-      assert.match(await page.locator('#fork-chips').innerText(), /What does Shaka play\?[\s\S]*When is Shaka's talk\?/);
-      assert.match(await page.locator('#fork-who-note').innerText(), /only on his public garden profile/);
+      assert.match(await page.locator('#fork-chips').innerText(), /What can I fork\?[\s\S]*What happened at Devcon 8\?/);
+      assert.match(await page.locator('#fork-who-note').innerText(), /only on public facts/);
       assert.match(await page.locator('#fork-ask-h').innerText(), /Ask Shaka's steward/);
       await page.waitForFunction(() => /unavailable|live/.test(document.querySelector('#fork-zg-badge')?.textContent || ''));
       assert.equal(await page.locator('#fork-zg-badge').textContent(), 'unavailable');
@@ -114,7 +114,7 @@ test('every garden artist gets their own preview steward on the fork card; the h
     assert.match(await toggle.innerText(), /DJ Chalk\s*preview/);
     assert.equal(await page.locator('#fork [data-steward="mira-modal"]').getAttribute('aria-pressed'), 'false');
     assert.equal(await page.locator('#fork [data-steward="shaka"]').count(), 1, 'Mira and Shaka toggles stay');
-    assert.match(await page.locator('#fork-chips').innerText(), /Who is DJ Chalk\?[\s\S]*When does DJ Chalk play\?[\s\S]*Where can I follow DJ Chalk\?/);
+    assert.match(await page.locator('#fork-chips').innerText(), /Who is DJ Chalk\?[\s\S]*When did DJ Chalk play at Devcon 8\?[\s\S]*Where can I follow DJ Chalk\?/);
     assert.match(await page.locator('#fork-who-note').innerText(), /preview[\s\S]*public garden profile[\s\S]*does not speak for them[\s\S]*consent/);
     assert.match(await page.locator('#fork-ask-h').innerText(), /Ask DJ Chalk's steward/);
     await page.waitForFunction(() => document.querySelector('#fork-zg-badge')?.textContent === 'live · mainnet');

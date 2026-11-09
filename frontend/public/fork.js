@@ -26,8 +26,8 @@ const STEWARDS = {
   },
   shaka: {
     name: 'Shaka', short: 'Shaka', tag: 'real · asked for it', mode: 'asked',
-    who: '<b>Shaka</b>, a real artist and the project lead, who asked for his own steward. It is grounded <b>only on his public garden profile</b>; other artists\' own stewards wake after their own consent.',
-    chips: [['What does Shaka play?', 'What does Shaka play?'], ["When is Shaka's talk?", "When is Shaka's talk?"], ['What is Shaka\'s headline?', 'What is the headline on Shaka\'s garden profile?']],
+    who: '<b>Shaka</b>, a real artist and the project lead, who asked for his own steward. It is grounded <b>only on public facts</b>: his garden profile and the public facts pack of 9 Nov 2026 (Devcon 8, Fork the First Artist, the DAO, the Road to Lisbon). Other artists\' own stewards wake after their own consent. <a href="/steward/proof/">🧠🤙 Proof of OG — every answer, unedited →</a>',
+    chips: [['What can I fork?', 'What can I fork?'], ['What happened at Devcon 8?', 'What happened at Devcon 8?'], ['How do I tip the whole orchestra?', 'How do I tip the whole orchestra?'], ['How do I join for Lisbon?', 'How do I join for Lisbon?']],
   },
 };
 let steward = 'mira-modal';
@@ -41,6 +41,19 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 // A short first name for buttons and chips: "Shaka 🤙" → Shaka, "DJ Chalk" → DJ Chalk,
 // "the ʻohana 🗿" → ʻohana, "Alaska × Subcult — live coding" → Alaska, "Dex (dextroalien)" → Dex.
 const SHORT_OVERRIDE = { 'open-source-orchestra': 'Open Source Orchestra' };
+// The garden's two hosts get a steward Shaka asked for, grounded on the same public facts pack (the Worker agrees).
+const HOST_STEWARDS = {
+  'open-source-orchestra': {
+    tag: 'asked by Shaka',
+    who: '<b>the Open Source Orchestra</b>, the circle itself. Shaka, its human steward, asked for this steward; it answers <b>only from public facts</b> (the garden profile and the public facts pack of 9 Nov 2026).',
+    chips: [['What is the Open Source Orchestra DAO?', 'What is the Open Source Orchestra DAO?'], ['What happened at Devcon 8?', 'What happened at Devcon 8?'], ['How do I join for Lisbon?', 'How do I join for Lisbon?']],
+  },
+  ohana: {
+    tag: 'asked by Shaka',
+    who: "<b>the ʻohana</b>, Shaka's family of AI agents (machines, and they say so). Shaka asked for this steward; it answers <b>only from public facts</b> (the garden profile and the public facts pack of 9 Nov 2026).",
+    chips: [['Who is the ʻohana?', 'Who is the ʻohana?'], ['What will you never do?', 'What will you never do?'], ['What did you build at ETHGlobal Mumbai?', 'What did you build at ETHGlobal Mumbai?']],
+  },
+};
 const TITLES = new Set(['dj', 'mc', 'dr', 'dr.', 'mr', 'mr.', 'ms', 'ms.']);
 function shortName(a, slug = '') {
   if (Object.hasOwn(SHORT_OVERRIDE, slug)) return SHORT_OVERRIDE[slug];
@@ -66,10 +79,14 @@ function registerArtistSteward(slug, a) {
   if (STATIC_STEWARDS.has(slug)) return STEWARDS[slug];
   const name = plainName(a) || slug;
   const short = shortName(a, slug);
+  if (Object.hasOwn(HOST_STEWARDS, slug)) {
+    STEWARDS[slug] = { name, short, mode: 'asked', ...HOST_STEWARDS[slug] };
+    return STEWARDS[slug];
+  }
   STEWARDS[slug] = {
     name, short, tag: 'preview', mode: 'preview',
     who: `<b>${esc(name)}</b>, a real artist in the Open Source Orchestra garden. This is a <b>preview</b>: it only repeats ${esc(short)}'s <b>public garden profile</b> and does not speak for them. ${esc(short)}'s own steward wakes only when they consent with their own key.`,
-    chips: [[`Who is ${short}?`, `Who is ${name}?`], [`When does ${short} play?`, `When does ${short} play?`], [`Where can I follow ${short}?`, `Where can I follow ${short}?`]],
+    chips: [[`Who is ${short}?`, `Who is ${name}?`], [`When did ${short} play at Devcon 8?`, `When did ${short} play at Devcon 8?`], [`Where can I follow ${short}?`, `Where can I follow ${short}?`]],
   };
   return STEWARDS[slug];
 }
@@ -91,7 +108,7 @@ function mountDynamicToggle(slug) {
   }
   b.dataset.steward = slug;
   b.setAttribute('aria-pressed', String(steward === slug));
-  b.innerHTML = `${esc(STEWARDS[slug].short)} <small>preview</small>`;
+  b.innerHTML = `${esc(STEWARDS[slug].short)} <small>${esc(STEWARDS[slug].tag || 'preview')}</small>`;
 }
 
 const ensLabel = (slug) => String(slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '').slice(0, 40);
@@ -277,7 +294,7 @@ async function wireAsk() {
       if (!r.ok || !b.ok || !b.reply?.text || !b.proof?.requestId || b.artist?.slug !== asked) throw new Error('degraded');
       if (steward !== asked) { st.textContent = ''; return; } // switched stewards mid-flight: don't show the other steward's answer
       const s = STEWARDS[asked];
-      const grounding = b.artist.fictional ? 'fictional demo profile' : b.artist.mode === 'preview' ? 'preview · public garden profile only' : 'public garden profile only';
+      const grounding = b.artist.mode === 'asked' && typeof b.artist.grounding === 'string' && b.artist.grounding.length <= 120 ? b.artist.grounding : b.artist.fictional ? 'fictional demo profile' : b.artist.mode === 'preview' ? 'preview · public garden profile only' : 'public facts only';
       $('#fork-said-who').textContent = `${s.name}'s steward (${grounding}) said:`;
       $('#fork-said').textContent = b.reply.text;
       $('#fork-rid').textContent = b.proof.requestId;
@@ -348,8 +365,8 @@ function artistBlock(slug, a) {
     <div class="fork-split-legend"><span>every tip, paid with x402 on Hedera</span><span>steward compute · OSO 0%</span></div>
     <div class="links">${links.join('')}</div>
     <p class="fine">${slug === 'shaka'
-      ? `Shaka asked for his own steward: it answers live through 0G, grounded <b>only</b> on his public garden profile. ${reg?.status === 'issued' ? 'His name is issued to his own wallet, and his payout is read from it before every tip.' : "His name and payout still wait for his own signature, like everyone's."}`
-      : `Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key.${ask ? ` The steward above is a <b>preview</b> that only repeats ${esc(first)}'s public garden profile.` : ''} ${esc(first)}: got an invitation link from a steward? Open it to sign.`}</p>`;
+      ? `Shaka asked for his own steward: it answers live through 0G, grounded <b>only</b> on public facts (his garden profile + the public facts pack of 9 Nov 2026) · <a href="/steward/proof/">🧠🤙 Proof of OG</a>. ${reg?.status === 'issued' ? 'His name is issued to his own wallet, and his payout is read from it before every tip.' : "His name and payout still wait for his own signature, like everyone's."}`
+      : `Public garden info is a preview, not consent: no name, steward or payout is activated for ${esc(a.name)} until they sign with their own key.${ask ? (ask.mode === 'asked' ? ` Shaka asked for this host steward; it answers only from public facts · <a href="/steward/proof/">🧠🤙 Proof of OG</a>.` : ` The steward above is a <b>preview</b> that only repeats ${esc(first)}'s public garden profile.`) : ''} ${esc(first)}: got an invitation link from a steward? Open it to sign.`}</p>`;
   body.appendChild(card);
   card.querySelector('[data-fork-ask]')?.addEventListener('click', (e) => openFork(true, e.currentTarget.dataset.forkAsk, a));
   card.querySelector('[data-fork-open]')?.addEventListener('click', () => openFork(false));

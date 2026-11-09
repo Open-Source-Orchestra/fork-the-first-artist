@@ -111,7 +111,7 @@ export default {
       const result = await callZeroG(body.instruction.trim(), config(env), fetch, steward);
       return json({
         ok: true,
-        artist: { slug: steward.slug, name: steward.label, fictional: steward.fictional, mode: steward.mode, grounding: GROUNDING[steward.mode] },
+        artist: { slug: steward.slug, name: steward.label, fictional: steward.fictional, mode: steward.mode, grounding: steward.grounding ?? GROUNDING[steward.mode] },
         reply: { text: result.answer },
         usage: result.usage,
         charged: false,

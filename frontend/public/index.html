@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fork the First Artist · The Full Circle · Open Source Orchestra 🎻</title>
-<meta name="description" content="Fork the First Artist (ETHGlobal Mumbai): every artist of the Open Source Orchestra garden can hold a name they own, a steward agent on 0G and an x402 tip jar on Hedera that pays 96.31% straight to them — OSO takes zero. Not a stage. A circle on the floor. Every artist of the Devcon 8 Music Space in the virtual sanctuary — add anyone, add everyone. The dream is that we all play together. Jio World Centre, Mumbai, Nov 3–6 2026.">
+<meta name="description" content="Fork the First Artist (ETHGlobal Mumbai): every artist of the Open Source Orchestra garden can hold a name they own, a steward agent on 0G and an x402 tip jar on Hedera that pays 96.31% straight to them — OSO takes zero. Not a stage. A circle on the floor. Every artist of the Devcon 8 Music Sanctuary (it happened: Jio World Centre, Mumbai, Nov 3–6 2026) in the virtual sanctuary — add anyone, add everyone. The dream is that we all play together. Next: the Road to Lisbon, Devcon 9, Oct 2027.">
 <meta property="og:title" content="Fork the First Artist · The Full Circle">
 <meta property="og:description" content="Not a stage. A circle on the floor. Add anyone. Add everyone. The dream is that we all play together.">
 <meta property="og:type" content="website">
@@ -36,6 +36,7 @@ a{color:var(--gold)}
 #top h1{font-family:var(--serif);font-size:clamp(1.25rem,2.6vw,1.9rem);font-weight:600;line-height:1.1;letter-spacing:.01em}
 #top h1 b{color:var(--gold-bright);font-weight:600}
 #top .where{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-faint);margin-top:4px}
+#top .where a,#loading p a,#radio .tile p a{color:var(--gold);text-decoration:underline dotted;text-underline-offset:.2em}
 #top .dream{font-size:.9rem;color:var(--cream-dim);margin-top:6px;line-height:1.45;max-width:62ch}
 #top .dream i{color:var(--gold);font-style:normal}
 #top .sep{flex:1}
@@ -178,7 +179,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
 <div class="hud" id="top">
   <div class="words">
     <h1><b>The Full Circle</b> — Devcon 8 Music Space</h1>
-    <div class="where">Jio World Centre · Mumbai · Nov 3–6 2026</div>
+    <div class="where">It happened · Jio World Centre · Mumbai · Nov 3–6 2026 · <a href="https://opensourceorchestra.org/mandala-room/" target="_blank" rel="noopener">📸 Mandala Room</a> · <a href="https://opensourceorchestra.org/the-room/" target="_blank" rel="noopener">📖 The Room</a> · next: Lisbon 2027</div>
     <p class="dream">Not a stage. A circle on the floor. Add anyone. Add everyone. <i>The dream is that we all play together.</i></p>
   </div>
   <div class="sep"></div>
@@ -195,7 +196,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
     <button class="pill" data-day="5">Nov 5</button>
     <button class="pill" data-day="6">Nov 6 · the long goodbye</button>
     <button class="pill teal" id="btn-add">➕ add artist</button>
-    <button class="pill violet" id="btn-radio">📻 station · soon</button>
+    <button class="pill violet" id="btn-radio">📻 the next station</button>
   </div>
   <div id="measure">
     <label for="howmuch">how much of the circle</label>
@@ -205,7 +206,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
   <div id="actions">
     <button class="big" id="btn-everyone">Everyone plays together 🎻</button>
     <button class="pill" id="btn-share">🔗 share this circle</button>
-    <a class="pill" id="btn-devcon" href="https://app.devcon.org/ai/devcon8/search?room=Music%20stage" target="_blank" rel="noopener">📱 open the Devcon app</a>
+    <a class="pill" id="btn-devcon" href="https://app.devcon.org/ai/devcon8/search?room=Music%20stage" target="_blank" rel="noopener">🗓 see the sessions (archive)</a>
     <button class="pill" id="btn-help">❓</button>
   </div>
   <div id="timeline" aria-label="scrub the backdrop by year">
@@ -239,12 +240,12 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
   <header><h2>📻 The circle is a station</h2><button class="x" data-close="radio">✕</button></header>
   <div class="body">
     <div class="tile soon" style="border-color:rgba(255,217,122,.55)">
-      <h4>🎶 The station opens soon</h4>
-      <p><b>Nothing is streaming yet</b> — no player here until a real, tested stream exists. Meanwhile, tap any figure in the circle to hear that artist on their own links (Instagram, SoundCloud, YouTube…), or come to the floor at the Jio World Centre, Nov 3–6.</p>
+      <h4>🎶 The next station opens on the Road to Lisbon</h4>
+      <p><b>Nothing is streaming here</b> — no player until a real, tested stream exists, and we won't say there is one until there is. The Devcon 8 Music Sanctuary happened on the floor of the Jio World Centre, Nov 3–6 2026: walk back through it in the <a href="https://opensourceorchestra.org/mandala-room/" target="_blank" rel="noopener">📸 Mandala Room</a> and <a href="https://opensourceorchestra.org/the-room/" target="_blank" rel="noopener">📖 The Room</a>. Tap any figure in the circle to hear that artist on their own links (Instagram, SoundCloud, YouTube…). Next room: Devcon 9, Lisbon, 11–13 Oct 2027.</p>
     </div>
     <div class="tile">
-      <h4>Alaska × Subcult — live coding · Nov 4 · 1:50p</h4>
-      <p><b>MDRN</b> builds <i>infrastructure for underground music</i>: a micropayment patronage layer and a <b>federated internet radio where any community can run a station</b>. <b>Subcult</b> is where listeners pay artists directly. Someone who builds radio you can fork is going to write music you can read — on Nov 4 the typing happens in the circle.</p>
+      <h4>Alaska × Subcult — live coding · played Nov 4 · 1:50p</h4>
+      <p><b>MDRN</b> builds <i>infrastructure for underground music</i>: a micropayment patronage layer and a <b>federated internet radio where any community can run a station</b>. <b>Subcult</b> is where listeners pay artists directly. Someone who builds radio you can fork writes music you can read — on Nov 4 the typing happened in the circle.</p>
       <p style="margin-top:8px">So the circle itself can be a station: one room, one floor, everyone who shows up, broadcast as a community channel.</p>
       <div class="links"><a class="pill violet" href="https://mdrn.music" target="_blank" rel="noopener">mdrn.music</a><a class="pill violet" href="https://subcult.music/" target="_blank" rel="noopener">subcult.music</a><a class="pill" href="#alaska-x-subcult" data-select="alaska-x-subcult">their place in the circle</a></div>
     </div>
@@ -253,12 +254,12 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
       <div class="quote">"A tiny live radio that broadcasts audio and video through pending Ethereum transactions. Listening needs no wallet."</div>
       <p>Patio Station was an ETHGlobal Tokyo finalist — and says it is rebuilding an ETHDenver 2024 experiment. The tie is simple: <b>the circle is broadcast on Ethereum itself</b> — our circle isn’t on it yet; we’ll link it here the day it is.</p>
       <div class="links"><a class="pill teal" href="https://patio.fm" target="_blank" rel="noopener">patio.fm (their station)</a></div>
-      <div class="honest">station link coming with the first set — nothing is live yet, and we won't say it is until it is.</div>
+      <div class="honest">no station link yet — nothing is live, and we won't say it is until it is.</div>
     </div>
     <div class="tile">
-      <h4>📱 and the Devcon app</h4>
-      <p>Every placed set lives in the official Devcon 8 app under the room <b>Music stage</b>. Tap a figure for its session; the big button below stars the whole circle in your <i>My Interests</i>. (The app's times are being synced to the blessed arrangement — the circle here is the source of truth.)</p>
-      <div class="links"><a class="pill" id="radio-devcon" href="https://app.devcon.org/ai/devcon8/search?room=Music%20stage" target="_blank" rel="noopener">⭐ star this circle in the Devcon app</a></div>
+      <h4>🗓 the sessions (archive)</h4>
+      <p>Devcon 8 is over. The placed sets stay in the official Devcon 8 app under the room <b>Music stage</b> as the archive, and the full four-day schedule stays at <a href="https://opensourceorchestra.org/schedule/" target="_blank" rel="noopener">opensourceorchestra.org/schedule</a>. Tap a figure for its session.</p>
+      <div class="links"><a class="pill" id="radio-devcon" href="https://app.devcon.org/ai/devcon8/search?room=Music%20stage" target="_blank" rel="noopener">🗓 see the sessions (archive)</a></div>
     </div>
   </div>
 </aside>
@@ -267,8 +268,8 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
   <h2>How to be in the circle</h2>
   <ul>
     <li>🖱️ <b>Drag</b> to walk around the circle · <b>wheel / pinch</b> to come closer · it drifts on its own when you let go</li>
-    <li>👆 <b>Tap a figure</b> for who they are, when they play, their profile, rider and Devcon-app session</li>
-    <li>🗓 <b>Nov 3 · 4 · 5 · 6</b> fill the circle with that day's players · <b>➕ add artist</b> picks anyone, one by one</li>
+    <li>👆 <b>Tap a figure</b> for who they are, when they played, their profile, rider and Devcon 8 session (archive)</li>
+    <li>🗓 <b>Nov 3 · 4 · 5 · 6</b> fill the circle with who played that day · <b>➕ add artist</b> picks anyone, one by one</li>
     <li>🎚 <b>The slider</b> is a measurement of the full circle — 0 is an empty floor, the far right is everyone</li>
     <li>🎻 <b>Everyone plays together</b> is the dream: every artist in the garden, Shaka and the ʻohana totem, in one web of light</li>
     <li>📸 The walls are the living slideshow of Open Source Orchestra 2022→2026 · scrub the years at the bottom</li>
@@ -281,9 +282,9 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
 <div id="loading"><div class="card">
   <div class="kicker">Fork the First Artist · ETHGlobal Mumbai</div>
   <h1>The <em>Full Circle</em></h1>
-  <p>Not a stage. A circle on the floor at the Jio World Centre, Nov 3–6. Every artist of the garden has a place in it — the ones with a set time, the ones in the garden, the ones who'll be here next time.</p>
+  <p>Not a stage. A circle on the floor. <b style="color:var(--gold-bright)">It happened:</b> Nov 3–6 2026 at the Jio World Centre, Mumbai — about 35 artists, four days, and Devcon 8's closing ceremony in our hall. <a href="https://opensourceorchestra.org/mandala-room/" target="_blank" rel="noopener">📸 Mandala Room</a> · <a href="https://opensourceorchestra.org/the-room/" target="_blank" rel="noopener">📖 The Room</a>. Every artist of the garden keeps a place in it — the ones with a set time, the ones in the garden, the ones who'll be here next time, on the Road to Lisbon (Devcon 9, 11–13 Oct 2027).</p>
   <p><b style="color:var(--gold-bright)">Add anyone. Add everyone.</b> The dream is that we all play together.</p>
-  <p style="font-size:.92em">Now every artist in the circle can be <b style="color:var(--gold-bright)">forked</b>: a name they own on ENS, a steward agent on <b>0G</b>, and an <b>x402</b> tip jar on <b>Hedera</b> that pays <b style="color:var(--gold-bright)">96.31% straight to them</b> — and now 💸 tips straight into their own wallet on <b>Ethereum, its layer 2s and BNB Chain</b>. Invitations live on <b>Arkiv</b>. OSO takes zero.</p>
+  <p style="font-size:.92em">Now every artist in the circle can be <b style="color:var(--gold-bright)">forked</b>: a name they own on ENS, a steward agent on <b>0G</b>, and an <b>x402</b> tip jar on <b>Hedera</b> that pays <b style="color:var(--gold-bright)">96.31% straight to them</b> — and now 💸 tips straight into their own wallet on <b>Ethereum, its layer 2s and BNB Chain</b>. Invitations live on <b>Arkiv</b>. The Open Source Orchestra takes zero.</p>
   <button class="big" id="enter"><span id="enter-label"><span class="spin">◌</span> warming the room…</span></button>
   <div class="fine">Three.js in your browser · photos from four years of the orchestra · nothing to install · the garden circle comes from <a href="https://opensourceorchestra.org/garden/circle/">opensourceorchestra.org</a></div>
   <div class="fine takedown" style="margin-top:10px">📸 Your face or name here and you’d rather it wasn’t? Tell any steward on the floor, or write to the ʻohana at <a href="mailto:<!--email_off--><!--email_off-->aloha@myagentohana.com<!--/email_off--><!--/email_off-->"><!--email_off-->aloha@myagentohana.com<!--/email_off--></a> — we take it down first and ask questions second. <a href="https://opensourceorchestra.org/takedown/">how a takedown works →</a></div>

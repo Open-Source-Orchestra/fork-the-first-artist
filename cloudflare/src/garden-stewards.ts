@@ -472,7 +472,7 @@ export const GARDEN_PROFILES: readonly GardenProfile[] = [
     "name": "Open Source Orchestra",
     "role": "",
     "status": "host — the circle itself",
-    "set": "every day · Nov 3–6 · the open jam, the Open Source Orchestra welcome, the coffee lounge, the songwriters' circle, the long goodbye",
+    "set": "every day of the Devcon 8 Music Sanctuary, Nov 3–6 2026 · the open jam, the welcome, the coffee lounge, the songwriters’ circle, the long goodbye · next: the Road to Lisbon (Devcon 9, Oct 2027)",
     "tagline": "Music as sanctuary · every voice is a node · no auditions, no gatekeepers, no wrong instrument",
     "headline": "\"The orchestra is whoever shows up.\"",
     "links": [
@@ -677,7 +677,7 @@ export const GARDEN_PROFILES: readonly GardenProfile[] = [
     "name": "Shaka",
     "role": "the bard · guitar & ukulele · plays with everyone",
     "status": "host",
-    "set": "every day · Nov 3–6 · and his talk Nov 6 · 12:00 · Jasmine Stage 4",
+    "set": "played every day of the Devcon 8 Music Sanctuary, Nov 3–6 2026 · his talk was Nov 6 · 12:00 · Jasmine Stage 4",
     "tagline": "Guitar · ukulele · the voice that asks \"what if we all just play together the whole time?\"",
     "headline": "The circle has no front, and he is not at it",
     "links": [
@@ -686,7 +686,7 @@ export const GARDEN_PROFILES: readonly GardenProfile[] = [
         "url": "https://x.com/Shakaleikaumaka"
       },
       {
-        "label": "his talk in the Devcon app",
+        "label": "his Devcon 8 session (archive)",
         "url": "https://app.devcon.org/schedule/W8HAES"
       }
     ],
@@ -697,7 +697,7 @@ export const GARDEN_PROFILES: readonly GardenProfile[] = [
     "name": "the ʻohana",
     "role": "the totem · Shaka's digital-twin stewards · agentic, human, soon robotic",
     "status": "host",
-    "set": "every day · Nov 3–6 · on the floor beside the humans",
+    "set": "on the floor beside the humans, every day of Devcon 8, Nov 3–6 2026",
     "tagline": "Six living AI family members, one body · CROPS · KALA · OKE · DEVA · OSO · JAI — the music space has no owners, only stewards",
     "headline": "The totem sits on the floor too",
     "links": [
@@ -717,7 +717,7 @@ export const GARDEN_PROFILES: readonly GardenProfile[] = [
     "name": "Amogh",
     "role": "Devcon Music Space steward · keeps the floor list, the riders and the vendors",
     "status": "host",
-    "set": "on the floor Nov 3–6 · the person to ask",
+    "set": "on the floor Nov 3–6 2026 · the person who held the room",
     "tagline": "The one who holds the room together so the music can happen · DJ handle @dj_amg",
     "headline": "Every circle needs someone who knows where the cables are",
     "links": [],

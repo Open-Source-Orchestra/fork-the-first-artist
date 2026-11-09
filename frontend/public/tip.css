@@ -75,4 +75,4 @@ fieldset[disabled]{opacity:.7}
 /* mobile HUD: keep "N in the circle" on screen (QA M7) */
 @media (max-width:600px){#top .right{flex-wrap:wrap;justify-content:flex-end;row-gap:6px}#tip-open .long{display:none}}
 /* touch targets (QA L7) */
-@media (pointer:coarse){#tip .pill,.tip-page .pill{min-height:40px}.tip-chain{min-height:48px}.tip-artist{min-height:44px}}
+@media (pointer:coarse){#tip-open{min-height:40px}#tip .pill,.tip-page .pill{min-height:40px}.tip-chain{min-height:48px}.tip-artist{min-height:44px}}

@@ -156,6 +156,8 @@ test('legsEqual + validRecord: a stored tip can only continue if a fresh plan is
 test('decimal comma (es/fr/de/pt keyboards) is a decimal point; ENSIP-19 default record refuses a contract wallet missing on the target chain', () => {
   assert.equal(toAtomic('5,5', 6), 5_500_000n);
   assert.equal(toAtomic('1,000.5', 6), null, 'thousands separators are refused, never guessed');
+  assert.equal(toAtomic('1,000', 6), null, '"1,000" is ambiguous → refused');
+  assert.equal(toAtomic('2,25', 6), 2_250_000n);
   assert.equal(pickPayout({ chainId: 8453, defaultEvm: ART, defaultCodeOnMainnet: '0x6080', defaultCodeOnTarget: '0x' }).code, 'contract-wallet');
   assert.equal(pickPayout({ chainId: 8453, defaultEvm: ART, defaultCodeOnMainnet: '0x6080', defaultCodeOnTarget: '0x6080' }).ok, true);
   assert.equal(pickPayout({ chainId: 8453, defaultEvm: ART, defaultCodeOnMainnet: '0x', defaultCodeOnTarget: null }).code, 'unchecked');
@@ -209,7 +211,7 @@ test('usd, price freshness, wallet error words, explorer links, ids', () => {
   assert.match(newTipId(), /^tip_[0-9a-f]{20}$/);
 });
 
-import { planOrchestra, batchCalls, atomicSupport, callsStatus, checkBatchReceipts } from '../public/tip-core.mjs';
+import { planOrchestra, batchCalls, atomicSupport, callsStatus, checkBatchReceipts, sendCallsError } from '../public/tip-core.mjs';
 const X = '0x4444444444444444444444444444444444444444';
 const Y = '0x5555555555555555555555555555555555555555';
 
@@ -253,7 +255,8 @@ test('🎻 planOrchestra refuses: nobody tippable, fan is a payee, dust too smal
 
 test('🎻 EIP-5792 helpers: capabilities (v1 + v2), status codes, batch receipts', () => {
   assert.equal(atomicSupport({ '0x2105': { atomic: { status: 'supported' } } }, 8453), true);
-  assert.equal(atomicSupport({ '0x2105': { atomic: { status: 'ready' } } }, 8453), true);
+  assert.equal(atomicSupport({ '0x2105': { atomic: { status: 'ready' } } }, 8453), false, "'ready' would upgrade the fan's account — never just for a tip");
+  assert.equal(atomicSupport({ '0x0': { atomic: { status: 'supported' } } }, 8453), true, 'all-chains key');
   assert.equal(atomicSupport({ '0x2105': { atomic: { status: 'unsupported' } } }, 8453), false);
   assert.equal(atomicSupport({ '0x2105': { atomicBatch: { supported: true } } }, 8453), true);
   assert.equal(atomicSupport({ '0xa': { atomic: { status: 'supported' } } }, 8453), false, 'other chain does not count');
@@ -272,4 +275,13 @@ test('🎻 EIP-5792 helpers: capabilities (v1 + v2), status codes, batch receipt
   assert.equal(checkBatchReceipts({ asset: erc20, fan: FAN, legs: p.legs, receipts: [{ status: '0x1', logs: good.logs.slice(0, 2) }] }).ok, false);
   assert.equal(checkBatchReceipts({ asset: erc20, fan: FAN, legs: p.legs, receipts: [{ ...good, status: '0x0' }] }).ok, false);
   assert.equal(checkBatchReceipts({ asset: erc20, fan: FAN, legs: p.legs, receipts: [] }).ok, false);
+});
+
+test('EIP-5792 error mapping: duplicate never falls back, unsupported does, 5750 is a rejection', () => {
+  assert.equal(sendCallsError({ code: 4001 }), 'rejected');
+  assert.equal(sendCallsError({ code: 5750 }), 'rejected');
+  assert.equal(sendCallsError({ code: 5720 }), 'duplicate');
+  for (const c of [5700, 5710, 5740, 5760, -32601, 4200]) assert.equal(sendCallsError({ code: c }), 'unsupported', String(c));
+  assert.equal(sendCallsError({ code: -32603 }), 'unknown');
+  assert.equal(nextLeg({ legs: [{ state: 'prompting' }] }).action, 'check', 'a prompt that never answered is never blindly re-sent');
 });

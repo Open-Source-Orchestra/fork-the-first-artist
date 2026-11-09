@@ -129,6 +129,8 @@ async function open(path, opts = {}, vp = { width: 1280, height: 900 }) {
       sends += 1;
       if (opts.rejectSend?.has(sends)) return { __error: { code: 4001, message: 'User rejected the request.' } };
       if (opts.errorAfterBroadcast?.has(sends)) { await rpc(current, method, params); return { __error: { code: -32603, message: 'Internal JSON-RPC error.' } }; }
+      if (opts.hangAfterBroadcast?.has(sends)) { await rpc(current, method, params); return new Promise(() => {}); } // approved in the wallet, then the page went away
+      if (opts.hangNoBroadcast?.has(sends)) return new Promise(() => {}); // prompt left open, page reloaded
     }
     if (method === 'wallet_getCapabilities') {
       if (!opts.atomic) return { __error: { code: -32601, message: 'Method not supported' } };
@@ -136,6 +138,7 @@ async function open(path, opts = {}, vp = { width: 1280, height: 900 }) {
     }
     if (method === 'wallet_sendCalls') {
       batches.push(params[0]);
+      if (opts.batchErrorNoExec && batches.length === 1) return { __error: { code: -32603, message: 'Internal error' } };
       if (Number(BigInt(params[0].chainId)) !== current || params[0].atomicRequired !== true) return { __error: { code: -32602, message: 'bad batch' } };
       const snap = await rpc(current, 'evm_snapshot');
       const receipts = [];
@@ -146,13 +149,16 @@ async function open(path, opts = {}, vp = { width: 1280, height: 900 }) {
         if (rc.status !== '0x1') { await rpc(current, 'evm_revert', [snap]); return { id: 'batch-failed' }; }
         receipts.push(rc);
       }
-      const id = '0x' + String(batches.length).padStart(64, '0');
+      const id = params[0].id ?? '0x' + String(batches.length).padStart(64, '0');
+      if (batchResults.has(id)) return { __error: { code: 5720, message: 'Duplicate ID' } };
       batchResults.set(id, receipts);
+      if (opts.batchErrorAfterExec && batches.length === 1) return { __error: { code: -32603, message: 'Internal error after submit' } };
       return { id };
     }
     if (method === 'wallet_getCallsStatus') {
       const rcs = batchResults.get(params[0]);
-      return rcs ? { version: '2.0.0', id: params[0], chainId: '0x' + current.toString(16), status: 200, atomic: true, receipts: rcs } : { status: 400 };
+      if (opts.statusUnknown) return { __error: { code: 5730, message: 'Unknown bundle id' } };
+      return rcs ? { version: '2.0.0', id: params[0], chainId: '0x' + current.toString(16), status: 200, atomic: true, receipts: rcs } : { __error: { code: 5730, message: 'Unknown bundle id' } };
     }
     if (opts.wrongDecimals && method === 'eth_call' && params[0]?.data === '0x313ce567') return '0x' + '12'.padStart(64, '0');
     try {
@@ -161,6 +167,7 @@ async function open(path, opts = {}, vp = { width: 1280, height: 900 }) {
       return { __error: { code: e.code ?? -32000, message: e.message } };
     }
   });
+  if (opts.noLocks) await page.addInitScript(() => { Object.defineProperty(Navigator.prototype, 'locks', { get: () => undefined, configurable: true }); });
   if (!opts.noWallet) {
     await page.addInitScript(() => {
       const listeners = {};
@@ -240,7 +247,7 @@ test('Base · USDC · shaka (artist wallet = steward wallet today) → ONE exact
     await pick(page, 'input[name=tip-artist][value=shaka]');
     await pick(page, 'input[name=tip-chain][value="8453"]');
     await page.locator('#tip-amount').fill('2.5');
-    assert.match(await page.locator('#tip-split').textContent(), /2\.40775 USDC ≈ \$2\.40 → artist \(96\.31%\) · 0\.09225 USDC ≈ \$0\.09 → steward \(3\.69%\) · 0 to Open Source Orchestra/);
+    assert.match(await page.locator('#tip-split').textContent(), /2\.40775 USDC ≈ \$2\.40 → artist \(96\.31%\) · 0\.09225 USDC ≈ \$0\.09 → steward \(3\.69%\) · no platform fee/);
     await page.locator('[data-connect]').click();
     await waitStatus(page, /Connected 0xf39F…2266/);
     await page.locator('[data-act=review]').click();
@@ -541,5 +548,120 @@ test('a chain that stopped producing blocks is refused at review (sunset L2s lik
     await page.locator('[data-act=review]').click();
     await waitStatus(page, /has not produced a block for 60 minutes — it looks stopped/);
     assert.equal(calls.filter((c) => c.method === 'eth_sendTransaction').length, 0);
+  } finally { await context.close(); }
+});
+
+/* ── QA pass 2 (B2 · H4 · H5 · M14) ───────────────────────────────────────────────────── */
+async function startShakaTip(page, amount = '4') {
+  await openPanel(page);
+  await pick(page, 'input[name=tip-artist][value=shaka]');
+  await pick(page, 'input[name=tip-chain][value="8453"]');
+  await page.locator('#tip-amount').fill(amount);
+  await page.locator('[data-connect]').click();
+  await waitStatus(page, /Connected/);
+  await page.locator('[data-act=review]').click();
+  await waitStatus(page, /Everything checks out/);
+}
+async function reopenAndContinue(page) {
+  await page.reload();
+  await enter(page);
+  await page.locator('#tip-open').click();
+  await page.locator('[data-connect]').click();
+  await waitStatus(page, /Connected/);
+  await page.locator('[data-act=resume]').click();
+}
+
+test('B2: the fan approved in the wallet but the page reloaded mid-prompt → continue finds the transfer, never pays twice', async () => {
+  const { context, page, sends } = await open(WHO, { startChain: 8453, hangAfterBroadcast: new Set([1]) });
+  try {
+    await startShakaTip(page, '4');
+    const before = await balanceOf(8453, USDC[8453], SHAKA);
+    await page.locator('[data-act=send]').click();
+    await page.waitForFunction(() => /confirm 4 USDC/.test(document.querySelector('#tip-status').textContent));
+    await new Promise((r) => setTimeout(r, 1500));
+    await reopenAndContinue(page);
+    await waitStatus(page, /Done — 4 USDC/);
+    assert.equal((await balanceOf(8453, USDC[8453], SHAKA)) - before, 4_000_000n, 'paid exactly once');
+    assert.equal(sends(), 1);
+  } finally { await context.close(); }
+});
+
+test('B2: the prompt was left open (never approved) and the page reloaded → continue asks the fan to close it, then sends once', async () => {
+  const { context, page, sends } = await open(WHO, { startChain: 8453, hangNoBroadcast: new Set([1]) });
+  try {
+    await startShakaTip(page, '1.5');
+    const before = await balanceOf(8453, USDC[8453], SHAKA);
+    await page.locator('[data-act=send]').click();
+    await page.waitForFunction(() => /confirm 1\.5 USDC/.test(document.querySelector('#tip-status').textContent));
+    await reopenAndContinue(page);
+    await waitStatus(page, /close any open request in your wallet/);
+    assert.equal(sends(), 1, 'nothing re-sent without the fan confirming');
+    await page.locator('[data-act=confirm-resend]').click();
+    await waitStatus(page, /Done — 1\.5 USDC/);
+    assert.equal((await balanceOf(8453, USDC[8453], SHAKA)) - before, 1_500_000n);
+    assert.equal(sends(), 2);
+  } finally { await context.close(); }
+});
+
+test('H4: batch went through, wallet then errored, fan is a smart account (nonce never moves) → continue finds every transfer, pays nobody twice', async () => {
+  const { context, page, batches } = await open(WHO, { config: ORCH_CONFIG, startChain: 8453, atomic: true, batchErrorAfterExec: true, statusUnknown: true });
+  try {
+    await openPanel(page);
+    await page.locator('[data-mode=orchestra]').click();
+    await page.waitForFunction(() => /2 distinct wallets/.test(document.querySelector('#tip .body').textContent), null, { timeout: 30_000 });
+    await pick(page, 'input[name=tip-chain][value="8453"]');
+    await page.locator('#tip-amount').fill('6');
+    await page.locator('[data-connect]').click();
+    await waitStatus(page, /Connected/);
+    await page.locator('[data-act=review]').click();
+    await waitStatus(page, /Everything checks out/);
+    const before = await Promise.all([SHAKA, NICK, VITALIK].map((a) => balanceOf(8453, USDC[8453], a)));
+    await page.locator('[data-act=send]').click();
+    await waitStatus(page, /answered the batch with an error/);
+    await rpc(8453, 'anvil_setCode', [FAN, '0x6080604052']); // now the fan looks like a smart account
+    try {
+      await page.locator('[data-act=send]').click(); // continue
+      await waitStatus(page, /Done — 6 USDC/);
+    } finally { await rpc(8453, 'anvil_setCode', [FAN, '0x']); }
+    const after = await Promise.all([SHAKA, NICK, VITALIK].map((a) => balanceOf(8453, USDC[8453], a)));
+    assert.deepEqual(after.map((x, i) => x - before[i]), [2_889_300n, 2_889_300n, 221_400n], 'each payee exactly once');
+    assert.equal(batches.length, 1, 'the batch was never submitted again');
+  } finally { await context.close(); }
+});
+
+test('H5: ambiguous wallet_sendCalls error and nothing went out → wallet says "unknown id" → fan confirms → SAME batch id re-sent → everyone paid exactly once', async () => {
+  const { context, page, batches, sends } = await open(WHO, { config: ORCH_CONFIG, startChain: 8453, atomic: true, batchErrorNoExec: true });
+  try {
+    await openPanel(page);
+    await page.locator('[data-mode=orchestra]').click();
+    await page.waitForFunction(() => /2 distinct wallets/.test(document.querySelector('#tip .body').textContent), null, { timeout: 30_000 });
+    await pick(page, 'input[name=tip-chain][value="8453"]');
+    await page.locator('#tip-amount').fill('10');
+    await page.locator('[data-connect]').click();
+    await waitStatus(page, /Connected/);
+    await page.locator('[data-act=review]').click();
+    await waitStatus(page, /Everything checks out/);
+    const before = await Promise.all([SHAKA, NICK, VITALIK].map((a) => balanceOf(8453, USDC[8453], a)));
+    await page.locator('[data-act=send]').click();
+    await waitStatus(page, /answered the batch with an error/);
+    await page.locator('[data-act=send]').click(); // continue
+    await waitStatus(page, /close any open batch request/);
+    await page.locator('[data-act=confirm-resend]').click();
+    await waitStatus(page, /Done — 10 USDC/);
+    const after = await Promise.all([SHAKA, NICK, VITALIK].map((a) => balanceOf(8453, USDC[8453], a)));
+    assert.deepEqual(after.map((x, i) => x - before[i]), [4_815_500n, 4_815_500n, 369_000n]);
+    assert.equal(batches.length, 2);
+    assert.equal(batches[0].id, batches[1].id, 'the retry re-uses our batch id (wallets refuse duplicates)');
+    assert.equal(sends(), 0);
+  } finally { await context.close(); }
+});
+
+test('M14: without Web Locks the tip still works (localStorage lease)', async () => {
+  const { context, page } = await open(WHO, { startChain: 8453, noLocks: true });
+  try {
+    assert.equal(await page.evaluate(() => navigator.locks), undefined);
+    await startShakaTip(page, '0.5');
+    await page.locator('[data-act=send]').click();
+    await waitStatus(page, /Done — 0\.5 USDC/);
   } finally { await context.close(); }
 });

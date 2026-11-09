@@ -25,6 +25,7 @@ export const DELEGATION_RE = /^0xef0100[0-9a-fA-F]{40}$/;
 export function toAtomic(text, decimals, maxWholeDigits = 9) {
   if (!Number.isInteger(decimals) || decimals < 0 || decimals > 36) return null;
   let s = String(text ?? '').trim();
+  if (/^\d+,\d{3}$/.test(s)) return null; // "1,000": thousands or decimals? ambiguous → refuse, never guess
   if (/^\d*,\d*$/.test(s)) s = s.replace(',', '.'); // one decimal comma (es/fr/de/pt keyboards) = a decimal point
   const re = decimals > 0 ? new RegExp(`^(\\d{1,${maxWholeDigits}})(?:\\.(\\d{0,${decimals}}))?$`) : new RegExp(`^(\\d{1,${maxWholeDigits}})$`);
   const m = re.exec(s) ?? (decimals > 0 ? new RegExp(`^()\\.(\\d{1,${decimals}})$`).exec(s) : null);
@@ -217,8 +218,10 @@ export function checkLegReceipt({ asset, fan, leg, receipt, tx }) {
  *  planned            → 'send'
  *  sent (has a hash)  → 'wait'   (keep polling; never send again)
  *  failed (reverted, receipt proves nothing moved) → 'send'
- *  rejected (wallet said 4001) / unknown (any other wallet error) / replaced (nonce moved, no receipt)
- *                     → 'check'  (only re-send if the wallet's nonce has NOT moved since that attempt)
+ *  prompting (a wallet prompt was opened; page closed/reloaded before it answered) / rejected (wallet said 4001) /
+ *  unknown (any other wallet error) / replaced (nonce moved, no receipt)
+ *                     → 'check'  (search the chain for the transfer first; re-send only if the nonce has NOT moved,
+ *                                 and — except after a clean 4001 — only after the fan confirms the old prompt is closed)
  *  mismatch / anything else → 'stop' (a human looks at the explorer)
  */
 export function nextLeg(record) {
@@ -226,7 +229,7 @@ export function nextLeg(record) {
     if (l.state === 'confirmed') continue;
     if (l.state === 'sent') return { leg: l, action: 'wait' };
     if (l.state === 'planned' || l.state === 'failed') return { leg: l, action: 'send' };
-    if (l.state === 'rejected' || l.state === 'unknown' || l.state === 'replaced') return { leg: l, action: 'check' };
+    if (l.state === 'prompting' || l.state === 'rejected' || l.state === 'unknown' || l.state === 'replaced') return { leg: l, action: 'check' };
     return { leg: l, action: 'stop' };
   }
   return { leg: null, action: 'done' };
@@ -238,7 +241,7 @@ export function legsEqual(a, b) {
   return a.every((l, i) => sameAddress(l.to, b[i].to) && BigInt(l.amount) === BigInt(b[i].amount));
 }
 
-const RECORD_STATES = new Set(['planned', 'sent', 'confirmed', 'failed', 'rejected', 'unknown', 'replaced', 'mismatch']);
+const RECORD_STATES = new Set(['planned', 'prompting', 'sent', 'confirmed', 'failed', 'rejected', 'unknown', 'replaced', 'mismatch']);
 /** Schema check for a ledger record read back from localStorage (anything odd → ignored, never sent). */
 export function validRecord(r) {
   try {
@@ -380,11 +383,21 @@ export function batchCalls(plan) {
 /** Read wallet_getCapabilities for one chain: can it run an ATOMIC batch? (EIP-5792 v2 `atomic`, v1 `atomicBatch`) */
 export function atomicSupport(caps, chainId) {
   if (!caps || typeof caps !== 'object') return false;
-  const c = caps[chainHex(chainId)] ?? caps[String(chainId)] ?? caps[chainId];
-  if (!c || typeof c !== 'object') return false;
-  const st = c.atomic?.status;
-  if (st === 'supported' || st === 'ready') return true;
+  const pick = (c) => (c && typeof c === 'object' ? c : null);
+  const c = pick(caps[chainHex(chainId)]) ?? pick(caps[String(chainId)]) ?? pick(caps['0x0']);
+  if (!c) return false;
+  // 'ready' means the wallet would first upgrade the fan's account (EIP-7702) — never do that just to send a tip
+  if (c.atomic?.status === 'supported') return true;
   return c.atomicBatch?.supported === true;
+}
+
+/** EIP-5792 wallet_sendCalls errors → what the page may do next. */
+export function sendCallsError(e) {
+  const code = e?.code;
+  if (code === 4001 || code === 5750) return 'rejected'; // declined (5750 = declined the account upgrade)
+  if (code === 5720) return 'duplicate'; // this id was already submitted → ask for its status, never fall back
+  if ([4100, 4200, 5700, 5710, 5740, 5760, -32601].includes(code)) return 'unsupported';
+  return 'unknown';
 }
 
 /** wallet_getCallsStatus → 'pending' | 'confirmed' | 'failed' (nothing moved) | 'unknown' */

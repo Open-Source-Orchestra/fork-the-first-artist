@@ -58,7 +58,7 @@ for cid,key,label,url,usdc,src in CHAINS:
             r['symbol']=dstr(call(url,usdc,'0x95d89b41')); r['name']=dstr(call(url,usdc,'0x06fdde03'))
             r['decimals']=int(call(url,usdc,'0x313ce567'),16); r['totalSupply']=int(call(url,usdc,'0x18160ddd'),16)
             r['totalSupplyHuman']=r['totalSupply']/10**r['decimals']
-        r['ok'] = r['rpcChainId']==cid and r['blockAgeS']<300 and (not usdc or (r['codeBytes']>0 and r['totalSupply']>0 and r['symbol'] in ('USDC','OUSD')))
+        r['ok'] = r['rpcChainId']==cid and r['blockAgeS']<300 and (not usdc or (r['codeBytes']>0 and r['totalSupply']>0 and r['symbol'] in ('USDC','USDC.e','OUSD')))
     except Exception as e:
         r['error']=str(e)[:200]; r['ok']=False
     out.append(r); print(json.dumps({k:r.get(k) for k in ('chainId','label','rpcChainId','blockAgeS','symbol','name','decimals','totalSupplyHuman','codeBytes','ok','error')}), flush=True)

@@ -84,8 +84,7 @@ Tempo Mainnet (chain 4217, https://rpc.tempo.xyz, Stripe × Paradigm) is an EVM 
 a plain `transfer` on a TIP-20 pays its fee in that same token (fee-token precedence rule 3), so the page requires
 tip + max fee (+20%) in the stablecoin. Token: **OUSD** `0x20c0000000000000000000006a37da5c996874be` (Open Standard;
 docs tempo.xyz/developers/docs/guide/ousd; onchain: OpenUSD / OUSD / 6 decimals / supply ≈ 622M; code = TIP-20 precompile `0xef`).
-`eth_getBalance` returns a placeholder, so no native-balance check there. TIP-20 receive policies (T6) may refuse a transfer
-→ it reverts, nothing moves. **Real testnet proof (Moderato 42431, real page code, throwaway testnet key):**
+`eth_getBalance` returns a placeholder, so no native-balance check there. TIP-20 receive policies (T6): a refused transfer does NOT revert — the money goes to the ReceivePolicyGuard where the fan can reclaim it; the page then shows "no matching Transfer" and never re-sends (pre-check via validateReceivePolicy = follow-up). Tempo txs may use expiring/2D nonces, so on Tempo an unchanged nonce is never taken as proof: the page searches the full log range (chunked, fail-closed) and waits out the 5-minute expiry window before offering a confirmed re-send. **Real testnet proof (Moderato 42431, real page code, throwaway testnet key):**
 1 leg 1.5 OUSD → shaka `0x12536a8e019cd6dec3740b3744061406ed86cfc260bd6be0d5a1c838b413de7c` (artist +1.500000, fee 0.000319 OUSD);
 2 legs (fork-only stand-in steward) `0x0cddb068…bc854` + `0x0a7a9c27…cb9a4` = 1.444650 + 0.055350 exactly.
 

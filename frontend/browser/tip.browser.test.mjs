@@ -662,3 +662,22 @@ test('M14: without Web Locks the tip still works (localStorage lease)', async ()
     await waitStatus(page, /Done — 0\.5 USDC/);
   } finally { await context.close(); }
 });
+
+test('Tempo-style chains (expiring nonces): an unanswered prompt is never re-sent before the 5-min expiry window, even with an unmoved nonce', async () => {
+  const { context, page, sends } = await open(WHO, { startChain: 8453, hangNoBroadcast: new Set([1]) });
+  try {
+    // mark Base as a stablecoin-fee chain for this test so the Tempo rules apply on a fork we can run
+    await page.route((u) => u.pathname === '/tip-chains.json', async (route) => {
+      const r = await route.fetch(); const j = await r.json();
+      j.chains = j.chains.map((c) => (c.chainId === 8453 ? { ...c, stablecoinFees: true } : c));
+      route.fulfill({ contentType: 'application/json', body: JSON.stringify(j) });
+    });
+    await page.reload();
+    await startShakaTip(page, '2');
+    await page.locator('[data-act=send]').click();
+    await page.waitForFunction(() => /confirm 2 USDC/.test(document.querySelector('#tip-status').textContent));
+    await reopenAndContinue(page);
+    await waitStatus(page, /waits \d+ more seconds before it can tell/);
+    assert.equal(sends(), 1, 'nothing re-sent');
+  } finally { await context.close(); }
+});

@@ -30,12 +30,19 @@ Limits in tip-config (`maxUsdc` 100, `maxEth` 0.05).
 |---|---|---|---|
 | `USDC.transfer(artist, 96.31%)` / value transfer | the fan's wallet | they want to tip | nothing happens |
 | `USDC.transfer(steward, 3.69%)` | the fan's wallet | completes the tip | the artist share already landed; the page offers "continue" (only the missing leg is ever sent) |
-There is no contract of ours and no admin key. Each transfer hash is saved in the browser (localStorage) **before** waiting;
-a leg with a hash is never sent again.
+There is no contract of ours and no admin key. Safety of sending (after the 9 Nov QA review):
+- a stored tip is only *intent*: before every transfer — fresh or continued — the page re-fetches the switchboard,
+  re-reads ENS from **two RPCs that must agree**, re-checks pins, limits, chain, account and the token contract,
+  rebuilds the plan and continues only if it equals the stored legs (tampered notes can't redirect money);
+- every transaction carries `chainId`; the wallet nonce is stored before each prompt; a leg is re-sent only if the
+  nonce provably did not move (wallet errors other than "declined" become `unknown`, never auto-resent); sped-up
+  ERC-20 transfers are found again via their `Transfer` log; one browser tab at a time (Web Locks);
+- 🎻 whole-orchestra tips use one EIP-5792 `wallet_sendCalls` atomic batch when the wallet reports `atomic`
+  support (ERC-20 only), otherwise one transfer at a time.
 
 ## Kill switch
 `/tip-config.json` on gh-pages: `"enabled": false` stops every tip; `"mainnet": false` leaves only testnets;
-`"disabledChains": [56, …]` hides chains. If the file can't be read, tips are off.
+`"disabledChains": [56, …]` hides chains. If the file can't be read, tips are off. The page re-fetches it (cache-busted) before every review and every transfer — also when an old tip is continued — but GitHub Pages' CDN can serve the old file for up to ~10 minutes, so a switch-off takes effect within ~10 min.
 
 ## Chains (verified onchain 2026-11-09T10:05:45Z)
 | Chain | chainId | Family | USDC address | dec | Issuer | ETH tip | Explorer |
@@ -56,8 +63,6 @@ a leg with a hash is never sent again.
 | Soneium | 1868 | L2 · OP Stack · Superchain | — (no Circle-issued USDC → ETH only) | — | — | yes | https://soneium.blockscout.com |
 | Zora | 7777777 | L2 · OP Stack · Superchain | — (no Circle-issued USDC → ETH only) | — | — | yes | https://explorer.zora.energy |
 | Mode | 34443 | L2 · OP Stack · Superchain | — (no Circle-issued USDC → ETH only) | — | — | yes | https://explorer.mode.network |
-| Taiko Alethia | 167000 | L2 · based rollup | — (no Circle-issued USDC → ETH only) | — | — | yes | https://taikoscan.io |
-| Lisk | 1135 | L2 · OP Stack · Superchain | — (no Circle-issued USDC → ETH only) | — | — | yes | https://blockscout.lisk.com |
 | Ethereum Sepolia | 11155111 | testnet | `0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238` | 6 | Circle | yes | https://sepolia.etherscan.io |
 | Base Sepolia | 84532 | testnet | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | 6 | Circle | yes | https://sepolia.basescan.org |
 | OP Sepolia | 11155420 | testnet | `0x5fd84259d66Cd46123540766Be93DFE6D43130D7` | 6 | Circle | yes | https://sepolia-optimism.etherscan.io |
@@ -70,9 +75,9 @@ a leg with a hash is never sent again.
 | ZKsync Sepolia | 300 | testnet | `0xAe045DE5638162fa134807Cb558E15A3F5A7F853` | 6 | Circle | yes | https://sepolia.explorer.zksync.io |
 | Polygon Amoy | 80002 | testnet | `0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582` | 6 | Circle | no | https://amoy.polygonscan.com |
 
-Left out: Blast (public RPC dead/403), Polygon zkEVM (shut down 2026-07-03), Robinhood Chain (USDG; tx filtering).
+Left out: Blast (public RPC dead/403), Polygon zkEVM (shut down 2026-07-03), Robinhood Chain (USDG; tx filtering), **Lisk** (chain closed 2 Nov 2026 per lisk.com; last block 30+ min old on 9 Nov), **Taiko** (June 2026 chain-verification/bridge breach — doubt → out). The page also refuses any chain whose latest block (read through the fan's wallet) is older than 10 minutes.
 ETH-only chains have no Circle-issued USDC (only bridged variants) — no token address is involved there.
-Re-verify: `/workspace/multichain/verify.py` (sysadmin) — checks code, symbol, decimals, totalSupply, eth_chainId, block age.
+Re-verify: `python3 frontend/scripts/verify-tip-chains.py` — checks code, symbol, decimals, totalSupply, eth_chainId, block age.
 
 ## Tests
 - `node --test frontend/test/tip-core.test.mjs` — amounts, split (30k exhaustive + random), calldata vs viem, ENSIP-11, payout
@@ -85,7 +90,8 @@ Re-verify: `/workspace/multichain/verify.py` (sysadmin) — checks code, symbol,
 ## CROPS review
 - **Chosen default:** the fan's own wallet sends plain transfers to addresses read from the artist's own ENS name; static site, no backend.
 - **C** — Risk: GitHub Pages can take the page down; the USDC issuer (Circle; Binance on BNB) can freeze an address; L2 sequencers can delay. Mitigation: no backend, no contract; ETH option has no issuer. Escape: send to `<name>.osoartist.eth` from any wallet; self-host the static build (`node frontend/scripts/build-static.mjs`).
-- **O/F** — Code is MIT on GitHub; every address is in `tip-chains.json` with its source; the live build is the gh-pages commit of a pushed branch.
+- **O/F** — Code is GPL-3.0 on GitHub (repo LICENSE); every address is in `tip-chains.json` with its source; the live build is the gh-pages commit of a pushed branch.
 - **P** — Both transfers are public onchain forever (fan address, amount, time). ENS reads go to public RPCs (publicnode, drpc, 1rpc) and reveal the visitor's IP + which names were read (never the wallet address). Balance/gas checks go through the fan's own wallet RPC. No analytics, no cookies; the ledger stays in the browser.
 - **S** — No custody; no approvals (plain `transfer`, never `approve`); amounts capped; the steward pin + kill switch fail closed. The ENS owner of an artist name controls where that artist is paid (by design). Walkaway test: if OSO disappears, tips still work by sending to the ENS name directly.
+- **Trust assumption (unverified, QA L13):** `osoartist.eth` is owned by Shaka's key `0x2596…c934`, which is also the steward pin and his artist payout. Whether the `.eth`-level owner can replace the osoartist.eth subregistry/resolver (and so re-point `<label>.osoartist.eth`) was not verified — treat Shaka's key as the root of trust for every artist name.
 - **Accepted compromises:** public RPCs for ENS reads (configurable in tip-config); stablecoin issuer freeze risk (disclosed on the page).

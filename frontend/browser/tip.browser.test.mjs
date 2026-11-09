@@ -17,13 +17,14 @@ const ANVIL = existsSync('/workspace/.foundry/bin/anvil') ? '/workspace/.foundry
 const FORKS = {
   1: { port: 28545, url: 'https://ethereum-rpc.publicnode.com' },
   8453: { port: 28453, url: 'https://mainnet.base.org' },
-  56: { port: 28056, url: 'https://bsc-dataseed1.bnbchain.org' },
+  56: { port: 28056, url: 'https://bsc-rpc.publicnode.com' },
   10: { port: 28010, url: 'https://mainnet.optimism.io' },
   42161: { port: 28161, url: 'https://arb1.arbitrum.io/rpc' },
 };
 const FAN = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'; // anvil dev account #0 (unlocked on the forks only)
 const SHAKA = '0x25965899f4600b3AA5362ee4f34be95E5E62c934'; // shaka.osoartist.eth = osoartist.eth today
 const VITALIK = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'; // used ONLY on forks as a stand-in steward to exercise the 2-transfer path
+const NICK = '0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5'; // nick.eth — fork-only stand-in for a 3rd distinct artist wallet
 const USDC = { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 56: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831' };
 const WHO = '/?who=open-source-orchestra,shaka,ohana,amogh,0xmentalist,jaydeepdan-gadhavi,nidhi-harihar,aniket-gundewar,vivek-teega';
 const ENS_RPCS = ['https://ethereum-rpc.publicnode.com', 'https://eth.drpc.org', 'https://1rpc.io/eth'];
@@ -91,18 +92,25 @@ async function open(path, opts = {}, vp = { width: 1280, height: 900 }) {
     await page.route((url) => ENS_RPCS.some((u) => url.href.startsWith(u)), async (route) => {
       const body = route.request().postData();
       const r = await fetch(`http://127.0.0.1:${FORKS[1].port}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
-      route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' }, body: await r.text() });
+      let text = await r.text();
+      // a lying RPC (MITM): swap Shaka's address for 0x…dEaD in every answer from this one host
+      if (opts.tamperRpc && route.request().url().startsWith(opts.tamperRpc)) text = text.replaceAll('25965899f4600b3aa5362ee4f34be95e5e62c934', '000000000000000000000000000000000000dead');
+      route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' }, body: text });
     });
   }
   // fork.js pings the live 0G steward; production allows only its own origin, so stub it on localhost
   await page.route('https://oso-zerog-steward.shakaverse.workers.dev/**', (route) => route.fulfill({ status: 200, headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' }, body: JSON.stringify({ ok: true, stewards: { total: 41 } }) }));
-  await page.route(`${base}/tip-config.json`, (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify(opts.config ?? BASE_CONFIG) }));
+  await page.route((u) => u.pathname === '/tip-config.json', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify(opts.config ?? BASE_CONFIG) }));
   let current = opts.startChain ?? 8453;
   const known = new Set(opts.knownChains ?? [1, 8453, 56, 10]);
   let sends = 0;
+  const batches = [];
+  const batchResults = new Map();
   await page.exposeFunction('__testWallet', async (method, params) => {
     calls.push({ method, params, chain: current });
     if (method === 'eth_requestAccounts' || method === 'eth_accounts') return [FAN];
+    if (method === 'eth_getBlockByNumber' && params[0] === 'latest' && !opts.staleChain) await rpc(current, 'evm_mine'); // a live chain keeps producing blocks
+    if (method === 'eth_getBlockByNumber' && params[0] === 'latest' && opts.staleChain) { const b = await rpc(current, 'eth_getBlockByNumber', params); return { ...b, timestamp: '0x' + (Math.floor(Date.now() / 1000) - 3600).toString(16) }; }
     if (method === 'eth_chainId') return '0x' + current.toString(16);
     if (method === 'wallet_switchEthereumChain') {
       const id = Number(BigInt(params[0].chainId));
@@ -120,6 +128,31 @@ async function open(path, opts = {}, vp = { width: 1280, height: 900 }) {
     if (method === 'eth_sendTransaction') {
       sends += 1;
       if (opts.rejectSend?.has(sends)) return { __error: { code: 4001, message: 'User rejected the request.' } };
+      if (opts.errorAfterBroadcast?.has(sends)) { await rpc(current, method, params); return { __error: { code: -32603, message: 'Internal JSON-RPC error.' } }; }
+    }
+    if (method === 'wallet_getCapabilities') {
+      if (!opts.atomic) return { __error: { code: -32601, message: 'Method not supported' } };
+      return { ['0x' + current.toString(16)]: { atomic: { status: 'supported' } } };
+    }
+    if (method === 'wallet_sendCalls') {
+      batches.push(params[0]);
+      if (Number(BigInt(params[0].chainId)) !== current || params[0].atomicRequired !== true) return { __error: { code: -32602, message: 'bad batch' } };
+      const snap = await rpc(current, 'evm_snapshot');
+      const receipts = [];
+      for (const call of params[0].calls) {
+        const h = await rpc(current, 'eth_sendTransaction', [{ from: params[0].from, to: call.to, value: call.value, data: call.data }]);
+        let rc = null;
+        for (let k = 0; k < 50 && !rc; k++) { rc = await rpc(current, 'eth_getTransactionReceipt', [h]); if (!rc) await new Promise((r) => setTimeout(r, 200)); }
+        if (rc.status !== '0x1') { await rpc(current, 'evm_revert', [snap]); return { id: 'batch-failed' }; }
+        receipts.push(rc);
+      }
+      const id = '0x' + String(batches.length).padStart(64, '0');
+      batchResults.set(id, receipts);
+      return { id };
+    }
+    if (method === 'wallet_getCallsStatus') {
+      const rcs = batchResults.get(params[0]);
+      return rcs ? { version: '2.0.0', id: params[0], chainId: '0x' + current.toString(16), status: 200, atomic: true, receipts: rcs } : { status: 400 };
     }
     if (opts.wrongDecimals && method === 'eth_call' && params[0]?.data === '0x313ce567') return '0x' + '12'.padStart(64, '0');
     try {
@@ -149,7 +182,7 @@ async function open(path, opts = {}, vp = { width: 1280, height: 900 }) {
     });
   }
   await page.goto(`${base}${path}`);
-  return { context, page, errors, calls, sends: () => sends };
+  return { context, page, errors, calls, batches, sends: () => sends };
 }
 
 async function enter(page) {
@@ -169,7 +202,11 @@ const pick = async (page, sel) => {
 };
 const statusText = (page) => page.locator('#tip-status').textContent();
 async function waitStatus(page, re, timeout = 150_000) {
-  await page.waitForFunction((src) => new RegExp(src).test(document.querySelector('#tip-status')?.textContent ?? ''), re.source, { timeout });
+  try {
+    await page.waitForFunction((src) => new RegExp(src).test(document.querySelector('#tip-status')?.textContent ?? ''), re.source, { timeout });
+  } catch (e) {
+    throw new Error(`status never matched ${re}: last status = "${await page.locator('#tip-status').textContent().catch(() => '?')}"`);
+  }
 }
 
 test('the exact ?who= circle URL loads with no errors; the tip panel shows the chain picker and honest artist states', async () => {
@@ -203,15 +240,15 @@ test('Base · USDC · shaka (artist wallet = steward wallet today) → ONE exact
     await pick(page, 'input[name=tip-artist][value=shaka]');
     await pick(page, 'input[name=tip-chain][value="8453"]');
     await page.locator('#tip-amount').fill('2.5');
-    assert.match(await page.locator('#tip-split').textContent(), /2\.40775 USDC ≈ \$2\.40 → artist \(96\.31%\) · 0\.09225 USDC ≈ \$0\.09 → steward \(3\.69%\) · 0 to OSO/);
+    assert.match(await page.locator('#tip-split').textContent(), /2\.40775 USDC ≈ \$2\.40 → artist \(96\.31%\) · 0\.09225 USDC ≈ \$0\.09 → steward \(3\.69%\) · 0 to Open Source Orchestra/);
     await page.locator('[data-connect]').click();
     await waitStatus(page, /Connected 0xf39F…2266/);
     await page.locator('[data-act=review]').click();
     await waitStatus(page, /Everything checks out/);
     const review = await page.locator('#tip-review').textContent();
     assert.match(review, /Base · id 8453/);
-    assert.match(review, /USDC · contract 0x8335…2913/);
-    assert.match(review, /transfer 1\s*2\.5 USDC → shaka\.osoartist\.eth\s*0x2596…c934/);
+    assert.match(review, /USDC · contract 0x 8335 89fC D6eD b6E0 8f4c 7C32 D4f7 1b54 bdA0 2913/);
+    assert.match(review, /transfer\s*2\.5 USDC → shaka\.osoartist\.eth\s*0x 2596 5899 f460 0b3A A536 2ee4 f34b e95E 5E62 c934/);
     assert.match(review, /both shares go in one transfer/);
     const before = await balanceOf(8453, USDC[8453], SHAKA);
     await page.locator('[data-act=send]').dblclick(); // double-click guard
@@ -240,8 +277,8 @@ test('BNB Smart Chain · Binance-Peg USDC (18 decimals) · two transfers split 9
     await page.locator('[data-act=review]').click();
     await waitStatus(page, /Everything checks out/);
     const review = await page.locator('#tip-review').textContent();
-    assert.match(review, /9\.631 USDC → shaka\.osoartist\.eth\s*0x2596…c934/);
-    assert.match(review, /0\.369 USDC → vitalik\.eth\s*0xd8dA…6045/);
+    assert.match(review, /9\.631 USDC → shaka\.osoartist\.eth\s*0x 2596 5899 f460 0b3A A536 2ee4 f34b e95E 5E62 c934/);
+    assert.match(review, /0\.369 USDC → vitalik\.eth\s*0x d8dA 6BF2 6964 aF9D 7eEd 9e03 E534 15D3 7aA9 6045/);
     const [a0, s0] = await Promise.all([balanceOf(56, USDC[56], SHAKA), balanceOf(56, USDC[56], VITALIK)]);
     await page.locator('[data-act=send]').click();
     await waitStatus(page, /Done — 10 USDC/);
@@ -312,6 +349,7 @@ test('Arbitrum · the wallet does not know the chain → wallet_addEthereumChain
     assert.equal((await balanceOf(42161, USDC[42161], SHAKA)) - a0, 963_100n, 'transfer 1 landed');
     assert.equal(await balanceOf(42161, USDC[42161], VITALIK), s0, 'transfer 2 did not');
     assert.match(await page.locator('#tip-review').textContent(), /confirmed.*rejected/s);
+    assert.ok(calls.filter((c) => c.method === 'eth_sendTransaction').every((c) => c.params[0].chainId === '0xa4b1'), 'every tx carries chainId');
     await page.locator('[data-act=send]').click(); // "continue the tip"
     await waitStatus(page, /Done — 1 USDC/);
     assert.equal((await balanceOf(42161, USDC[42161], SHAKA)) - a0, 963_100n, 'transfer 1 was NOT sent again');
@@ -367,8 +405,141 @@ test('config fetch failure = tips off (fail closed)', async () => {
   const context = await browser.newContext();
   const page = await context.newPage();
   try {
-    await page.route(`${base}/tip-config.json`, (r) => r.fulfill({ status: 500, body: 'no' }));
+    await page.route((u) => u.pathname === '/tip-config.json', (r) => r.fulfill({ status: 500, body: 'no' }));
     await page.goto(`${base}/tip`);
     await page.waitForFunction(() => /Tips are switched off right now/.test(document.querySelector('#tip .body')?.textContent ?? ''));
+  } finally { await context.close(); }
+});
+
+/* ── QA fixes (9 Nov 2026 review) ─────────────────────────────────────────────────────── */
+const planted = (legs, total, extra = {}) => ({ id: 'tip_00000000000000000001', createdAt: new Date().toISOString(), kind: 'single', chainId: 8453, artistSlug: 'shaka', fan: FAN,
+  asset: { kind: 'erc20', address: USDC[8453], decimals: 6, symbol: 'USDC' }, assetKind: 'usdc', total, legs, ...extra });
+async function plant(page, rec) {
+  await page.evaluate((r) => localStorage.setItem('oso-tip-ledger-v1', JSON.stringify({ [r.id]: r })), rec);
+  await page.reload();
+}
+
+test('B1: a tampered stored tip ("shaka 5 USDC" but really 99 USDC → 0x…dEaD) is refused on continue — nothing is sent', async () => {
+  const { context, page, calls } = await open(WHO, { startChain: 8453 });
+  try {
+    await plant(page, planted([{ leg: 'artist+steward', to: '0x000000000000000000000000000000000000dEaD', label: 'shaka.osoartist.eth', amount: '99000000', state: 'planned', hash: null }], '99000000'));
+    await openPanel(page);
+    await page.locator('[data-connect]').click();
+    await waitStatus(page, /Connected/);
+    await page.locator('[data-act=resume]').click();
+    await waitStatus(page, /payees or amounts changed since this tip was planned/);
+    assert.equal(calls.filter((c) => c.method === 'eth_sendTransaction').length, 0);
+  } finally { await context.close(); }
+});
+
+test('B1: the kill switch holds for continued tips (mainnet off → an unfinished Base tip is NOT sent)', async () => {
+  const { context, page, calls } = await open(WHO, { startChain: 8453, config: { ...BASE_CONFIG, mainnet: false } });
+  try {
+    await plant(page, planted([{ leg: 'artist+steward', to: SHAKA, label: 'shaka.osoartist.eth', amount: '5000000', state: 'planned', hash: null }], '5000000'));
+    await enter(page);
+    await page.locator('#tip-open').click();
+    await page.locator('[data-connect]').click();
+    await waitStatus(page, /Connected/);
+    await page.locator('[data-act=resume]').click();
+    await waitStatus(page, /mainnet tips are switched off/);
+    assert.equal(calls.filter((c) => c.method === 'eth_sendTransaction').length, 0);
+  } finally { await context.close(); }
+});
+
+test('H3: the wallet errors AFTER broadcasting transfer 1 → continue finds it onchain and never pays the artist twice', async () => {
+  const config = { ...BASE_CONFIG, stewardEns: 'vitalik.eth', stewardPin: VITALIK };
+  const { context, page, sends } = await open(WHO, { config, startChain: 8453, errorAfterBroadcast: new Set([1]) });
+  try {
+    await openPanel(page);
+    await pick(page, 'input[name=tip-artist][value=shaka]');
+    await pick(page, 'input[name=tip-chain][value="8453"]');
+    await page.locator('#tip-amount').fill('3');
+    await page.locator('[data-connect]').click();
+    await waitStatus(page, /Connected/);
+    await page.locator('[data-act=review]').click();
+    await waitStatus(page, /Everything checks out/);
+    const [a0, s0] = await Promise.all([balanceOf(8453, USDC[8453], SHAKA), balanceOf(8453, USDC[8453], VITALIK)]);
+    await page.locator('[data-act=send]').click();
+    await waitStatus(page, /may or may not have gone out/);
+    assert.equal((await balanceOf(8453, USDC[8453], SHAKA)) - a0, 2_889_300n, 'the wallet did broadcast it');
+    await page.locator('[data-act=send]').click(); // continue
+    await waitStatus(page, /Done — 3 USDC/);
+    assert.equal((await balanceOf(8453, USDC[8453], SHAKA)) - a0, 2_889_300n, 'artist paid exactly once');
+    assert.equal((await balanceOf(8453, USDC[8453], VITALIK)) - s0, 110_700n);
+    assert.equal(sends(), 2, 'transfer 1 found via its Transfer log, only transfer 2 was sent');
+  } finally { await context.close(); }
+});
+
+test('H2: one lying Ethereum RPC (answers 0x…dEaD for shaka) → the page refuses to pay', async () => {
+  const { context, page, calls } = await open(WHO, { startChain: 8453, tamperRpc: 'https://eth.drpc.org' });
+  try {
+    await enter(page);
+    await page.locator('#tip-open').click();
+    await page.waitForFunction(() => /two Ethereum RPCs gave different answers|can’t read right now/.test(document.querySelector('#tip .body').textContent), null, { timeout: 30_000 });
+    assert.equal(await page.locator('input[name=tip-artist][value=shaka]').isDisabled(), true, 'shaka is not tippable while the RPCs disagree');
+    assert.equal(calls.filter((c) => c.method === 'eth_sendTransaction').length, 0);
+  } finally { await context.close(); }
+});
+
+const ORCH_CONFIG = { ...BASE_CONFIG, stewardEns: 'vitalik.eth', stewardPin: VITALIK, hostPayees: { 'open-source-orchestra': { ens: 'osoartist.eth', pin: SHAKA }, ohana: { ens: 'nick.eth', pin: NICK } } };
+for (const atomic of [true, false]) {
+  test(`🎻 whole orchestra on Base · ${atomic ? 'ONE EIP-5792 atomic batch' : 'no batch support → one transfer at a time'} · equal shares per distinct wallet, dust → steward`, async () => {
+    const { context, page, calls, batches, sends } = await open(WHO, { config: ORCH_CONFIG, startChain: 8453, atomic });
+    try {
+      await openPanel(page);
+      await page.locator('[data-mode=orchestra]').click();
+      await page.waitForFunction(() => /2 distinct wallets/.test(document.querySelector('#tip .body').textContent), null, { timeout: 30_000 });
+      assert.match(await page.locator('#tip .body').textContent(), /(Shaka 🤙 \+ Open Source Orchestra|Open Source Orchestra \+ Shaka 🤙) share one wallet/);
+      await pick(page, 'input[name=tip-chain][value="8453"]');
+      await page.locator('#tip-amount').fill('10.000001');
+      await page.locator('[data-connect]').click();
+      await waitStatus(page, /Connected/);
+      await page.locator('[data-act=review]').click();
+      await waitStatus(page, /Everything checks out/);
+      const review = await page.locator('#tip-review').textContent();
+      // total 10_000_001 → steward floor(3.69%) = 369_000; pool 9_631_001 → each 4_815_500, dust 1 → steward 369_001
+      assert.match(review, /4\.8155 USDC → (shaka\.osoartist\.eth \+ osoartist\.eth|osoartist\.eth \+ shaka\.osoartist\.eth)/);
+      assert.match(review, /4\.8155 USDC → nick\.eth/);
+      assert.match(review, /0\.369001 USDC → vitalik\.eth/);
+      assert.match(review, atomic ? /one atomic batch/ : /3 times — once per transfer/);
+      const before = await Promise.all([SHAKA, NICK, VITALIK].map((a) => balanceOf(8453, USDC[8453], a)));
+      await page.locator('[data-act=send]').click();
+      await waitStatus(page, /Done — 10\.000001 USDC went straight to 3 wallets of the orchestra/);
+      const after = await Promise.all([SHAKA, NICK, VITALIK].map((a) => balanceOf(8453, USDC[8453], a)));
+      assert.deepEqual(after.map((x, i) => x - before[i]), [4_815_500n, 4_815_500n, 369_001n]);
+      if (atomic) {
+        assert.equal(batches.length, 1);
+        assert.equal(batches[0].calls.length, 3);
+        assert.equal(sends(), 0, 'no single transfers when the wallet batches');
+      } else {
+        assert.equal(batches.length, 0);
+        assert.equal(sends(), 3);
+        assert.ok(calls.some((c) => c.method === 'wallet_getCapabilities'));
+      }
+    } finally { await context.close(); }
+  });
+}
+
+test('M7: on a 390 px phone the circle count stays on screen next to the 💸 pill', async () => {
+  const { context, page } = await open(WHO, {}, { width: 390, height: 844 });
+  try {
+    await enter(page);
+    const box = (sel) => page.locator(sel).boundingBox();
+    const [tip, count] = await Promise.all([box('#tip-open'), box('#count')]);
+    for (const [n, b] of [['tip', tip], ['count', count]]) assert.ok(b && b.x >= 0 && b.x + b.width <= 390, `${n} is on screen: ${JSON.stringify(b)}`);
+  } finally { await context.close(); }
+});
+
+test('a chain that stopped producing blocks is refused at review (sunset L2s like Lisk)', async () => {
+  const { context, page, calls } = await open(WHO, { startChain: 8453, staleChain: true });
+  try {
+    await openPanel(page);
+    await pick(page, 'input[name=tip-artist][value=shaka]');
+    await pick(page, 'input[name=tip-chain][value="8453"]');
+    await page.locator('[data-connect]').click();
+    await waitStatus(page, /Connected/);
+    await page.locator('[data-act=review]').click();
+    await waitStatus(page, /has not produced a block for 60 minutes — it looks stopped/);
+    assert.equal(calls.filter((c) => c.method === 'eth_sendTransaction').length, 0);
   } finally { await context.close(); }
 });

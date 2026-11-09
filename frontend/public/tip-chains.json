@@ -1,6 +1,6 @@
 {
  "version": 1,
- "verifiedAt": "2026-11-09T10:05:45Z",
+ "verifiedAt": "2026-11-09T11:34:33Z",
  "note": "Every USDC address: from the issuer list (Circle; BNB = Binance-Peg via BscScan) AND checked onchain (code, symbol, decimals, totalSupply>0, eth_chainId, fresh block). Regenerate: /workspace/multichain/verify.py + gen-chains.py. The page re-checks code/symbol/decimals in the fan's wallet before any prompt.",
  "chains": [
   {
@@ -26,7 +26,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD Coin",
     "codeBytes": 2186
    }
@@ -54,7 +54,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -82,7 +82,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -110,7 +110,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -138,7 +138,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1852
    }
@@ -166,7 +166,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -194,7 +194,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -222,7 +222,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -250,7 +250,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1852
    }
@@ -278,7 +278,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 8672
    }
@@ -306,7 +306,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -334,7 +334,7 @@
     "decimals": 18,
     "issuer": "Binance (Binance-Peg USDC, not issued by Circle)",
     "source": "https://bscscan.com/token/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d (label: binance-pegged); ethskills/addresses notes 18 decimals",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD Coin",
     "codeBytes": 1596
    }
@@ -416,44 +416,6 @@
    "usdc": null
   },
   {
-   "chainId": 167000,
-   "key": "taiko",
-   "name": "Taiko Alethia",
-   "family": "L2 \u00b7 based rollup",
-   "testnet": false,
-   "testnetOf": null,
-   "nativeCurrency": {
-    "name": "Ether",
-    "symbol": "ETH",
-    "decimals": 18
-   },
-   "rpcUrls": [
-    "https://rpc.mainnet.taiko.xyz"
-   ],
-   "explorer": "https://taikoscan.io",
-   "nativeTip": true,
-   "usdc": null
-  },
-  {
-   "chainId": 1135,
-   "key": "lisk",
-   "name": "Lisk",
-   "family": "L2 \u00b7 OP Stack \u00b7 Superchain",
-   "testnet": false,
-   "testnetOf": null,
-   "nativeCurrency": {
-    "name": "Ether",
-    "symbol": "ETH",
-    "decimals": 18
-   },
-   "rpcUrls": [
-    "https://rpc.api.lisk.com"
-   ],
-   "explorer": "https://blockscout.lisk.com",
-   "nativeTip": true,
-   "usdc": null
-  },
-  {
    "chainId": 11155111,
    "key": "sepolia",
    "name": "Ethereum Sepolia",
@@ -476,7 +438,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -504,7 +466,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -532,7 +494,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -560,7 +522,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD Coin",
     "codeBytes": 1798
    }
@@ -588,7 +550,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1852
    }
@@ -616,7 +578,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -644,7 +606,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -672,7 +634,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -700,7 +662,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USD//C",
     "codeBytes": 1852
    }
@@ -728,7 +690,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 8672
    }
@@ -756,7 +718,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T10:05:45Z",
+    "verifiedOnchain": "2026-11-09T11:34:33Z",
     "name": "USDC",
     "codeBytes": 1798
    }

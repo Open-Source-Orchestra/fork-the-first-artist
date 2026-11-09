@@ -6,10 +6,10 @@
  "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)",
  "rule": "No cherry-picking: every question asked of the new steward on 9 Nov 2026 is here, verbatim, with its 0G request ID. Wrong answers are marked, with what we fixed.",
  "counts": {
-  "ok": 31,
+  "ok": 32,
   "minor": 12,
   "wrong": 4,
-  "total": 47
+  "total": 48
  },
  "before": [
   {
@@ -814,6 +814,29 @@
      "provider_address": "0xf4FB8d2bD856e672b5f9848b0eD235A20079B250",
      "router_reported_tee_verified": null,
      "cost_usd_micro": "249",
+     "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
+    }
+   ]
+  },
+  {
+   "round": "round6",
+   "worker_version": "896aef36",
+   "about": "Asked from the live circle page in a browser after this page went live (tap a chip in \"Ask Shaka's steward\"), to check the real fan path end to end. The browser view shows the request ID and model; time to the minute.",
+   "answers": [
+    {
+     "n": 1,
+     "question": "What happened at Devcon 8?",
+     "asked_at": "2026-11-09T13:32Z (±1 min, browser)",
+     "http": 200,
+     "answer": "Shaka Lei Kaumaka played every day of the Devcon 8 Music Sanctuary in Mumbai (Nov 3–6, 2026). About 35 artists gathered in a circle for open jams. On Friday, the Sanctuary hosted the closing ceremony with a brass lamp, confetti, and dancing. Shaka also gave a talk titled \"In the future music and culture is free\" on Jasmine Stage 4.\n\nFor more details, see the schedule archive: https://app.devcon.org/schedule/W8HAES\nOr view the photo album: https://opensourceorchestra.org/mandala-room/",
+     "verdict": "ok",
+     "note": "",
+     "request_id": "03e1f047-f9a9-4dca-89af-68d03b79e3cf",
+     "verification_chat_id": null,
+     "model": "0gm-1.0-35b-a3b",
+     "provider_address": null,
+     "router_reported_tee_verified": null,
+     "cost_usd_micro": null,
      "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
     }
    ]

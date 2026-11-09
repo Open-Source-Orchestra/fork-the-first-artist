@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Tip an Open Source Orchestra artist straight into their own wallet — Ethereum, Base, OP, Arbitrum, World Chain, BNB Chain and more. 96.31% to the artist, 3.69% to the AI steward, 0 to OSO. No custody, no contract.">
+<meta property="og:title" content="💸 Tip the artist · any Ethereum chain · Open Source Orchestra">
+<meta property="og:description" content="Straight into the artist's own wallet. 96.31% artist · 3.69% steward · 0 to OSO.">
+<link rel="icon" href="data:,">
+<title>💸 Tip the artist · any Ethereum chain · Open Source Orchestra</title>
+<style>
+:root{--night:#0b0612;--cream:#f7ecd9;--cream-dim:rgba(247,236,217,.74);--cream-faint:rgba(247,236,217,.58);--gold:#f0c464;--gold-bright:#ffd97a;--gold-soft:rgba(240,196,100,.35);--teal:#2dd4bf;
+--sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;--serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--night);color:var(--cream);font-family:var(--sans);min-height:100vh}
+button{font-family:var(--sans);cursor:pointer;border:0;background:none;color:inherit}
+a{color:var(--gold)}
+.top{max-width:640px;margin:0 auto;padding:18px 16px 0;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.top h1{font-family:var(--serif);font-size:1.5rem;color:var(--gold-bright);font-weight:600;flex:1}
+.pill{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;border:1px solid var(--gold-soft);border-radius:999px;padding:.55em 1em;color:var(--cream-dim);background:rgba(21,11,34,.78);white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:.4em;line-height:1}
+.pill:hover{color:var(--gold-bright);border-color:var(--gold)}
+.pill.on{background:var(--gold);color:#1a1206;border-color:var(--gold);font-weight:700}
+.big{background:linear-gradient(135deg,var(--gold),#ffb36b);color:#1a1206;font-weight:800;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;border-radius:999px;padding:.95em 1.8em}
+.fork-split{display:flex;height:30px;border-radius:999px;overflow:hidden;border:1px solid rgba(240,196,100,.45);margin:10px 0 4px;font-size:.66rem;font-weight:700}
+.fork-split span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
+.fork-split .a{flex:96.31;background:linear-gradient(90deg,var(--gold),#ffb36b);color:#1a1206}
+.fork-split .c{flex:3.69;min-width:44px;background:var(--teal);color:#06231f}
+</style>
+<link rel="stylesheet" href="/tip.css?v=20261109a">
+</head>
+<body>
+<header class="top"><h1>💸 Tip the artist</h1><a class="pill" href="/">← the circle</a></header>
+<main id="tip-root"><noscript><p style="padding:16px">This page needs JavaScript and your own wallet. You can always tip without it: send to the artist's ENS name (for example shaka.osoartist.eth) from any wallet.</p></noscript></main>
+<script type="module" src="/tip.mjs?v=20261109a"></script>
+</body>
+</html>

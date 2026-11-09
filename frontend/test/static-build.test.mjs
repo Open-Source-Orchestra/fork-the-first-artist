@@ -24,7 +24,7 @@ test('static build creates public routes/assets and keeps wallets disabled witho
   assert.equal(await exists(join(out, '.env')), false);
   assert.equal(await exists(join(out, 'hashpack-runtime.mjs')), false);
   const images = await readdir(join(out, 'circle/img'));
-  assert.equal(images.filter((name) => name.endsWith('.jpg')).length, 23);
+  assert.equal(images.filter((name) => name.endsWith('.jpg')).length, 24); // +aniket-gundewar.jpg (his own photo, 9 Nov 2026)
   assert.equal(await readFile(join(out, 'CNAME'), 'utf8'), 'artist.example.org\n');
 });
 

@@ -179,7 +179,7 @@ export const roster = {
    "tagline": "Indian classical on electric guitar · gayaki ang · jugalbandi with his tabla player Dhaivat",
    "headline": "He released a raga about the Mumbai rains. Now he opens Devcon in Mumbai.",
    "glyph": "🎸🪘",
-   "photo": null,
+   "photo": "/circle/img/aniket-gundewar.jpg",
    "links": [
     {
      "label": "Linktree",

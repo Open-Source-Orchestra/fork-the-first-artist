@@ -439,8 +439,8 @@ function select(s, quiet = false) {
   const links = [];
   if (a.profile) links.push(`<a class="pill" href="${a.profile}" target="_blank" rel="noopener">🖼 profile</a>`);
   if (a.rider) links.push(`<a class="pill" href="${a.rider}" target="_blank" rel="noopener">🎚 rider</a>`);
-  if (a.code) links.push(`<a class="pill teal" href="${DEVCON}/schedule/${a.code}" target="_blank" rel="noopener">📱 in the Devcon app</a>`);
-  else if (a.kind === 'placed') links.push(`<span class="pill" style="opacity:.6">📱 Devcon app · session being added</span>`);
+  if (a.code) links.push(`<a class="pill teal" href="${DEVCON}/schedule/${a.code}" target="_blank" rel="noopener">📱 their Devcon 8 session (archive)</a>`);
+  else if (a.kind === 'placed') links.push(`<span class="pill" style="opacity:.6">🗓 played in the Sanctuary · no Devcon app page</span>`);
   (Array.isArray(a.links) ? a.links : []).forEach(l => links.push(`<a class="pill violet" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`));
   if (s === 'alaska-x-subcult') links.push(`<button class="pill violet" data-open="radio">📻 the circle is a station</button>`);
   $('#detail-body').innerHTML = `
@@ -461,9 +461,9 @@ function select(s, quiet = false) {
 }
 function updateDevconLinks() {
   const codes = [...new Set(circle.flatMap(s => BY[s].codes || []))];
-  const url = codes.length ? `${DEVCON}/my-interests?add=${codes.join(',')}` : `${DEVCON}/ai/devcon8/search?room=Music%20stage`;
+  const url = codes.length ? `${DEVCON}/my-interests?add=${codes.join(',')}` : `${DEVCON}/ai/devcon8/search?room=Music%20stage`; // Devcon 8 is over: the app's session pages stay as the archive
   $('#btn-devcon').href = url; $('#radio-devcon').href = url;
-  $('#btn-devcon').textContent = codes.length ? `📱 star this circle in the Devcon app (${codes.length})` : '📱 open the Devcon app';
+  $('#btn-devcon').textContent = codes.length ? `🗓 see the sessions (archive · ${codes.length})` : '🗓 see the sessions (archive)';
 }
 function writeUrl() {
   const q = circle.length ? '?who=' + circle.join(',') : location.pathname;

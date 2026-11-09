@@ -6,7 +6,7 @@
 //   · every answer must come from TWO independent public RPCs that agree exactly (one bad RPC can't
 //     redirect a tip); a transport error is an error, never "no record";
 //   · offchain lookups (CCIP-read) are off, so a resolver can't make visitors' browsers fetch other URLs.
-import { DEFAULT_EVM_COIN, coinTypeFor, ADDRESS_RE } from './tip-core.mjs?v=20261109d';
+import { DEFAULT_EVM_COIN, coinTypeFor, ADDRESS_RE } from './tip-core.mjs?v=20261109e';
 
 export const UNIVERSAL_RESOLVER = '0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe'; // ENSv2, ens/src/constants.mjs
 export const TEXT_CONSENT = 'oso.consent';

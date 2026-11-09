@@ -1,6 +1,6 @@
 {
  "version": 1,
- "verifiedAt": "2026-11-09T11:34:33Z",
+ "verifiedAt": "2026-11-09T13:26:31Z",
  "note": "Every USDC address: from the issuer list (Circle; BNB = Binance-Peg via BscScan) AND checked onchain (code, symbol, decimals, totalSupply>0, eth_chainId, fresh block). Regenerate: /workspace/multichain/verify.py + gen-chains.py. The page re-checks code/symbol/decimals in the fan's wallet before any prompt.",
  "chains": [
   {
@@ -26,7 +26,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD Coin",
     "codeBytes": 2186
    }
@@ -54,7 +54,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -82,7 +82,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -110,7 +110,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -138,7 +138,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1852
    }
@@ -166,7 +166,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -194,7 +194,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -222,7 +222,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -250,7 +250,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1852
    }
@@ -278,7 +278,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 8672
    }
@@ -306,7 +306,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD Coin",
     "codeBytes": 1852
    }
@@ -334,10 +334,39 @@
     "decimals": 18,
     "issuer": "Binance (Binance-Peg USDC, not issued by Circle)",
     "source": "https://bscscan.com/token/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d (label: binance-pegged); ethskills/addresses notes 18 decimals",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD Coin",
     "codeBytes": 1596
    }
+  },
+  {
+   "chainId": 4217,
+   "key": "tempo",
+   "name": "Tempo",
+   "family": "EVM L1 \u00b7 stablecoin payments (Stripe \u00d7 Paradigm)",
+   "testnet": false,
+   "testnetOf": null,
+   "nativeCurrency": {
+    "name": "USD",
+    "symbol": "USD",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc.tempo.xyz"
+   ],
+   "explorer": "https://explore.tempo.xyz",
+   "nativeTip": false,
+   "usdc": {
+    "address": "0x20c0000000000000000000006a37da5c996874be",
+    "symbol": "OUSD",
+    "decimals": 6,
+    "issuer": "Open Standard (OUSD, native TIP-20 on Tempo; testnet token on Moderato)",
+    "source": "https://tempo.xyz/developers/docs/guide/ousd",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
+    "name": "OpenUSD",
+    "codeBytes": 1
+   },
+   "stablecoinFees": true
   },
   {
    "chainId": 534352,
@@ -438,7 +467,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -466,7 +495,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -494,7 +523,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -522,7 +551,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD Coin",
     "codeBytes": 1798
    }
@@ -550,7 +579,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1852
    }
@@ -578,7 +607,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -606,7 +635,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -634,7 +663,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }
@@ -662,7 +691,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USD//C",
     "codeBytes": 1852
    }
@@ -690,10 +719,39 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 8672
    }
+  },
+  {
+   "chainId": 42431,
+   "key": "tempo-moderato",
+   "name": "Tempo Moderato",
+   "family": "testnet",
+   "testnet": true,
+   "testnetOf": 4217,
+   "nativeCurrency": {
+    "name": "USD",
+    "symbol": "USD",
+    "decimals": 18
+   },
+   "rpcUrls": [
+    "https://rpc.moderato.tempo.xyz"
+   ],
+   "explorer": "https://explore.testnet.tempo.xyz",
+   "nativeTip": false,
+   "usdc": {
+    "address": "0x20c0000000000000000000006a37da5c996874be",
+    "symbol": "OUSD",
+    "decimals": 6,
+    "issuer": "Open Standard (OUSD, native TIP-20 on Tempo; testnet token on Moderato)",
+    "source": "https://tempo.xyz/developers/docs/guide/ousd",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
+    "name": "OpenUSD",
+    "codeBytes": 1
+   },
+   "stablecoinFees": true
   },
   {
    "chainId": 80002,
@@ -718,7 +776,7 @@
     "decimals": 6,
     "issuer": "Circle",
     "source": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
-    "verifiedOnchain": "2026-11-09T11:34:33Z",
+    "verifiedOnchain": "2026-11-09T13:26:31Z",
     "name": "USDC",
     "codeBytes": 1798
    }

@@ -14,8 +14,8 @@
 // provably did not move. One tab at a time (Web Locks).
 //
 // Pure logic + tests: tip-core.mjs (frontend/test/tip-core.test.mjs). ENS reads: tip-ens.mjs.
-import * as core from './tip-core.mjs';
-import { makeClients, readName, readEthUsd } from './tip-ens.mjs';
+import * as core from './tip-core.mjs?v=20261109d';
+import { makeClients, readName, readEthUsd } from './tip-ens.mjs?v=20261109d';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -34,7 +34,7 @@ const S = {
 /* ── config (kill switch): fetched fresh before every review and every transfer ─────────────── */
 async function fetchConfig() {
   try {
-    const r = await fetch(`/tip-config.json?t=${Date.now()}`, { cache: 'no-store' });
+    const r = await fetch(`/tip-config.json?t=${Date.now()}`, { cache: 'no-store' }); // mainnet is read from `mainnetLive` (the old `mainnet` key stays false so any stale cached page code stays on testnets)
     if (!r.ok) throw new Error(String(r.status));
     const c = await r.json();
     if (!c || typeof c !== 'object' || typeof c.enabled !== 'boolean' || !core.ADDRESS_RE.test(c.stewardPin ?? '')) throw new Error('malformed');
@@ -47,7 +47,7 @@ function gate(cfg, c) {
   if (FRAMED) throw new Error('this page is inside a frame — open it directly to tip');
   if (!cfg.enabled) throw new Error(`tips are switched off right now${cfg.reason ? ` — ${cfg.reason}` : ''}`);
   if (!c) throw new Error('that chain is not offered');
-  if (!c.testnet && !cfg.mainnet) throw new Error('mainnet tips are switched off right now');
+  if (!c.testnet && !cfg.mainnetLive === true) throw new Error('mainnet tips are switched off right now');
   if ((cfg.disabledChains ?? []).includes(c.chainId)) throw new Error(`${c.name} is paused right now`);
 }
 
@@ -66,7 +66,7 @@ async function load() {
   S.artists = artists.artists ?? [];
   S.bySlug = new Map(S.artists.map((a) => [a.slug, a]));
   S.registry = registry && typeof registry.artists === 'object' ? registry : { artists: {} };
-  if (!S.config.mainnet) S.network = 'testnet';
+  if (!S.config.mainnetLive === true) S.network = 'testnet';
 }
 
 /** Host cards paid on a name Shaka owns (tip-config `hostPayees`, e.g. the orchestra → osoartist.eth). Must equal their pin. */
@@ -813,7 +813,7 @@ function render() {
   let html = '';
   if (FRAMED) html += '<div class="tip-banner err">This tip page is shown inside another site’s frame. Open it directly at artist.opensourceorchestra.org to tip.</div>';
   else if (!cfg.enabled) html += `<div class="tip-banner err">Tips are switched off right now. ${esc(cfg.reason ?? '')}</div>`;
-  else if (!cfg.mainnet) html += '<div class="tip-banner">🧪 Mainnet tips are not switched on yet — you can practise on a testnet (no real money).</div>';
+  else if (!cfg.mainnetLive === true) html += '<div class="tip-banner">🧪 Mainnet tips are not switched on yet — you can practise on a testnet (no real money).</div>';
   if (cfg.message) html += `<div class="tip-banner">${esc(cfg.message)}</div>`;
 
   if (!S.record || core.nextLeg(S.record).action === 'done') {
@@ -843,7 +843,7 @@ function render() {
   }
 
   html += `<fieldset class="tip-step" ${lockForm}><legend>2 · where</legend>
-    <div class="tip-net" role="group" aria-label="network type"><button class="pill ${S.network === 'mainnet' ? 'on' : ''}" data-net="mainnet" aria-pressed="${S.network === 'mainnet'}" ${cfg.mainnet ? '' : 'disabled'}>mainnets · real money</button><button class="pill ${S.network === 'testnet' ? 'on' : ''}" data-net="testnet" aria-pressed="${S.network === 'testnet'}">testnets · practice</button></div>
+    <div class="tip-net" role="group" aria-label="network type"><button class="pill ${S.network === 'mainnet' ? 'on' : ''}" data-net="mainnet" aria-pressed="${S.network === 'mainnet'}" ${cfg.mainnetLive === true ? '' : 'disabled'}>mainnets · real money</button><button class="pill ${S.network === 'testnet' ? 'on' : ''}" data-net="testnet" aria-pressed="${S.network === 'testnet'}">testnets · practice</button></div>
     <div class="tip-chains" id="tip-chains" role="radiogroup" aria-label="chain">${vis.map((x) => `<label class="tip-chain${S.chainId === x.chainId ? ' on' : ''}"><input type="radio" name="tip-chain" value="${x.chainId}" ${S.chainId === x.chainId ? 'checked' : ''}><b>${esc(x.name)}</b><small>${esc(x.testnet ? 'testnet · ' + (S.byId.get(x.testnetOf)?.name ?? '') : x.family)} · ${[x.usdc ? 'USDC' : null, x.nativeTip ? 'ETH' : null].filter(Boolean).join(' + ')}</small></label>`).join('')}</div></fieldset>`;
 
   if (c) {
@@ -865,7 +865,7 @@ function render() {
 
   // the ONE primary action
   let action = '';
-  const ready = enabled && (orch || S.slug) && c && a && amt.ok && (c.testnet || cfg.mainnet);
+  const ready = enabled && (orch || S.slug) && c && a && amt.ok && (c.testnet || cfg.mainnetLive === true);
   if (!enabled) action = '';
   else if (!w) {
     if (S.wallets.size) action = `<div class="tip-wallets">${[...S.wallets.values()].map((x) => `<button class="big tip-cta" data-connect="${esc(x.id)}" ${busy ? 'disabled' : ''}>${x.icon ? `<img src="${esc(x.icon)}" alt="">` : ''}${busy === 'connect' ? 'connecting…' : `connect ${esc(x.name)}`}</button>`).join('')}</div>`;
@@ -1037,7 +1037,7 @@ discover();
 S.loaded = load().then(() => {
   const p = new URLSearchParams(location.search);
   const ch = Number(p.get('chain'));
-  if (S.byId.has(ch) && (S.byId.get(ch).testnet || S.config.mainnet)) { S.chainId = ch; S.network = S.byId.get(ch).testnet ? 'testnet' : 'mainnet'; }
+  if (S.byId.has(ch) && (S.byId.get(ch).testnet || S.config.mainnetLive === true)) { S.chainId = ch; S.network = S.byId.get(ch).testnet ? 'testnet' : 'mainnet'; }
   if (ensFor(p.get('artist') ?? '')) S.slug = p.get('artist');
   if (p.get('mode') === 'orchestra') S.mode = 'orchestra';
   render();

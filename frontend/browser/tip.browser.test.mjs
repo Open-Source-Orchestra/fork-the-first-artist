@@ -28,7 +28,7 @@ const NICK = '0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5'; // nick.eth — fork-
 const USDC = { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 56: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 42161: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831' };
 const WHO = '/?who=open-source-orchestra,shaka,ohana,amogh,0xmentalist,jaydeepdan-gadhavi,nidhi-harihar,aniket-gundewar,vivek-teega';
 const ENS_RPCS = ['https://ethereum-rpc.publicnode.com', 'https://eth.drpc.org', 'https://1rpc.io/eth'];
-const BASE_CONFIG = { enabled: true, mainnet: true, stewardEns: 'osoartist.eth', stewardPin: SHAKA, hostPayees: { 'open-source-orchestra': { ens: 'osoartist.eth' } }, limits: { minUsdc: '0.01', maxUsdc: '100', minEth: '0.0001', maxEth: '0.05' }, disabledChains: [], ensRpcUrls: ENS_RPCS };
+const BASE_CONFIG = { enabled: true, mainnet: false, mainnetLive: true, stewardEns: 'osoartist.eth', stewardPin: SHAKA, hostPayees: { 'open-source-orchestra': { ens: 'osoartist.eth' } }, limits: { minUsdc: '0.01', maxUsdc: '100', minEth: '0.0001', maxEth: '0.05' }, disabledChains: [], ensRpcUrls: ENS_RPCS };
 
 const procs = [];
 let server; let browser; let base;
@@ -391,7 +391,7 @@ test('fail closed: wrong token decimals, kill switch, mainnet off, no wallet', a
     } finally { await context.close(); }
   }
   {
-    const { context, page } = await open(WHO, { config: { ...BASE_CONFIG, mainnet: false } });
+    const { context, page } = await open(WHO, { config: { ...BASE_CONFIG, mainnetLive: false } });
     try {
       await openPanel(page);
       assert.equal(await page.locator('[data-net=mainnet]').isDisabled(), true);
@@ -440,7 +440,7 @@ test('B1: a tampered stored tip ("shaka 5 USDC" but really 99 USDC → 0x…dEaD
 });
 
 test('B1: the kill switch holds for continued tips (mainnet off → an unfinished Base tip is NOT sent)', async () => {
-  const { context, page, calls } = await open(WHO, { startChain: 8453, config: { ...BASE_CONFIG, mainnet: false } });
+  const { context, page, calls } = await open(WHO, { startChain: 8453, config: { ...BASE_CONFIG, mainnetLive: false } });
   try {
     await plant(page, planted([{ leg: 'artist+steward', to: SHAKA, label: 'shaka.osoartist.eth', amount: '5000000', state: 'planned', hash: null }], '5000000'));
     await enter(page);

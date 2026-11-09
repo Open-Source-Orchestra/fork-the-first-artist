@@ -14,8 +14,8 @@
 // provably did not move. One tab at a time (Web Locks).
 //
 // Pure logic + tests: tip-core.mjs (frontend/test/tip-core.test.mjs). ENS reads: tip-ens.mjs.
-import * as core from './tip-core.mjs?v=20261109d';
-import { makeClients, readName, readEthUsd } from './tip-ens.mjs?v=20261109d';
+import * as core from './tip-core.mjs?v=20261109e';
+import { makeClients, readName, readEthUsd } from './tip-ens.mjs?v=20261109e';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

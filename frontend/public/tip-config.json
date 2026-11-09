@@ -8,7 +8,7 @@
   "stewardPin": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
   "hostPayees": { "open-source-orchestra": { "ens": "osoartist.eth", "why": "the orchestra itself is paid on osoartist.eth (Shaka confirmed 9 Nov 2026 10:10Z); must equal stewardPin" } },
   "limits": { "minUsdc": "0.01", "maxUsdc": "100", "minEth": "0.0001", "maxEth": "0.05" },
-  "disabledChains": [],
+  "disabledChains": [4217],
   "ensRpcUrls": ["https://ethereum-rpc.publicnode.com", "https://eth.drpc.org", "https://1rpc.io/eth"],
   "message": ""
 }

@@ -488,7 +488,7 @@ test('H2: one lying Ethereum RPC (answers 0x…dEaD for shaka) → the page refu
   } finally { await context.close(); }
 });
 
-const ORCH_CONFIG = { ...BASE_CONFIG, stewardEns: 'vitalik.eth', stewardPin: VITALIK, hostPayees: { 'open-source-orchestra': { ens: 'osoartist.eth', pin: SHAKA }, ohana: { ens: 'nick.eth', pin: NICK } } };
+const ORCH_CONFIG = { ...BASE_CONFIG, batch: true, stewardEns: 'vitalik.eth', stewardPin: VITALIK, hostPayees: { 'open-source-orchestra': { ens: 'osoartist.eth', pin: SHAKA }, ohana: { ens: 'nick.eth', pin: NICK } } };
 for (const atomic of [true, false]) {
   test(`🎻 whole orchestra on Base · ${atomic ? 'ONE EIP-5792 atomic batch' : 'no batch support → one transfer at a time'} · equal shares per distinct wallet, dust → steward`, async () => {
     const { context, page, calls, batches, sends } = await open(WHO, { config: ORCH_CONFIG, startChain: 8453, atomic });
@@ -629,7 +629,7 @@ test('H4: batch went through, wallet then errored, fan is a smart account (nonce
   } finally { await context.close(); }
 });
 
-test('H5: ambiguous wallet_sendCalls error and nothing went out → wallet says "unknown id" → fan confirms → SAME batch id re-sent → everyone paid exactly once', async () => {
+test('H5/H6: ambiguous wallet_sendCalls error → the page never re-submits a batch the wallet may have accepted, nothing is paid twice', async () => {
   const { context, page, batches, sends } = await open(WHO, { config: ORCH_CONFIG, startChain: 8453, atomic: true, batchErrorNoExec: true });
   try {
     await openPanel(page);
@@ -645,13 +645,10 @@ test('H5: ambiguous wallet_sendCalls error and nothing went out → wallet says 
     await page.locator('[data-act=send]').click();
     await waitStatus(page, /answered the batch with an error/);
     await page.locator('[data-act=send]').click(); // continue
-    await waitStatus(page, /close any open batch request/);
-    await page.locator('[data-act=confirm-resend]').click();
-    await waitStatus(page, /Done — 10 USDC/);
+    await waitStatus(page, /no longer knows this batch .* will not send it again/);
     const after = await Promise.all([SHAKA, NICK, VITALIK].map((a) => balanceOf(8453, USDC[8453], a)));
-    assert.deepEqual(after.map((x, i) => x - before[i]), [4_815_500n, 4_815_500n, 369_000n]);
-    assert.equal(batches.length, 2);
-    assert.equal(batches[0].id, batches[1].id, 'the retry re-uses our batch id (wallets refuse duplicates)');
+    assert.deepEqual(after.map((x, i) => x - before[i]), [0n, 0n, 0n]);
+    assert.equal(batches.length, 1, 'never re-submitted');
     assert.equal(sends(), 0);
   } finally { await context.close(); }
 });

@@ -324,7 +324,7 @@ async function review() {
     try {
       const plan = await buildPlan({ kind: S.mode === 'orchestra' ? 'orchestra' : 'single', chainId: c.chainId, assetKind: S.asset, slug: S.slug, total: amt.total, fan: S.wallet.account });
       if (form !== S.form) return setStatus('You changed something while it was checking — review again.', 'warn');
-      if (plan.kind === 'orchestra' && plan.asset.kind === 'erc20') {
+      if (S.config.batch === true && plan.kind === 'orchestra' && plan.asset.kind === 'erc20') {
         const caps = await rq('wallet_getCapabilities', [S.wallet.account, [core.chainHex(c.chainId)]]).catch(() => null);
         plan.atomic = core.atomicSupport(caps, c.chainId);
       }
@@ -369,18 +369,19 @@ function openRecords() {
   if (dirty) writeLedger(all);
   return out;
 }
-/** Every tx hash this browser already attributed to some leg — a log search never claims the same transfer twice. */
-function claimedHashes() {
+/** Transfers this browser already attributed to some leg, per LOG (tx:logIndex) and per (tx, payee) — one batch tx
+ *  carries many transfers, so a whole tx hash is never "taken" by a single leg. */
+function claimedKeys() {
   const set = new Set();
-  for (const r of Object.values(ledger())) for (const l of r?.legs ?? []) for (const h of [l.hash, ...(l.hashes ?? [])]) if (core.HASH_RE.test(h ?? '')) set.add(h.toLowerCase());
-  try { for (const h of JSON.parse(localStorage.getItem(CLAIMED_KEY) ?? '[]')) set.add(String(h).toLowerCase()); } catch { /* none */ }
+  for (const r of Object.values(ledger())) for (const l of r?.legs ?? []) if (l.state === 'confirmed' && core.HASH_RE.test(l.hash ?? '') && core.ADDRESS_RE.test(l.to ?? '')) set.add(`${l.hash}:${l.to}`.toLowerCase());
+  try { for (const k of JSON.parse(localStorage.getItem(CLAIMED_KEY) ?? '[]')) set.add(String(k).toLowerCase()); } catch { /* none */ }
   return set;
 }
-function claim(hash) {
+function claim(key) {
   try {
     const list = JSON.parse(localStorage.getItem(CLAIMED_KEY) ?? '[]');
-    list.push(hash.toLowerCase());
-    localStorage.setItem(CLAIMED_KEY, JSON.stringify(list.slice(-500)));
+    list.push(key.toLowerCase());
+    localStorage.setItem(CLAIMED_KEY, JSON.stringify(list.slice(-1000)));
   } catch { /* the leg itself also stores the hash */ }
 }
 function recordFromPlan(p) {
@@ -456,7 +457,7 @@ async function sendLocked(id, initial, confirm) {
       // 'send' — re-plan from scratch and require the same legs
       const fresh = await buildPlan(intentOf(record), { record, cache });
       if (!core.legsEqual(fresh.legs, record.legs)) throw stop('the payees or amounts changed since this tip was planned (ENS or the switchboard changed)');
-      if (record.kind === 'orchestra' && record.asset.kind === 'erc20' && record.legs.length > 1 && record.legs.every((l) => l.state === 'planned') && !record.batch?.fallback) {
+      if (S.config.batch === true && record.kind === 'orchestra' && record.asset.kind === 'erc20' && record.legs.length > 1 && record.legs.every((l) => l.state === 'planned') && !record.batch?.fallback) {
         const caps = await rq('wallet_getCapabilities', [record.fan, [core.chainHex(record.chainId)]]).catch(() => null);
         if (core.atomicSupport(caps, record.chainId) && await startBatch(record, fresh, c)) continue;
       }
@@ -467,7 +468,9 @@ async function sendLocked(id, initial, confirm) {
     const r = readRecord(id);
     const done = r ? r.legs.filter((l) => l.state === 'confirmed') : [];
     if (r && done.length && done.length < r.legs.length && e?.code !== 4001) {
-      throw Object.assign(new Error(`${done.length} of ${r.legs.length} transfers already went out (${done.map((l) => l.label).join(', ')} — see the links). The rest were NOT sent: ${e.message}. Please don’t start a new tip for the same people unless you mean to pay them again.`), { code: 'partial' });
+      const notSent = r.legs.filter((l) => ['planned', 'rejected', 'failed'].includes(l.state));
+      const doubt = r.legs.filter((l) => l.state !== 'confirmed' && !notSent.includes(l));
+      throw Object.assign(new Error(`${done.length} of ${r.legs.length} transfers went out (${done.map((l) => l.label).join(', ')} — see the links).${notSent.length ? ` Not sent: ${notSent.map((l) => l.label).join(', ')}.` : ''}${doubt.length ? ` In doubt — check the explorer: ${doubt.map((l) => l.label).join(', ')}.` : ''} Reason: ${e.message}. Please don’t start a new tip for the same people unless you mean to pay them again.`), { code: e?.code === 'confirm' ? 'confirm' : 'partial' });
     }
     throw e;
   }
@@ -494,14 +497,27 @@ async function checkLeg(record, i, confirm) {
     throw stop(`a transaction from this wallet may already have gone out for ${label} — check the explorer; this page will not send it again`);
   }
   if (l.state === 'rejected' || confirm.confirmLeg === i) return 'send';
-  S.confirm = { kind: 'leg', i, text: `Your wallet may still have the earlier request for ${label} open. Open your wallet, reject or close any open request, then press “send it again”.` };
+  S.confirm = { kind: 'leg', i, text: `Check your wallet’s activity first: if ${label} is listed there — even as pending — do NOT press. Otherwise reject/close any request still open in your wallet, then press “send it again”.` };
   throw stop(`close any open request in your wallet, then confirm to send ${label} again`, 'confirm');
 }
 
 async function sendLeg(record, i, tx, c) {
   const l = record.legs[i];
   const n = i + 1;
-  l.nonce = (await nonceOf(record.fan, 'pending')).toString();
+  const retry = l.state !== 'planned' && l.state !== 'failed';
+  if (retry) {
+    // last look right before the prompt: did the earlier attempt land meanwhile, or did the wallet send anything?
+    if (await findTransfer(record, l)) return;
+    if (l.nonce != null && !(await isContractAccount(record.fan)) && (await nonceOf(record.fan, 'pending')) !== BigInt(l.nonce)) {
+      l.state = 'mismatch';
+      l.note = 'a transaction from this wallet went out just before the re-send';
+      saveRecord(record);
+      throw stop(`a transaction from this wallet went out just now — check the explorer before anything else; transfer ${n} was not sent again`);
+    }
+  }
+  const pendingNonce = await nonceOf(record.fan, 'pending');
+  l.nonce = pendingNonce.toString();
+  tx = { ...tx, nonce: '0x' + pendingNonce.toString(16) }; // wallets that honour it can never run two copies
   l.block = (core.hexToBigInt(await rq('eth_blockNumber', []))).toString();
   l.state = 'prompting'; // saved BEFORE the prompt: a reload/close now can never lead to a blind re-send
   saveRecord(record);
@@ -530,6 +546,11 @@ async function sendLeg(record, i, tx, c) {
   const now = Number(BigInt(await rq('eth_chainId', [])));
   if (now !== record.chainId) throw stop(`your wallet moved to chain ${now} — switch back to ${c.name} so the page can confirm transfer ${n}`);
   await waitLeg(record, i, c);
+  if (retry && record.asset.kind === 'erc20') {
+    const logs = await rq('eth_getLogs', [{ address: record.asset.address, fromBlock: '0x' + BigInt(l.block).toString(16), toBlock: 'latest', topics: [core.TRANSFER_TOPIC, pad32(record.fan), pad32(l.to)] }]).catch(() => []);
+    const same = (logs ?? []).filter((x) => { try { return BigInt(x.data) === BigInt(l.amount); } catch { return false; } });
+    if (same.length > 1) { l.note = `paid ${same.length}× — the earlier request was approved too`; saveRecord(record); throw stop(`heads-up: ${l.label} received this transfer ${same.length} times (the earlier wallet request was approved as well). Nothing more will be sent.`); }
+  }
 }
 
 /** Poll a sent leg. Never re-sends. Detects speed-ups/cancels through the nonce + Transfer logs. */
@@ -575,10 +596,11 @@ async function findTransfer(record, l) {
   if (record.asset.kind !== 'erc20' || l.block == null) return false;
   try {
     const logs = await rq('eth_getLogs', [{ address: record.asset.address, fromBlock: '0x' + BigInt(l.block).toString(16), toBlock: 'latest', topics: [core.TRANSFER_TOPIC, pad32(record.fan), pad32(l.to)] }]);
-    const taken = claimedHashes();
-    const hit = (logs ?? []).find((x) => { try { return BigInt(x.data) === BigInt(l.amount) && !taken.has(String(x.transactionHash).toLowerCase()); } catch { return false; } });
+    const taken = claimedKeys();
+    const free = (x) => !taken.has(`${x.transactionHash}:${x.logIndex}`.toLowerCase()) && !taken.has(`${x.transactionHash}:${l.to}`.toLowerCase());
+    const hit = (logs ?? []).find((x) => { try { return BigInt(x.data) === BigInt(l.amount) && free(x); } catch { return false; } });
     if (!hit) return false;
-    claim(hit.transactionHash);
+    claim(`${hit.transactionHash}:${hit.logIndex}`);
     l.state = 'confirmed';
     l.hash = hit.transactionHash;
     l.hashes = [...(l.hashes ?? []), hit.transactionHash];
@@ -667,20 +689,28 @@ async function settleBatch(record, c, confirm) {
     if (found === record.legs.length) { b.state = 'confirmed'; saveRecord(record); return; }
     if (found > 0) { b.state = 'mismatch'; saveRecord(record); throw stop('only part of an atomic batch is visible onchain — check the explorer'); }
     if (err?.code === 5730) {
-      // the wallet never saw this batch id → nothing went out with it. Re-send the SAME id (a wallet must refuse duplicates),
-      // but only after the fan confirms no old prompt is still open (or after a clean prompt-less error).
-      if (b.state === 'prompting' && !confirm.confirmBatch && !(await isContractAccount(record.fan)) && (await nonceOf(record.fan, 'pending')) !== BigInt(b.nonce)) {
-        b.state = 'unknown'; saveRecord(record);
-        throw stop('a transaction from this wallet went out since the batch was prepared — check the explorer; nothing is re-sent automatically');
+      // the wallet has no record of this id. A batch it ever ACCEPTED ('sent'/'unknown') is never re-submitted — only
+      // watched on the chain. One that never got an answer ('prompting') may be re-sent after: EOA nonce unmoved,
+      // the fan confirms no old prompt is open, a fresh plan identical to the stored one, and fresh calls.
+      if (b.state !== 'prompting') {
+        if (++errors >= 5) { b.state = 'unknown'; saveRecord(record); throw stop('your wallet no longer knows this batch and the chain shows none of it yet — check your wallet’s activity and the explorer; this page will not send it again'); }
+        await new Promise((res) => setTimeout(res, 3000));
+        continue;
       }
+      if (await isContractAccount(record.fan)) { b.state = 'unknown'; saveRecord(record); throw stop('your wallet is a smart account, so this page can’t prove the batch didn’t go out — check your wallet’s activity; nothing is re-sent automatically'); }
+      if ((await nonceOf(record.fan, 'pending')) !== BigInt(b.nonce)) { b.state = 'unknown'; saveRecord(record); throw stop('a transaction from this wallet went out since the batch was prepared — check the explorer; nothing is re-sent automatically'); }
       if (!confirm.confirmBatch) {
-        S.confirm = { kind: 'batch', text: 'Your wallet has no record of this batch. If an older batch request is still open in your wallet, reject or close it first — then press “send the batch again” (same batch id, so a wallet can never run it twice).' };
-        throw stop('close any open batch request in your wallet, then confirm to send the batch again', 'confirm');
+        S.confirm = { kind: 'batch', text: 'Your wallet has no record of this batch. Check your wallet’s activity: if the batch is listed there — even as pending — do NOT press. Otherwise reject/close any open request in your wallet, then press “send the batch again”.' };
+        throw stop('check your wallet’s activity, close any open batch request, then confirm to send the batch again', 'confirm');
       }
-      b.state = 'prompting';
+      const fresh = await buildPlan(intentOf(record), { record, cache: new Map() });
+      if (!core.legsEqual(fresh.legs, record.legs)) throw stop('the payees or amounts changed since this tip was planned — the batch is not sent again');
+      const caps = await rq('wallet_getCapabilities', [record.fan, [core.chainHex(record.chainId)]]).catch(() => null);
+      if (!core.atomicSupport(caps, record.chainId)) throw stop('your wallet no longer offers atomic batches here — check its activity; nothing was re-sent');
+      b.calls = core.batchCalls(fresh); // never the stored calls
       saveRecord(record);
-      if (!(await submitBatch(record, c))) return; // fell back to one-by-one
       confirm.confirmBatch = false;
+      if (!(await submitBatch(record, c))) return; // fell back to one-by-one
       continue;
     }
     if (++errors >= 5) { b.state = 'unknown'; saveRecord(record); throw stop('the wallet doesn’t answer about the batch and the chain shows none of it yet — press continue later to check again'); }

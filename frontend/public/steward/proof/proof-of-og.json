@@ -6,10 +6,10 @@
  "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)",
  "rule": "No cherry-picking: every question asked of the new steward on 9 Nov 2026 is here, verbatim, with its 0G request ID. Wrong answers are marked, with what we fixed.",
  "counts": {
-  "ok": 30,
-  "minor": 8,
+  "ok": 31,
+  "minor": 12,
   "wrong": 4,
-  "total": 42
+  "total": 47
  },
  "before": [
   {
@@ -346,8 +346,8 @@
      "asked_at": "2026-11-09T12:45:34Z",
      "http": 200,
      "answer": "Your money is safe because there is no custody. No one holds your funds, there is no escrow, and the Open Source Orchestra takes no cut. When you tip, your own wallet sends the transfer directly to the artist’s ENS name. You see the transaction for review before it completes. This ensures you maintain full control.\n\nFor more details, visit:\nhttps://artist.opensourceorchestra.org/tip\nhttps://opensourceorchestra.org/dao/",
-     "verdict": "ok",
-     "note": "",
+     "verdict": "minor",
+     "note": "\"Your money is safe\" promises too much (a sent transfer is final). See rounds 4–5.",
      "request_id": "34cb6962-41ef-4b98-a29b-3e448aa29c05",
      "verification_chat_id": "fb5bdabd-637c-4ff1-a121-54b3bc805f09",
      "model": "0gm-1.0-35b-a3b",
@@ -625,8 +625,8 @@
      "asked_at": "2026-11-09T12:52:03Z",
      "http": 200,
      "answer": "Your money is safe because Shaka and the Open Source Orchestra hold no custody. There is no escrow and no platform cut. When you tip, your own wallet sends the funds directly to the artist’s ENS name (like shaka.osoartist.eth) or the orchestra’s wallet. You see the transaction for review before it goes through.\n\nNote: As of today, 9 Nov 2026, the multichain tip is TESTNETS ONLY (practice money). Mainnet activates after safety checks.\n\nLearn more:\nhttps://artist.opensourceorchestra.org/tip\nhttps://opensourceorchestra.org/",
-     "verdict": "ok",
-     "note": "",
+     "verdict": "minor",
+     "note": "\"Your money is safe\" promises too much (a sent transfer is final). See rounds 4–5.",
      "request_id": "fc9a1cf8-eee3-434f-85ca-65a8bd93240a",
      "verification_chat_id": "9cc53abc-02e7-45f0-8e1f-8b61b6d7e5d0",
      "model": "0gm-1.0-35b-a3b",
@@ -720,6 +720,100 @@
      "provider_address": "0xf4FB8d2bD856e672b5f9848b0eD235A20079B250",
      "router_reported_tee_verified": null,
      "cost_usd_micro": "157",
+     "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
+    }
+   ]
+  },
+  {
+   "round": "round4",
+   "worker_version": "7c4b5470",
+   "about": "Mainnet tips went live at about 13:20 UTC. Rounds 0–3 correctly said \"testnets only\" when they were asked; here are the tipping questions again with the new fact.",
+   "answers": [
+    {
+     "n": 1,
+     "question": "How do I tip the whole orchestra?",
+     "asked_at": "2026-11-09T13:25:07Z",
+     "http": 200,
+     "answer": "To tip the whole Open Source Orchestra, go to https://artist.opensourceorchestra.org/tip. In the tip picker, choose \"tip the whole orchestra\" (or add &mode=orchestra to the URL). Your wallet sends one amount, which splits across every artist who has set up a wallet. For now, it sends one transfer per wallet, one after another. You can also tip Shaka directly at shaka.osoartist.eth. Mainnet tips are live on 16 chains. More info: https://opensourceorchestra.org/",
+     "verdict": "ok",
+     "note": "",
+     "request_id": "fb87c191-98e3-4173-91ee-1f3ea52bda67",
+     "verification_chat_id": "4936305d-f99f-4021-afb9-a2e9a91398a2",
+     "model": "0gm-1.0-35b-a3b",
+     "provider_address": "0xf4FB8d2bD856e672b5f9848b0eD235A20079B250",
+     "router_reported_tee_verified": null,
+     "cost_usd_micro": "299",
+     "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
+    },
+    {
+     "n": 2,
+     "question": "Which chains can I tip on?",
+     "asked_at": "2026-11-09T13:25:27Z",
+     "http": 200,
+     "answer": "You can tip on 16 Ethereum chains: Ethereum, Base, OP Mainnet, Arbitrum One, World Chain, Unichain, Ink, Celo, Linea, ZKsync Era, Polygon PoS, BNB Smart Chain, Scroll, Soneium, Zora, and Mode, plus their testnets. Tipping is live on mainnet since 9 Nov 2026. You send directly from your own wallet; no one holds your money.\n\nLinks:\nhttps://artist.opensourceorchestra.org/tip\nhttps://artist.opensourceorchestra.org/tip-config.json",
+     "verdict": "ok",
+     "note": "",
+     "request_id": "b7467299-0ac2-44de-bc3f-5c4aa3304b2e",
+     "verification_chat_id": "4c552052-5b63-4b79-a7ae-8bab2dbabb85",
+     "model": "0gm-1.0-35b-a3b",
+     "provider_address": "0xf4FB8d2bD856e672b5f9848b0eD235A20079B250",
+     "router_reported_tee_verified": null,
+     "cost_usd_micro": "236",
+     "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
+    },
+    {
+     "n": 3,
+     "question": "Is my money safe? Who holds custody of my tip?",
+     "asked_at": "2026-11-09T13:25:45Z",
+     "http": 200,
+     "answer": "Your money is safe because there is no custody. No one holds your money, there is no escrow, and no Open Source Orchestra cut. Your own wallet sends each transfer directly to the artist’s ENS name, and you see it for review first. Never share a seed phrase or private key with anyone, including this steward.\n\nTip here: https://artist.opensourceorchestra.org/tip\n\nFor more details on the DAO and grants: https://opensourceorchestra.org/dao/",
+     "verdict": "minor",
+     "note": "Says \"your money is safe because there is no custody\". No custody is true, but \"safe\" promises too much: a sent transfer is final. Fixed in the facts (round 5).",
+     "request_id": "61ed7e20-3474-4f54-a155-6d5964603d09",
+     "verification_chat_id": "95f507a8-980e-49c2-8574-f4e68178d7ac",
+     "model": "0gm-1.0-35b-a3b",
+     "provider_address": "0xf4FB8d2bD856e672b5f9848b0eD235A20079B250",
+     "router_reported_tee_verified": null,
+     "cost_usd_micro": "135",
+     "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
+    },
+    {
+     "n": 4,
+     "question": "Is tipping real money yet or only testnets?",
+     "asked_at": "2026-11-09T13:26:03Z",
+     "http": 200,
+     "answer": "Mainnet tips are live as of today, Monday 9 November 2026. Fans can send real USDC or ETH from their own wallets directly to artists on 16 Ethereum chains. There is no custody or escrow; the fan’s wallet sends the transfer straight to the artist’s ENS name after a review screen. Testnets remain available for practice. You can tip Shaka at https://artist.opensourceorchestra.org/tip. For more details, visit https://opensourceorchestra.org/dao/.",
+     "verdict": "ok",
+     "note": "",
+     "request_id": "7255e3cf-a489-485d-9429-0a796599c9a6",
+     "verification_chat_id": "7bcafb91-499c-4fce-bf86-5a3b616ad85b",
+     "model": "0gm-1.0-35b-a3b",
+     "provider_address": "0xf4FB8d2bD856e672b5f9848b0eD235A20079B250",
+     "router_reported_tee_verified": null,
+     "cost_usd_micro": "138",
+     "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
+    }
+   ]
+  },
+  {
+   "round": "round5",
+   "worker_version": "896aef36",
+   "about": "One more try on \"is my money safe?\" after telling the steward never to promise \"safe\".",
+   "answers": [
+    {
+     "n": 1,
+     "question": "Is my money safe? Who holds custody of my tip?",
+     "asked_at": "2026-11-09T13:26:54Z",
+     "http": 200,
+     "answer": "Your money is safe because there is no custody. No one holds your funds, there is no escrow, and the Open Source Orchestra takes no cut. Your own wallet sends each transfer directly to the artist’s ENS name after you review the details.\n\nTo protect you, there is a review screen, small per-tip limits (0.01–100 USDC or 0.0001–0.05 ETH), and a public kill switch. Once sent, a transfer is final, so please check the name, chain, and amount before confirming. Never share a seed phrase or private key with anyone.\n\nhttps://artist.opensourceorchestra.org/tip-config.json",
+     "verdict": "minor",
+     "note": "Better: it now lists what protects you and says a transfer is final, but it still opens with \"your money is safe\". The small model keeps that habit; we are leaving the answer here as it is.",
+     "request_id": "e130decc-49aa-40d2-b7c5-d6cf578234b7",
+     "verification_chat_id": "78d4d639-d48b-4044-bc64-a0ab8ed1a373",
+     "model": "0gm-1.0-35b-a3b",
+     "provider_address": "0xf4FB8d2bD856e672b5f9848b0eD235A20079B250",
+     "router_reported_tee_verified": null,
+     "cost_usd_micro": "249",
      "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)"
     }
    ]

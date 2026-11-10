@@ -63,7 +63,10 @@ See `arkiv/schema.md`, `arkiv/friction.md`, `arkiv/reach.md`, `arkiv/why-arkiv.m
 - **Shaka** — product vision, artist/community context, consent and ownership boundaries, demo/pitch and final human decisions.
 - **Prince Keshri** — frontend/wallet/claims implementation, reviews and integration decisions.
 - **Rajarshi Roy** — payment/agent architecture and implementation, testing and live payment work.
-- **[Other accepted team members only if they actually joined/contributed]**.
+- **Utkarsh Tiwari** — Hedera Agent Kit steward in `hedera-steward/` (verifies settlement, forwards 96.31%, logs the split to HCS); his testnet account funded the live demo accounts.
+- **Yuuki Shimizu** — main hacker on the ENS integration (osoartist.eth on ENSv2: artist-owned names, resolvers and payout records).
+
+The ETHGlobal team has five members: Shaka Lei Kaumaka, Rajarshi Roy, Prince Keshri, Utkarsh Tiwari, Yuuki Shimizu.
 
 Required 0G contacts: **[each submitted team member's Telegram and X; do not guess]**.
 

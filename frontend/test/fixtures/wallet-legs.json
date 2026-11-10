@@ -1,0 +1,22 @@
+{
+  "accounts": {
+    "fan": "0.0.11345895",
+    "artist": "0.0.11347291",
+    "steward": "0.0.11345897",
+    "feePayer": "0.0.9185802",
+    "usdc": "0.0.429274"
+  },
+  "good": {
+    "hbarArtist": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4ch4KHAoMCgUY57+0BRDfy+xbCgwKBRjbyrQFEODL7Fs=",
+    "hbarSteward": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4ch4KHAoMCgUY57+0BRCfuMIDCgwKBRjpv7QFEKC4wgM=",
+    "usdcArtist": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4ciQKABIgCgQY2pkaEgsKBRjnv7QFELfIdRILCgUY28q0BRC4yHU="
+  },
+  "bad": {
+    "extraRecipient": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4cicKJQoHCgMYmgUQAgoMCgUY57+0BRDhy+xbCgwKBRjbyrQFEODL7Fs=",
+    "otherPayee": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4chwKGgoKCgMYmgUQ4MvsWwoMCgUY57+0BRDfy+xb",
+    "fanPaysFees": "Cg8KBgig8cLXBhIFGOe/tAUSAhgDGIDC1y8iAgh4ch4KHAoMCgUY57+0BRDfy+xbCgwKBRjbyrQFEODL7Fs=",
+    "withMemo": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4MgJoaXIeChwKDAoFGOe/tAUQ38vsWwoMCgUY28q0BRDgy+xb",
+    "wrongAmount": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4ch4KHAoMCgUY57+0BRDhy+xbCgwKBRjbyrQFEOLL7Fs=",
+    "approval": "Cg8KBgig8cLXBhIFGIrUsAQSAhgDGIDC1y8iAgh4ciAKHgoOCgUY57+0BRDfy+xbGAEKDAoFGNvKtAUQ4MvsWw=="
+  }
+}

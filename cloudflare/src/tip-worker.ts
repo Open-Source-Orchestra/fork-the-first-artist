@@ -14,6 +14,7 @@
  */
 import './window-shim.ts';
 import type { Config } from '../../payments/src/config.ts';
+import type { PaymentRequirementsView } from '../../payments/src/gate/types.ts';
 import { createHederaGate } from '../../payments/src/gate/hedera.ts';
 import { spendControlsFor } from '../../agent/src/rails/payer.ts';
 import { callZeroG } from './zero-g.ts';
@@ -22,6 +23,9 @@ import { STEWARDS, type StewardArtist } from './zero-g.ts';
 import { HARD_MAX_TIP_TINYBAR, MIN_TIP_TINYBAR, TipRequestError, meterFor, parseTipRequest, resolveArtistTarget, type ArtistTarget, type ResolvedPayTo, type TargetDeps } from './pay-target.ts';
 // @ts-expect-error — plain ESM module shared with the ENS leg (tested there)
 import { resolvePayTo } from '../../ens/src/resolve-artist.mjs';
+import { DirectTipError, assetFor, checkReceivable, networkConfig, walletHealth, type AssetInfo, type DirectEnv, type MirrorResult, type NetworkConfig, type TipRecord } from './direct-split.ts';
+import { claimIn, prepareTip, settleTip, publicRecord, type TipStore, type WalletDeps } from './wallet-tip.ts';
+import { attachSignature, buildLegTx, fanPublicKey } from './wallet-tx.ts';
 
 /** Minimal Workers runtime types (this package does not depend on @cloudflare/workers-types). */
 interface GateStub { fetch(url: string, init?: RequestInit): Promise<Response> }
@@ -31,8 +35,10 @@ interface GateState {
   storage: { get<T>(key: string): Promise<T | undefined>; put(entries: Record<string, unknown>): Promise<void> };
 }
 
-export interface TipEnv {
+export interface TipEnv extends DirectEnv {
   TIP_GATE: GateNamespace;
+  /** secret, unset until Shaka's go: signs the mainnet HCS ledger message (never a payment) */
+  MAINNET_STEWARD_PRIVATE_KEY?: string;
   FAN_ACCOUNT_ID?: string;
   FAN_PRIVATE_KEY?: string;
   STEWARD_ACCOUNT_ID?: string;
@@ -95,6 +101,9 @@ const tinybar = (v: string | undefined, fallback: bigint, max: bigint): bigint =
   return n;
 };
 
+const DEFAULT_ENS_RPC = 'https://eth.drpc.org,https://rpc.mevblocker.io,https://eth-mainnet.public.blastapi.io,https://1rpc.io/eth,https://eth.rpc.blxrbdn.com,https://ethereum-rpc.publicnode.com';
+const ensRpc = (env: { ENS_RPC_URL?: string }) => env.ENS_RPC_URL?.trim() || DEFAULT_ENS_RPC;
+
 export function tipConfig(env: TipEnv) {
   const accounts = {
     fan: acct(env.FAN_ACCOUNT_ID, 'FAN_ACCOUNT_ID'),
@@ -116,7 +125,7 @@ export function tipConfig(env: TipEnv) {
     // hard ceilings: ≤10 HBAR per run, ≤500 HBAR per UTC day, ≤200 runs per day
     maxTipTinybar: BigInt(Math.round(Math.min(Math.max(Number(env.MAX_TIP_HBAR ?? '10') || 10, 0.01), Number(HARD_MAX_TIP_TINYBAR) / 1e8) * 1e8)),
     dailyHbarCapTinybar: BigInt(Math.round(Math.min(Math.max(Number(env.DAILY_HBAR_CAP ?? '100') || 100, 1), 500) * 1e8)),
-    ensRpcUrl: env.ENS_RPC_URL?.trim() || 'https://eth.drpc.org,https://rpc.mevblocker.io,https://eth-mainnet.public.blastapi.io,https://1rpc.io/eth,https://eth.rpc.blxrbdn.com,https://ethereum-rpc.publicnode.com',
+    ensRpcUrl: ensRpc(env),
     dailyCap: Math.min(Math.max(Number(env.DAILY_CAP ?? '20') || 20, 1), 200),
     minGapMs: Math.min(Math.max(Number(env.MIN_GAP_SECONDS ?? '60') || 60, 30), 3600) * 1000,
     facilitatorUrl: (env.FACILITATOR_URL ?? 'https://x402.org/facilitator').replace(/\/+$/, ''),
@@ -179,20 +188,24 @@ export interface LastGoodStore {
 }
 
 export function targetDeps(cfg: { ensRpcUrl: string; mirror: string }, fetchImpl: typeof fetch = fetch, store: LastGoodStore | null = null,
-  live: (name: string) => Promise<ResolvedPayTo> = (name) => resolvePayTo(name, { network: 'testnet', requireConsent: true, rpcUrl: cfg.ensRpcUrl })): TargetDeps {
+  live: (name: string) => Promise<ResolvedPayTo> = (name) => resolvePayTo(name, { network: 'testnet', requireConsent: true, rpcUrl: cfg.ensRpcUrl }),
+  network: 'testnet' | 'mainnet' = 'testnet'): TargetDeps {
+  // the cache and the last-good store are per network: a mainnet tip never uses a testnet read
+  const key = (name: string) => (network === 'testnet' ? name : `${network}:${name}`);
   return {
     resolve: async (name) => {
-      const hit = ENS_CACHE.get(name);
+      const hit = ENS_CACHE.get(key(name));
       if (hit && hit.until > Date.now()) return hit.value;
       try {
         const value = await live(name);
-        ENS_CACHE.set(name, { value, until: Date.now() + 60_000 });
-        await store?.put(name, value).catch(() => {});
+        ENS_CACHE.set(key(name), { value, until: Date.now() + 60_000 });
+        // last-good fallback only for testnet: a mainnet payout is never paid from a stored read
+        if (network === 'testnet') await store?.put(name, value).catch(() => {});
         return value;
       } catch (e) {
         const code = (e as { code?: string })?.code ?? '';
         console.error('ens resolve failed', name, code, String((e as Error)?.message ?? e).slice(0, 300));
-        if (PAYTO_REFUSALS.has(code) || !store) throw e;
+        if (PAYTO_REFUSALS.has(code) || !store || network !== 'testnet') throw e;
         // transport failure (rate limit / timeout): use the last LIVE read, if recent, and say so
         const last = await store.get(name).catch(() => null);
         if (!last || Date.now() - last.at > LAST_GOOD_MAX_MS) throw e;
@@ -270,6 +283,166 @@ async function realDeps(env: TipEnv, cfg: ReturnType<typeof tipConfig>, run: Run
   };
 }
 
+
+// ── fan-wallet direct split (plan steps 3–5) ─────────────────────────────────────
+
+/** TipStore backed by the TipGate Durable Object instance "wallet" (claim is atomic there). */
+export function gateTipStore(gate: GateStub): TipStore {
+  const call = async <T>(path: string, body: unknown): Promise<T> => (await (await gate.fetch(`https://gate${path}`, { method: 'POST', body: JSON.stringify(body) })).json()) as T;
+  return {
+    get: async (id) => (await call<{ rec?: TipRecord }>('/w/get', { id })).rec ?? null,
+    put: async (rec) => { await call('/w/put', { rec }); },
+    claim: async (id, leg, now, leaseMs) => call('/w/claim', { id, leg, now, leaseMs }),
+    appendLedger: async (network, label, line) => { await call('/w/ledger-append', { network, label, line }); },
+    ledger: async (network, label) => (await call<{ lines?: Record<string, unknown>[] }>('/w/ledger', { network, label })).lines ?? [],
+    admit: async (network, currency, atomic, cap, budget) => call('/w/admit', { network, currency, atomic: atomic.toString(), cap, budget: budget.toString() }),
+  };
+}
+
+/** x402 payment header for a transaction the FAN's wallet already signed (no key here). */
+export async function walletPaymentHeader(requirements: PaymentRequirementsView, signedTx: string): Promise<string> {
+  const [{ x402Client }, { encodePaymentSignatureHeader }, { ExactHederaScheme }] = await Promise.all([
+    import('@x402/core/client'),
+    import('@x402/core/http'),
+    import('@x402/hedera/exact/client'),
+  ]);
+  const signer = {
+    accountId: 'wallet',
+    createPartiallySignedTransferTransaction: async (r: { payTo: string; amount: string; asset: string }) => {
+      if (r.payTo !== requirements.payTo || r.amount !== requirements.amount || r.asset !== requirements.asset) throw new Error('requirements changed');
+      return signedTx;
+    },
+  };
+  const decimals = requirements.asset === '0.0.0' ? 8 : 6;
+  const cap = (Number(BigInt(requirements.amount)) / 10 ** decimals).toFixed(decimals).replace(/\.?0+$/, '');
+  const client = new x402Client()
+    .register(requirements.network as never, new ExactHederaScheme(signer as never))
+    .setSpendControls(spendControlsFor({ network: requirements.network, asset: requirements.asset, assetDecimals: decimals, maxPerPaymentAsset: cap }) as never);
+  const payload = await client.createPaymentPayload({ x402Version: 2, accepts: [requirements] } as never);
+  return encodePaymentSignatureHeader(payload as never);
+}
+
+export async function mirrorTxResult(mirror: string, txId: string, fetchImpl: typeof fetch = fetch): Promise<MirrorResult | null> {
+  const m = /^(\d+\.\d+\.\d+)@(\d+)\.(\d+)$/.exec(txId);
+  const id = m ? `${m[1]}-${m[2]}-${m[3]!.padStart(9, '0')}` : txId;
+  try {
+    const r = await fetchImpl(`${mirror}/api/v1/transactions/${id}`, { signal: AbortSignal.timeout(6000) });
+    if (r.status === 404) return 'NOT_FOUND';
+    if (!r.ok) return null;
+    const b = (await r.json()) as { transactions?: { result?: string; scheduled?: boolean }[] };
+    const own = (b.transactions ?? []).filter((t) => !t.scheduled);
+    if (!own.length) return 'NOT_FOUND';
+    if (own.some((t) => t.result === 'SUCCESS')) return 'SUCCESS';
+    return { failed: own[0]!.result ?? 'UNKNOWN' };
+  } catch {
+    return null;
+  }
+}
+
+export function walletDeps(env: TipEnv, gateNs: GateNamespace, fetchImpl: typeof fetch = fetch): WalletDeps {
+  const store = gateTipStore(gateNs.get(gateNs.idFromName('wallet')));
+  const ensGate = gateStore(gateNs.get(gateNs.idFromName('global')));
+  const gates = new Map<string, ReturnType<typeof createHederaGate>>();
+  const feePayers = new Map<string, string>();
+  return {
+    env,
+    store,
+    resolveArtist: async (label, network) => {
+      const mirror = network === 'mainnet' ? (env.MAINNET_MIRROR_URL?.trim() || 'https://mainnet-public.mirrornode.hedera.com') : (env.MIRROR_URL?.trim() || 'https://testnet.mirrornode.hedera.com');
+      const rpc = ensRpc(env);
+      const deps = targetDeps({ ensRpcUrl: rpc, mirror }, fetchImpl, ensGate, (name) => resolvePayTo(name, { network, requireConsent: true, rpcUrl: rpc }), network);
+      try {
+        return await resolveArtistTarget(label, deps, []);
+      } catch (e) {
+        if (e instanceof TipRequestError) throw new DirectTipError(e.code, e.message, e.code === 'BAD_ARTIST' ? 400 : 404);
+        throw e;
+      }
+    },
+    gateFor: (cfg, asset) => {
+      const k = `${cfg.caip2}|${cfg.facilitatorUrl}|${asset.id}`;
+      if (!gates.has(k)) gates.set(k, createHederaGate({ network: cfg.caip2, facilitatorUrl: cfg.facilitatorUrl, asset: { id: asset.id, decimals: asset.decimals } } as Config));
+      return gates.get(k)!;
+    },
+    feePayer: async (cfg, gate) => {
+      const k = `${cfg.caip2}|${cfg.facilitatorUrl}`;
+      if (!feePayers.has(k)) {
+        const c = await gate.challenge({ resource: 'oso-tip:probe', amountAtomic: 1n, payTo: cfg.stewardAccount, description: 'probe' });
+        const fp = (c.body.accepts[0]?.extra as { feePayer?: string } | undefined)?.feePayer;
+        if (!fp || !/^0\.0\.\d+$/.test(fp)) throw new DirectTipError('FACILITATOR_UNAVAILABLE', 'the facilitator did not advertise a Hedera fee payer', 503);
+        feePayers.set(k, fp);
+      }
+      return feePayers.get(k)!;
+    },
+    receivable: (cfg, account, asset: AssetInfo) => checkReceivable(cfg.mirror, account, asset, fetchImpl),
+    buildLeg: (o) => buildLegTx(o),
+    attach: async (cfg, fan, leg, sig) => attachSignature(leg, sig, await fanPublicKey(cfg.mirror, fan, fetchImpl)),
+    paymentHeader: walletPaymentHeader,
+    mirrorTx: (cfg, txId) => mirrorTxResult(cfg.mirror, txId, fetchImpl),
+    hcs: async (cfg: NetworkConfig, message: string) => {
+      const key = cfg.network === 'mainnet' ? env.MAINNET_STEWARD_PRIVATE_KEY : env.STEWARD_PRIVATE_KEY;
+      if (!key || !cfg.hcsTopic) throw new Error('HCS ledger key not configured');
+      const sdk = await import('@hiero-ledger/sdk');
+      const client = cfg.network === 'mainnet' ? sdk.WebClient.forMainnet() : sdk.WebClient.forTestnet();
+      client.setOperator(sdk.AccountId.fromString(cfg.stewardAccount), sdk.PrivateKey.fromStringECDSA(key));
+      const tx = await new sdk.TopicMessageSubmitTransaction().setTopicId(sdk.TopicId.fromString(cfg.hcsTopic)).setMessage(message).execute(client);
+      const receipt = await tx.getReceipt(client);
+      return { txId: tx.transactionId!.toString(), sequence: receipt.topicSequenceNumber?.toString() ?? null };
+    },
+    reserved: (cfg) => cfg.network === 'testnet' ? [env.FAN_ACCOUNT_ID, env.STEWARD_ACCOUNT_ID, env.METER_ACCOUNT_ID].filter((a): a is string => Boolean(a)) : [cfg.stewardAccount],
+  };
+}
+
+async function walletRoute(url: URL, request: Request, env: TipEnv, origin: string | null, deps: WalletDeps): Promise<Response> {
+  try {
+    if (url.pathname === '/wallet/prepare' || url.pathname === '/wallet/settle') {
+      if (request.method !== 'POST') return json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, 405, origin, { allow: 'POST' });
+      const text = await request.text();
+      if (text.length > 16_384) throw new DirectTipError('BAD_REQUEST', 'body too large');
+      const out = url.pathname === '/wallet/prepare' ? await prepareTip(deps, text) : await settleTip(deps, text);
+      return json({ ok: true, ...out }, 200, origin);
+    }
+    if (request.method !== 'GET') return json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, 405, origin, { allow: 'GET' });
+    if (url.pathname === '/wallet/tip') {
+      const id = url.searchParams.get('id') ?? '';
+      const rec = /^[A-Za-z0-9_-]{16,64}$/.test(id) ? await deps.store.get(id) : null;
+      if (!rec) return json({ ok: false, error: 'NOT_FOUND' }, 404, origin);
+      const cfg = networkConfig(env, rec.network);
+      const fp = await deps.feePayer(cfg, deps.gateFor(cfg, assetFor(rec.network, rec.currency)));
+      return json({ ok: true, record: publicRecord(rec, cfg, fp) }, 200, origin);
+    }
+    if (url.pathname === '/wallet/ledger') {
+      const cfg = networkConfig(env, url.searchParams.get('network') ?? 'testnet');
+      const label = url.searchParams.get('artist') ?? '';
+      if (!/^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/.test(label)) throw new DirectTipError('BAD_ARTIST', 'artist must be a garden slug');
+      return json({ ok: true, network: cfg.caip2, artist: `${label}.osoartist.eth`, lines: await deps.store.ledger(cfg.network, label) }, 200, origin);
+    }
+    if (url.pathname === '/wallet/check') {
+      const cfg = networkConfig(env, url.searchParams.get('network') ?? 'testnet');
+      const currency = url.searchParams.get('currency') === 'USDC' ? 'USDC' : 'HBAR';
+      const asset = assetFor(cfg.network, currency);
+      const t = await deps.resolveArtist(url.searchParams.get('artist') ?? '', cfg.network);
+      const artist = t.accountId ? await deps.receivable(cfg, t.accountId, asset) : await checkReceivable(cfg.mirror, t.alias ?? t.payTo, asset);
+      return json({ ok: true, network: cfg.caip2, currency, asset: asset.id, artist: { ...t, receivable: artist } }, 200, origin);
+    }
+    return json({ ok: false, error: 'NOT_FOUND' }, 404, origin);
+  } catch (e) {
+    const err = e instanceof DirectTipError ? e : null;
+    if (!err) console.error('wallet route failed', String((e as Error)?.message ?? e).slice(0, 300));
+    const extra = (e as { retryAfterSeconds?: number }).retryAfterSeconds;
+    return json({ ok: false, error: err?.code ?? 'INTERNAL', message: err?.message ?? 'the wallet tip service hit an error — nothing was paid by this request', ...(extra ? { retryAfterSeconds: extra } : {}) }, err?.status ?? 500, origin);
+  }
+}
+
+/** The network a POST /tip body asks for ("testnet" when absent or unparseable — parseTipRequest rejects bad JSON). */
+export function demoFanNetwork(text: string): string {
+  try {
+    const b = text.trim() ? JSON.parse(text) : {};
+    return b && typeof b === 'object' && !Array.isArray(b) && 'network' in b ? String(b.network) : 'testnet';
+  } catch {
+    return 'testnet';
+  }
+}
+
 const DEFAULT_QUESTION = 'Who are you, and which song should a first-time fan hear?';
 const ARTIST_QUESTION = 'Who is this artist, and what should a first-time fan know?';
 function gateStore(gate: GateStub): LastGoodStore {
@@ -289,6 +462,9 @@ export default {
     const url = new URL(request.url);
     if (origin && !TIP_ALLOWED_ORIGINS.has(origin)) return json({ ok: false, error: 'ORIGIN_NOT_ALLOWED' }, 403, null);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(origin) });
+
+    // the fan's own wallet pays (two direct x402 payments) — needs no server fan key at all
+    if (url.pathname.startsWith('/wallet/')) return walletRoute(url, request, env, origin, walletDeps(env, env.TIP_GATE));
 
     let cfg: ReturnType<typeof tipConfig>;
     try {
@@ -314,6 +490,8 @@ export default {
         facilitator: cfg.facilitatorUrl,
         limits: { oneRunEverySeconds: cfg.minGapMs / 1000, dailyCap: cfg.dailyCap, dailyHbarCap: Number(cfg.dailyHbarCapTinybar) / 1e8, ...state },
         synthetic: 'the fan, steward and meter are testnet demo accounts; without `artist` the example pays the fictional demo artist, with `artist` the payout comes from that artist\'s own ENS name',
+        demoFan: { route: 'POST /tip', network: NETWORK, label: 'DEMO: a server-side testnet fan signs — never available on mainnet' },
+        wallet: { routes: ['POST /wallet/prepare', 'POST /wallet/settle', 'GET /wallet/tip?id=', 'GET /wallet/ledger?artist=&network=', 'GET /wallet/check?artist=&network=&currency='], ...walletHealth(env) },
       }, 200, origin);
     }
     if (url.pathname === '/artist') {
@@ -332,7 +510,12 @@ export default {
     let run: RunPlan;
     let question: string;
     try {
-      const req = parseTipRequest(await request.text(), cfg.maxTipTinybar);
+      const text = await request.text();
+      // the server demo fan exists on testnet ONLY — whatever the mainnet switch says
+      if (demoFanNetwork(text) !== 'testnet') {
+        return json({ ok: false, error: 'DEMO_FAN_TESTNET_ONLY', message: 'the server demo fan only runs on Hedera testnet; on mainnet a fan pays from their own wallet (POST /wallet/prepare) — nothing was paid' }, 403, origin);
+      }
+      const req = parseTipRequest(text, cfg.maxTipTinybar);
       const target = req.artist ? await resolveArtistTarget(req.artist, targetDeps(cfg, fetch, gateStore(gate)), reservedAccounts(cfg)) : null;
       run = { tipTinybar: req.tipTinybar, meterTinybar: meterFor(req.tipTinybar), target };
       question = req.question ?? (target ? ARTIST_QUESTION : DEFAULT_QUESTION);
@@ -382,6 +565,7 @@ export class TipGate {
 
   async fetch(request: Request): Promise<Response> {
     const p = new URL(request.url).pathname;
+    if (p.startsWith('/w/')) return this.wallet(p, (await request.json()) as Record<string, unknown>);
     if (p === '/ens-get' || p === '/ens-put') {
       const b = (await request.json()) as { name?: string; value?: unknown };
       if (typeof b.name !== 'string' || !/^[a-z0-9-]{1,40}\.osoartist\.eth$/.test(b.name)) return Response.json({});
@@ -415,5 +599,47 @@ export class TipGate {
     if (nextInSeconds > 0) return Response.json({ ok: false, reason: 'cooldown', retryAfterSeconds: nextInSeconds, runsToday: count });
     await this.state.storage.put({ last: now, day, count: count + 1, spent: (spent + want).toString() });
     return Response.json({ ok: true, runsToday: count + 1, remainingHbarToday: budget > 0n ? Number(budget - spent - want) / 1e8 : null });
+  }
+
+  /** Fan-wallet tip records + per-artist ledgers. Each call is one atomic read-modify-write. */
+  private async wallet(p: string, b: Record<string, unknown>): Promise<Response> {
+    const okId = (v: unknown): v is string => typeof v === 'string' && /^[A-Za-z0-9_-]{16,64}$/.test(v);
+    const okLedger = (n: unknown, l: unknown) => (n === 'testnet' || n === 'mainnet') && typeof l === 'string' && /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/.test(l);
+    const s = this.state.storage;
+    if (p === '/w/get') return Response.json(okId(b.id) ? { rec: (await s.get<TipRecord>(`tip:${b.id}`)) ?? null } : {});
+    if (p === '/w/put') {
+      const rec = b.rec as TipRecord | undefined;
+      if (!rec || !okId(rec.id)) return Response.json({ ok: false }, { status: 400 });
+      await s.put({ [`tip:${rec.id}`]: rec });
+      return Response.json({ ok: true });
+    }
+    if (p === '/w/claim') {
+      if (!okId(b.id) || (b.leg !== 'artist' && b.leg !== 'steward')) return Response.json({ ok: false, reason: 'missing' });
+      const rec = (await s.get<TipRecord>(`tip:${b.id}`)) ?? null;
+      let saved: TipRecord | null = null;
+      const out = claimIn(rec ? structuredClone(rec) : null, b.leg, Number(b.now), Number(b.leaseMs), (r) => { saved = r; });
+      if (saved) await s.put({ [`tip:${b.id}`]: saved });
+      return Response.json(out);
+    }
+    if (p === '/w/ledger-append' || p === '/w/ledger') {
+      if (!okLedger(b.network, b.label)) return Response.json({ lines: [] });
+      const k = `ledger:${b.network}:${b.label}`;
+      const lines = (await s.get<Record<string, unknown>[]>(k)) ?? [];
+      if (p === '/w/ledger') return Response.json({ lines });
+      await s.put({ [k]: [b.line as Record<string, unknown>, ...lines].slice(0, 50) });
+      return Response.json({ ok: true });
+    }
+    if (p === '/w/admit') {
+      const day = new Date().toISOString().slice(0, 10);
+      const k = `admit:${String(b.network)}:${String(b.currency)}`;
+      const cur = (await s.get<{ day: string; count: number; spent: string }>(k)) ?? { day, count: 0, spent: '0' };
+      const st = cur.day === day ? cur : { day, count: 0, spent: '0' };
+      const retryAfterSeconds = Math.ceil((Date.parse(`${day}T00:00:00Z`) + 86_400_000 - Date.now()) / 1000);
+      if (st.count >= Number(b.cap)) return Response.json({ ok: false, reason: 'cap', retryAfterSeconds });
+      if (BigInt(st.spent) + BigInt(String(b.atomic)) > BigInt(String(b.budget))) return Response.json({ ok: false, reason: 'budget', retryAfterSeconds });
+      await s.put({ [k]: { day, count: st.count + 1, spent: (BigInt(st.spent) + BigInt(String(b.atomic))).toString() } });
+      return Response.json({ ok: true });
+    }
+    return Response.json({ ok: false }, { status: 404 });
   }
 }

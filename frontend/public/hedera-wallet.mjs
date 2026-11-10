@@ -1,18 +1,26 @@
 export const HEDERA_CHAIN = 'hedera:testnet';
+export const HEDERA_CHAINS = Object.freeze(['hedera:testnet', 'hedera:mainnet']);
 
-export function sessionAccounts(session, now = Date.now()) {
+/**
+ * Validate a WalletConnect session and return its numeric Hedera accounts on `chain`.
+ * Defaults (testnet, hedera_signMessage) are the artist payout-claim use; the fan-wallet tip asks
+ * for `hedera_signTransaction` on the network it pays on.
+ */
+export function sessionAccounts(session, now = Date.now(), { chain = HEDERA_CHAIN, method = 'hedera_signMessage' } = {}) {
+  if (!HEDERA_CHAINS.includes(chain)) throw new Error('Unsupported Hedera chain');
   const namespace = session?.namespaces?.hedera;
   if (typeof session?.topic !== 'string' || !/^[a-f0-9]{64}$/i.test(session.topic)
     || !Number.isSafeInteger(session.expiry) || session.expiry * 1000 <= now
-    || !Array.isArray(namespace?.methods) || !namespace.methods.includes('hedera_signMessage')
+    || !Array.isArray(namespace?.methods) || !namespace.methods.includes(method)
     || !Array.isArray(namespace.accounts) || !namespace.accounts.length || namespace.accounts.length > 50) {
     throw new Error('Invalid Hedera session');
   }
+  const pattern = new RegExp(`^${chain}:(0|[1-9][0-9]{0,18})\\.(0|[1-9][0-9]{0,18})\\.([1-9][0-9]{0,18})$`);
   const accounts = namespace.accounts.map((account) => {
-    if (typeof account !== 'string' || !/^hedera:testnet:(0|[1-9][0-9]{0,18})\.(0|[1-9][0-9]{0,18})\.([1-9][0-9]{0,18})$/.test(account)) {
-      throw new Error('Expected a numeric Hedera testnet account');
+    if (typeof account !== 'string' || !pattern.test(account)) {
+      throw new Error(`Expected a numeric Hedera ${chain.slice(7)} account`);
     }
-    if (account.slice(HEDERA_CHAIN.length + 1).split('.').some((part) => BigInt(part) > 9223372036854775807n)) {
+    if (account.slice(chain.length + 1).split('.').some((part) => BigInt(part) > 9223372036854775807n)) {
       throw new Error('Account component out of range');
     }
     return account;
@@ -20,7 +28,9 @@ export function sessionAccounts(session, now = Date.now()) {
   return Object.freeze([...new Set(accounts)]);
 }
 
-export function createHederaConnection({ createClient, onChange, now = Date.now }) {
+export function createHederaConnection({ createClient, onChange, now = Date.now, chain = HEDERA_CHAIN, methods = ['hedera_signMessage'], messages = {} }) {
+  const scope = { chain, method: methods[0] };
+  const say = (key, fallback) => messages[key] ?? fallback;
   let state = Object.freeze({ status: 'disconnected', message: 'No HashPack account connected.', accounts: [], account: null, uri: null });
   let client;
   let initialization;
@@ -83,14 +93,14 @@ export function createHederaConnection({ createClient, onChange, now = Date.now 
       if (current !== operation) return;
       const { uri, approval } = await client.connect({
         requiredNamespaces: { hedera: {
-          chains: [HEDERA_CHAIN], methods: ['hedera_signMessage'], events: ['accountsChanged', 'chainChanged'],
+          chains: [chain], methods: [...methods], events: ['accountsChanged', 'chainChanged'],
         } },
       });
       const match = typeof uri === 'string' && /^wc:([a-f0-9]{64})@2\?/i.exec(uri);
       if (current === operation) {
         if (!match) throw new Error('Missing pairing URI');
         pairingTopic = match[1];
-        publish('pairing', 'Scan with HashPack or paste the pairing link into HashPack. Choose a Hedera testnet account.', [], null, uri);
+        publish('pairing', say('pairing', 'Scan with HashPack or paste the pairing link into HashPack. Choose a Hedera testnet account.'), [], null, uri);
       } else if (match) {
         try { await closePairing(match[1]); } catch { /* The canceled approval is still discarded below. */ }
       }
@@ -100,27 +110,38 @@ export function createHederaConnection({ createClient, onChange, now = Date.now 
         return;
       }
       try {
-        const accounts = sessionAccounts(approved, now());
+        const accounts = sessionAccounts(approved, now(), scope);
         session = approved;
-        publish('select-account', 'Paired. Select your payout account; ownership is not yet verified.', accounts);
+        publish('select-account', say('select', 'Paired. Select your payout account; ownership is not yet verified.'), accounts);
       } catch (error) {
         try { await closeSession(approved); } catch { /* Invalid sessions cannot become selected. */ }
         throw error;
       }
     } catch {
       if (current !== operation) return;
-      publish('error', 'Pairing did not complete with a valid Hedera testnet session. Check HashPack and try again.');
+      publish('error', say('error', 'Pairing did not complete with a valid Hedera testnet session. Check HashPack and try again.'));
     }
   }
   function selectAccount(account) {
     if (!session || !['select-account', 'connected'].includes(state.status)) return;
     try {
-      const accounts = sessionAccounts(session, now());
+      const accounts = sessionAccounts(session, now(), scope);
       if (!accounts.includes(account)) throw new Error('Account not shared');
-      publish('connected', 'Testnet payout account selected. Ownership is not yet verified.', accounts, account);
+      publish('connected', say('connected', 'Testnet payout account selected. Ownership is not yet verified.'), accounts, account);
     } catch {
       publish('changed', 'The selected account or session is no longer available. Reconnect to continue.');
     }
   }
-  return { connect, forget, selectAccount, getState: () => state };
+  /**
+   * One JSON-RPC call to the wallet on the connected session, for the SELECTED account only
+   * (e.g. hedera_signTransaction). Only methods this connection asked for are allowed.
+   */
+  async function request(method, params) {
+    if (state.status !== 'connected' || !session || !state.account) throw new Error('Connect and select an account first');
+    if (!methods.includes(method)) throw new Error(`Method ${method} was not requested for this session`);
+    const accounts = sessionAccounts(session, now(), { chain, method });
+    if (!accounts.includes(state.account)) throw new Error('Account no longer shared');
+    return client.request({ topic: session.topic, chainId: chain, request: { method, params } });
+  }
+  return { connect, forget, selectAccount, request, getState: () => state };
 }

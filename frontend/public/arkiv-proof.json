@@ -1,0 +1,12 @@
+{
+  "schema": "oso.claims.v1",
+  "namespace": "oso-mumbai-synthetic-8e9d4dec",
+  "writer": "0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2",
+  "inviteId": "55a4a16c-45c5-4bf4-9853-620a49b1cb26",
+  "entityKey": "0x11b5bb0e5e2771ab7363d506ea2334a336f42ad3271bb22a32aabdda170fa267",
+  "issueTx": "0xf5ac4a62b1af1bdc066c46c825e325cd4485d377b951d8c777450e5771b09dd8",
+  "revokeTx": "0x88fa7783995c065bf2088aea99e812bed3391b5d91c98b88aed1448b0b2e4c75",
+  "rpc": "https://rpc.rabdi.db-chain.testnet.arkiv.network",
+  "operationalState": "revoked",
+  "verifiedAt": "2026-11-06T18:16:34Z"
+}

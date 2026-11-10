@@ -1,0 +1,38 @@
+{
+  "schema": "oso.trust.v1",
+  "namespace": "oso-circle-trust",
+  "writer": "0x8e9d4dEc12bc9Da62daB72304659ef1eE6B200f2",
+  "rpc": "https://rpc.rabdi.db-chain.testnet.arkiv.network",
+  "records": [
+    {
+      "kind": "invite",
+      "id": "52dcad0f-95f2-45a3-9a7f-530be78b9883",
+      "label": "shaka",
+      "steward": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+      "entityKey": "0xa15d1b2590fed8bfdd53523e60dd3d08475182c3ab23bce51219503791304a2c",
+      "txHash": "0xce30c902951a465c35cf70d6f8c2ea41db2ca16286266422019036ed18c10cae",
+      "block": 311905,
+      "recordedAt": "2026-11-06T23:59:44.963Z"
+    },
+    {
+      "kind": "consent",
+      "id": "52dcad0f-95f2-45a3-9a7f-530be78b9883",
+      "label": "shaka",
+      "steward": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+      "entityKey": "0x26c2c2a2c2cfb0b4f156eaa7d51c46f11dccb44f0be9879ca672aefefccc270f",
+      "txHash": "0x898650884db2649b53e53394d5a28ed0f082948d4b101e4e79d475c48f832f0e",
+      "block": 311928,
+      "recordedAt": "2026-11-07T00:00:31.286Z"
+    },
+    {
+      "kind": "approval",
+      "id": "52dcad0f-95f2-45a3-9a7f-530be78b9883",
+      "label": "shaka",
+      "steward": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+      "entityKey": "0xce0ef5bf37e2f96a66d47280ac37888d948afac8ffacf7df00d5a17bc44e6378",
+      "txHash": "0x898650884db2649b53e53394d5a28ed0f082948d4b101e4e79d475c48f832f0e",
+      "block": 311928,
+      "recordedAt": "2026-11-07T00:00:31.286Z"
+    }
+  ]
+}

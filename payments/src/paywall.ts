@@ -1,0 +1,336 @@
+/**
+ * The PAYWALL — a fan (or a fan's agent) pays the artist's steward per question.
+ *
+ * ```
+ *   402  ──►  verify  ──►  steward answers  ──►  settle  ──►  200
+ * ```
+ *
+ * ## Settlement is last, and that is the product promise
+ *
+ * If the steward is down, refusing, or the model failed, the fan is **not
+ * charged**. That is not a nicety — it is the difference between "a payment rail"
+ * and "a payment rail that takes money for errors". It only works because
+ * `gate.settle()` is the final call in this function and every failure path
+ * returns before it.
+ *
+ * ## Where the money goes
+ *
+ * `payTo` comes only from the server-configured artist account. Callers cannot
+ * redirect the artist's payout with a query parameter. It is **never** an account
+ * of ours. The 3.69% agent share is only a local preview, explicitly marked
+ * `splitVerified: false` in the response and ledger. One x402 `exact` payment is
+ * one transfer to one `payTo`; default USDC does not perform the previewed split.
+ *
+ * ## The degraded-answer rule
+ *
+ * If the steward hands back a template reply (`degradation: 'template-reply'`), the
+ * agent spent nothing on compute, so the fan is charged nothing. Settling there
+ * would take 0.10 USDC in exchange for a canned card.
+ */
+import type { Config } from './config.ts';
+import type { Gate } from './gate/index.ts';
+import type { SpendLog } from './spend-log.ts';
+import { atomicToDecimal } from './config.ts';
+import { splitAtomic, describeSplit } from './split.ts';
+import { header, log, sendJson, type Ctx } from './http.ts';
+import { settleConfirmed } from './settlement.ts';
+
+/**
+ * Who the fan's single x402 transfer goes to.
+ *
+ * - `artist` (default): straight to the artist; the 3.69% is a preview only.
+ * - `steward`: to the artist's own steward (compute) account, which then runs
+ *   the post-settlement split (`hedera-steward/`, by Utkarsh Tiwari): 96.31% is
+ *   forwarded on-chain to the artist and 3.69% stays to fund the steward's 0G
+ *   compute. Still never an OSO account. The split only counts as verified once
+ *   the steward's forward transfer is confirmed on the mirror node.
+ */
+export function askPayTo(cfg: Config): string {
+  return cfg.askPayee === 'steward' ? cfg.accounts.compute : cfg.accounts.artist;
+}
+
+export interface PaywallDeps {
+  cfg: Config;
+  gate: Gate;
+  spendLog: SpendLog;
+  /** injectable for tests; defaults to global fetch */
+  fetchImpl?: typeof fetch;
+}
+
+/**
+ * The steward's answer envelope, as returned by the agent service over HTTP.
+ *
+ * Kept structurally typed here rather than imported from `agent/` on purpose: the
+ * two packages must stay independently installable, and the repo owner may
+ * re-implement them in either order. A shared type import would couple them and
+ * break that.
+ */
+export interface StewardReply {
+  ok: boolean;
+  reply?: { text: string; data?: unknown };
+  provider?: string;
+  model?: string;
+  usage?: { inputTokens: number; outputTokens: number };
+  costUsd?: number;
+  /** the audit trail that makes a 0G answer checkable against a payment */
+  provenance?: {
+    requestId?: string;
+    teeVerified?: boolean | null;
+    paymentTxId?: string;
+    hcsTxId?: string;
+    calls?: {
+      sequence: number;
+      phase: string;
+      requestId?: string;
+      teeVerified?: boolean | null;
+      paymentTxId?: string;
+      hcsTxId?: string;
+      costUsd?: number;
+    }[];
+  };
+  toolCalls?: unknown[];
+  /** `'template-reply'` etc. — a non-LLM answer, which must never be charged */
+  degradation?: string;
+  error?: { code: string; message: string; retryable: boolean };
+}
+
+export const ASK_PATH = '/ask';
+
+export async function handleAsk(ctx: Ctx, deps: PaywallDeps): Promise<void> {
+  const { cfg, gate, spendLog } = deps;
+  const doFetch = deps.fetchImpl ?? fetch;
+  const resource = `${ctx.url.origin}${ASK_PATH}`;
+
+  // ---------------------------------------------------------------- input
+  const body = (ctx.body ?? {}) as { instruction?: string; question?: string; artist?: string };
+  // `question` is accepted as an alias of `instruction` and `?q=` exists so the
+  // endpoint can be exercised from a browser address bar during a demo.
+  const instruction = (body.instruction ?? body.question ?? ctx.url.searchParams.get('q') ?? '').trim();
+  if (!instruction) {
+    sendJson(ctx.res, 400, {
+      error: 'MISSING_INSTRUCTION',
+      message: 'send { "instruction": "..." }',
+    });
+    return;
+  }
+
+  // ---------------------------------------------------------------- payee
+  // The artist payout destination is server-controlled. A matching value is
+  // tolerated for older clients, but every conflicting value is rejected before
+  // verification so no signature can be gathered for a redirected payout.
+  const configuredPayTo = askPayTo(cfg);
+  const requestedPayTo = ctx.url.searchParams.getAll('payTo');
+  if (requestedPayTo.some((value) => value !== configuredPayTo)) {
+    sendJson(ctx.res, 400, {
+      error: 'PAY_TO_NOT_ALLOWED',
+      message: 'payTo is derived from the configured artist account and cannot be overridden',
+      settled: false,
+    });
+    return;
+  }
+  const payTo = configuredPayTo;
+  if (!payTo) {
+    sendJson(ctx.res, 500, {
+      error: 'NO_PAYEE',
+      message:
+        cfg.askPayee === 'steward'
+          ? 'ASK_PAYEE=steward needs HEDERA_COMPUTE_ACCOUNT_ID'
+          : 'HEDERA_ARTIST_ACCOUNT_ID not configured',
+    });
+    return;
+  }
+
+  // ---------------------------------------------------------------- payment
+  // Challenge first: the gate adds facilitator-specific fields such as feePayer.
+  // Reuse this exact object for verify and settle or the facilitator rejects it.
+  const description = 'ask the artist steward a question';
+  const challenge = await gate.challenge({
+    resource,
+    amountAtomic: cfg.prices.askAtomic,
+    payTo,
+    description,
+  });
+  const requirements = challenge.body.accepts[0]!;
+  const paymentHeader = header(ctx.req, 'x-payment');
+  const verified = await gate.verify({ paymentHeader, requirements });
+  if (!verified.ok) {
+    // Not an error: quoting the price IS the protocol. The gate's rejection reason
+    // is folded into the challenge so a client sees *why* it must (re)pay.
+    sendJson(
+      ctx.res,
+      challenge.status,
+      { ...challenge.body, error: verified.reason ?? challenge.body.error },
+      challenge.headers,
+    );
+    return;
+  }
+
+  // ---------------------------------------------------------------- steward answers
+  let stewarded: StewardReply;
+  try {
+    stewarded = await callSteward(cfg, instruction, { payer: verified.payer }, doFetch);
+  } catch (err) {
+    // no settlement on failure: the fan keeps their money
+    log.error('steward failed', { err: (err as Error).message });
+    sendJson(ctx.res, 502, {
+      error: 'STEWARD_UNAVAILABLE',
+      message: (err as Error).message,
+      settled: false,
+      hint: 'no payment was taken for this request',
+    });
+    return;
+  }
+
+  if (!stewarded.ok) {
+    // The steward refused (spend cap, missing consent, schema failure). 422 rather
+    // than 5xx: the request was understood and deliberately declined.
+    sendJson(ctx.res, 422, {
+      error: stewarded.error?.code ?? 'STEWARD_REFUSED',
+      message: stewarded.error?.message ?? 'steward could not answer',
+      settled: false,
+    });
+    return;
+  }
+
+  // A degraded (template) answer cost the agent nothing, so the fan is not
+  // charged. Settling here would take 0.10 USDC for a canned card.
+  if (stewarded.degradation === 'template-reply') {
+    sendJson(ctx.res, 200, {
+      ok: true,
+      reply: stewarded.reply,
+      provider: stewarded.provider,
+      model: stewarded.model,
+      degradation: stewarded.degradation,
+      charged: false,
+      settled: false,
+      proof: null,
+      note: 'the agent is at its compute budget; you were not charged',
+    });
+    return;
+  }
+
+  // ---------------------------------------------------------------- settle
+  const confirmed = await settleConfirmed(gate, { handle: verified.handle, requirements });
+  if (!confirmed.ok) {
+    sendJson(ctx.res, 502, confirmed.body);
+    return;
+  }
+  const { settlement, txId } = confirmed;
+  const splitPreview = splitAtomic(cfg.prices.askAtomic, cfg.split);
+
+  const entry = await spendLog.append({
+    kind: 'ask',
+    txId,
+    priceAtomic: cfg.prices.askAtomic.toString(),
+    priceUsd: atomicToDecimal(cfg.prices.askAtomic, cfg.asset.decimals),
+    payer: settlement.payer ?? verified.payer,
+    upstreamRequestId: stewarded.provenance?.requestId,
+    teeVerified: stewarded.provenance?.teeVerified ?? null,
+    model: stewarded.model,
+    artistAtomic: splitPreview.artist.toString(),
+    agentAtomic: splitPreview.agent.toString(),
+    splitVerified: false,
+  });
+
+  // x402's settlement receipt, base64 in a response header, so a client can read
+  // the proof without parsing our JSON body.
+  const settleHeader = Buffer.from(
+    JSON.stringify({
+      success: settlement.success,
+      transaction: txId,
+      network: settlement.network ?? cfg.network,
+      payer: settlement.payer ?? verified.payer,
+    }),
+  ).toString('base64');
+
+  sendJson(
+    ctx.res,
+    200,
+    {
+      ok: true,
+      reply: stewarded.reply,
+      provider: stewarded.provider,
+      model: stewarded.model,
+      usage: stewarded.usage,
+      costUsd: stewarded.costUsd,
+      degradation: stewarded.degradation,
+      // Local arithmetic only. Default USDC has no repo-configured fractional fee,
+      // so this is never presented as proof of two recipient transfers.
+      splitPreview: {
+        totalAtomic: splitPreview.total.toString(),
+        artistAtomic: splitPreview.artist.toString(),
+        agentAtomic: splitPreview.agent.toString(),
+        human: describeSplit(splitPreview, cfg.asset.decimals, cfg.asset.symbol),
+      },
+      splitVerified: false,
+      payee: cfg.askPayee,
+      ...(cfg.askPayee === 'steward'
+        ? {
+            stewardSplit: {
+              status: 'pending-post-settlement',
+              note: 'paid to the artist steward account; run hedera-steward to forward the artist share on-chain',
+            },
+          }
+        : {}),
+      proof: {
+        paymentTxId: txId,
+        network: settlement.network ?? cfg.network,
+        asset: cfg.asset.id,
+        payer: settlement.payer ?? verified.payer,
+        payTo,
+        hcsTxId: entry.hcsTxId ?? null,
+        // The point of binding these two ids: one payment tx ↔ one inference
+        // request. That pair is the 0G + Hedera proof artifact for the submission.
+        upstream: {
+          requestId: stewarded.provenance?.requestId ?? null,
+          teeVerified: stewarded.provenance?.teeVerified ?? null,
+          provider: stewarded.provider ?? null,
+          model: stewarded.model ?? null,
+          calls: stewarded.provenance?.calls ?? [],
+        },
+        hashScan:
+          settlement.network === 'hedera:mainnet'
+            ? `https://hashscan.io/mainnet/transaction/${txId}`
+            : `https://hashscan.io/testnet/transaction/${txId}`,
+      },
+    },
+    { 'x-payment-response': settleHeader },
+  );
+}
+
+/**
+ * Ask the steward service for an answer.
+ *
+ * @throws on a network failure, a non-JSON body, or any status other than 200/422.
+ *         422 is *not* thrown: it is the steward's structured refusal and the caller
+ *         turns it into a 422 of its own. Everything else is an infrastructure
+ *         failure and must not be presented to the fan as a refusal.
+ */
+async function callSteward(
+  cfg: Config,
+  instruction: string,
+  payment: { payer?: string },
+  doFetch: typeof fetch,
+): Promise<StewardReply> {
+  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  if (cfg.stewardServiceToken) headers.authorization = `Bearer ${cfg.stewardServiceToken}`;
+  const res = await doFetch(`${cfg.stewardUrl}/ask`, {
+    method: 'POST',
+    headers,
+    // the payer id is forwarded so the steward's own logs can correlate the two
+    // services for one fan question
+    body: JSON.stringify({ instruction, payment }),
+    signal: AbortSignal.timeout(60_000),
+  });
+  const text = await res.text();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error(`steward returned non-JSON (${res.status}): ${text.slice(0, 200)}`);
+  }
+  if (!res.ok && res.status !== 422) {
+    throw new Error(`steward ${res.status}: ${text.slice(0, 200)}`);
+  }
+  return parsed as StewardReply;
+}

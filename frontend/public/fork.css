@@ -1,0 +1,77 @@
+/* Fork the First Artist — the hackathon layer on top of the OSO garden circle.
+   Same night/gold/teal palette as the garden; no new fonts, no remote assets. */
+#fork-open{background:linear-gradient(135deg,rgba(240,196,100,.22),rgba(45,212,191,.16));border-color:rgba(240,196,100,.7);color:var(--gold-bright);font-weight:700}
+#fork-open:hover{background:linear-gradient(135deg,rgba(240,196,100,.34),rgba(45,212,191,.24))}
+#fork-ribbon{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#8ff1e2;white-space:nowrap}
+#fork-ribbon b{color:var(--gold-bright);font-weight:700}
+#fork-ribbon .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal);margin-right:6px;vertical-align:1px;animation:forkpulse 2.2s ease-in-out infinite}
+@keyframes forkpulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){#fork-ribbon .dot{animation:none}}
+
+#fork .body{padding-bottom:40px}
+#fork .lede{font-family:var(--serif);font-size:1.08rem;line-height:1.45;color:var(--cream);margin-bottom:10px}
+#fork .lede b{color:var(--gold-bright);font-weight:600}
+#fork .sub{font-size:.84rem;color:var(--cream-dim);line-height:1.5;margin-bottom:14px}
+.fork-split{display:flex;height:30px;border-radius:999px;overflow:hidden;border:1px solid rgba(240,196,100,.45);margin:10px 0 4px;font-size:.66rem;font-weight:700;letter-spacing:.06em}
+.fork-split span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
+.fork-split .a{flex:96.31;background:linear-gradient(90deg,var(--gold),#ffb36b);color:#1a1206}
+.fork-split .c{flex:3.69;min-width:44px;background:var(--teal);color:#06231f}
+.fork-split-legend{display:flex;justify-content:space-between;gap:8px;font-size:.66rem;color:var(--cream-faint);letter-spacing:.04em;margin-bottom:6px}
+.fork-split-legend b{color:var(--cream-dim)}
+.fork-flow{list-style:none;counter-reset:f;margin:12px 0 16px;display:grid;gap:6px}
+.fork-flow li{counter-increment:f;font-size:.8rem;color:var(--cream-dim);line-height:1.4;padding-left:28px;position:relative}
+.fork-flow li::before{content:counter(f);position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--gold-soft);color:var(--gold-bright);font-size:.66rem;display:flex;align-items:center;justify-content:center}
+.fork-flow li b{color:var(--cream)}
+.fork-tile{background:linear-gradient(160deg,rgba(240,196,100,.10),rgba(45,212,191,.06));border:1px solid rgba(240,196,100,.32);border-radius:16px;padding:13px 14px;margin-bottom:12px}
+.fork-tile.teal{background:linear-gradient(160deg,rgba(45,212,191,.13),rgba(180,140,255,.07));border-color:rgba(45,212,191,.45)}
+.fork-tile.violet{background:linear-gradient(160deg,rgba(180,140,255,.14),rgba(45,212,191,.06));border-color:rgba(180,140,255,.42)}
+.fork-tile h4{font-family:var(--serif);font-size:1.04rem;color:var(--cream);margin-bottom:5px;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fork-tile p{font-size:.83rem;color:var(--cream-dim);line-height:1.5}
+.fork-tile p b{color:var(--cream)}
+.fork-tile .links{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fork-badge{font-family:var(--sans);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;border-radius:999px;padding:.32em .75em;font-weight:700;border:1px solid}
+.fork-badge.live{color:#06231f;background:var(--teal);border-color:var(--teal)}
+.fork-badge.wait{color:var(--gold-bright);border-color:var(--gold-soft);background:rgba(240,196,100,.08)}
+.fork-badge.off{color:var(--cream-faint);border-color:rgba(247,236,217,.2)}
+.fork-kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:.72rem;margin-top:8px;color:var(--cream-faint)}
+.fork-kv dt{white-space:nowrap}
+.fork-kv dd{color:var(--cream-dim);min-width:0;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.68rem}
+.fork-kv dd a{color:var(--gold);text-decoration:none}
+.fork-kv dd a:hover{text-decoration:underline}
+.fork-honest{font-size:.72rem;color:var(--teal);margin-top:8px;line-height:1.45}
+.fork-ask{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.fork-ask textarea{resize:vertical;min-height:62px;font-size:.88rem;line-height:1.4}
+.fork-ask .row2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fork-ask button[type=submit]{padding:.7em 1.3em;font-size:.68rem}
+.fork-ask button[disabled]{opacity:.5;cursor:not-allowed}
+.fork-status{font-size:.74rem;color:var(--cream-faint);line-height:1.4;min-height:1.2em}
+.fork-answer{margin-top:10px;border-left:2px solid var(--teal);padding:4px 0 4px 12px}
+.fork-answer .said{font-family:var(--serif);font-size:.98rem;color:var(--cream);line-height:1.5;white-space:pre-wrap}
+.fork-chips{display:flex;flex-wrap:wrap;gap:5px}
+.fork-chips button{font-size:.66rem;border:1px solid rgba(45,212,191,.4);color:#8ff1e2;border-radius:999px;padding:.35em .8em}
+.fork-chips button:hover{background:rgba(45,212,191,.12)}
+.fork-team{font-size:.74rem;color:var(--cream-faint);line-height:1.6;margin-top:14px;border-top:1px solid rgba(240,196,100,.15);padding-top:12px}
+.fork-team b{color:var(--cream-dim);font-weight:500}
+
+/* per-artist block inside the garden's detail panel */
+.fork-card{margin-top:18px;border:1px solid rgba(240,196,100,.42);border-radius:16px;padding:13px 14px 14px;background:linear-gradient(160deg,rgba(240,196,100,.10),rgba(21,11,34,.4) 55%,rgba(45,212,191,.08))}
+.fork-card .k{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.fork-card .ens{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92rem;color:var(--cream);margin:6px 0 2px;overflow-wrap:anywhere}
+.fork-card .ens-state{font-size:.72rem;color:var(--cream-faint);line-height:1.45}
+.fork-card .ens-state b{color:var(--gold-bright);font-weight:600}
+.fork-card .links{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fork-card .fine{font-size:.66rem;color:var(--cream-faint);margin-top:9px;line-height:1.45}
+@media (max-width:640px){#fork-ribbon{display:none}}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.fork-who{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.fork-who .lbl{font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.fork-who button{font-size:.7rem;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:.35em .9em;background:transparent;color:inherit;cursor:pointer}
+.fork-who button small{opacity:.65;font-size:.85em;margin-left:.25em}
+.fork-who button[aria-pressed=true]{background:rgba(45,212,191,.18);border-color:rgba(45,212,191,.7);color:#8ff1e2;font-weight:600}
+.fork-who-note{font-size:.78rem;opacity:.85;margin-top:6px}
+.fork-answer .said-who{font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:#8ff1e2;margin-bottom:4px}
+.fork-tile #fork-pay-go{display:inline-block;margin:12px 0 2px;white-space:normal;text-align:center;line-height:1.4;text-decoration:none}
+/* keep the garden's floating finder from covering an open side panel (QA 7 Nov) */
+body:has(.panel.open) #gh-fab{opacity:0;pointer-events:none}
+.fork-card .pill.gold{border-color:var(--gold2,#f0c464);color:var(--gold2,#f0c464);background:rgba(240,196,100,.12);font-weight:600}
+.fork-card .pill.gold:hover,.fork-card .pill.gold:focus-visible{background:rgba(240,196,100,.22)}

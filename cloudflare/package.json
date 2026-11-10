@@ -1,0 +1,32 @@
+{
+  "name": "@oso/cloudflare-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Narrow Cloudflare Worker demo: x402 on Hedera plus artist-grounded 0G inference",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "build:zerog": "wrangler deploy --config wrangler.zerog.jsonc --dry-run --outdir dist-zerog",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:zerog": "wrangler deploy --config wrangler.zerog.jsonc"
+  },
+  "dependencies": {
+    "@hiero-ledger/sdk": "2.90.1",
+    "@x402/core": "2.30.0",
+    "@x402/hedera": "2.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3",
+    "wrangler": "4.158.0"
+  },
+  "overrides": {
+    "ws": "8.21.0"
+  }
+}

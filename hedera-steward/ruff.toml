@@ -1,0 +1,2 @@
+# original/ is Utkarsh's script kept byte-for-byte; do not lint-rewrite it.
+extend-exclude = ["original"]

@@ -1,0 +1,17 @@
+{
+  "name": "@oso/ens",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "ENSv2 artist names for Fork the First Artist: resolve payTo by ENS name, per-artist PermissionedResolver, signing kit",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "fork-test": "node scripts/fork-test.mjs"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@ensdomains/address-encoder": "^1.1.2"
+  }
+}

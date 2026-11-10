@@ -1,0 +1,27 @@
+/* ⚡ tip the artist — live x402 loop step list */
+.card + .card { margin-top: 22px; }
+.pay-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.pay-steps li { border-left: 3px solid var(--gold-soft); background: rgba(240, 196, 100, .05); border-radius: 8px; padding: 10px 14px; }
+.pay-steps li strong { color: var(--cream); font-family: var(--sans); font-size: .98rem; }
+.pay-steps li p { margin: 4px 0 0; font-family: var(--sans); font-size: .86rem; overflow-wrap: anywhere; }
+.pay-steps li .links { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 6px; font-family: var(--sans); font-size: .84rem; }
+.pay-steps li a { color: var(--gold-bright); overflow-wrap: anywhere; }
+.pay-steps li.done { border-left-color: #7ee2b8; }
+.pay-steps li.error { border-left-color: #ffaba0; background: rgba(255, 171, 160, .07); }
+.pay-steps li.error strong { color: #ffaba0; }
+.pay-answer { margin-top: 18px; border-top: 1px solid rgba(240, 196, 100, .18); padding-top: 12px; }
+#pay-go { white-space: normal; text-align: left; }
+#pay-status a, #pay-service a { color: var(--gold-bright); }
+.pay-artist { border-color: rgba(126, 226, 184, .35); }
+.pay-artist h2 span { color: var(--gold-bright); overflow-wrap: anywhere; }
+.pay-artist a { color: var(--gold-bright); overflow-wrap: anywhere; }
+.pay-amount { margin-top: 14px; }
+.pay-amount .field-label { margin: 0 0 6px; font-family: var(--sans); color: var(--cream); }
+.pay-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pay-chip { font: inherit; font-family: var(--sans); min-width: 3.2em; min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(240, 196, 100, .45); background: transparent; color: var(--cream); cursor: pointer; }
+.pay-chip[aria-pressed="true"] { background: rgba(240, 196, 100, .18); border-color: var(--gold-bright); color: var(--gold-bright); }
+.pay-chip:focus-visible, .pay-custom input:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+.pay-custom { display: inline-flex; align-items: center; gap: 6px; font-family: var(--sans); }
+.pay-custom input { width: 6.5em; min-height: 40px; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(240, 196, 100, .45); background: rgba(0, 0, 0, .25); color: var(--cream); font: inherit; }
+.pay-custom input[aria-invalid="true"] { border-color: #ffaba0; }
+#pay-split.bad { color: #ffaba0; }

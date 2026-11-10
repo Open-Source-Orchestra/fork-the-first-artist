@@ -1,0 +1,97 @@
+{
+  "generatedAt": "2026-11-07T00:02:01.019Z",
+  "mode": "live",
+  "network": "hedera:testnet",
+  "asset": {
+    "id": "0.0.0",
+    "symbol": "HBAR",
+    "decimals": 8
+  },
+  "accounts": {
+    "fan": "0.0.11345895",
+    "artist": "0.0.11347291",
+    "compute": "0.0.11345897",
+    "meter": "0.0.11345898"
+  },
+  "ask": {
+    "txId": "0.0.9185802@1794009702.803350043",
+    "priceAtomic": "100000000",
+    "payer": "0.0.11345895",
+    "hashscan": "https://hashscan.io/testnet/transaction/0.0.9185802-1794009702-803350043"
+  },
+  "meter": [
+    {
+      "txId": "0.0.9185802@1794009702.905754921",
+      "priceAtomic": "1000000",
+      "upstreamRequestId": "11c3059a-b43c-439d-a546-4f73fd92c0e2",
+      "teeVerified": null,
+      "model": "0gm-1.0-35b-a3b",
+      "hashscan": "https://hashscan.io/testnet/transaction/0.0.9185802-1794009702-905754921"
+    }
+  ],
+  "steward": {
+    "mode": "direct",
+    "network": "testnet",
+    "verified": true,
+    "label": "settled fan payment",
+    "settled_tx": "0.0.9185802-1794009702-803350043",
+    "settlement": {
+      "transaction_id": "0.0.9185802-1794009702-803350043",
+      "asset": "hbar",
+      "steward_credit": 100000000,
+      "consensus_timestamp": "1794009710.521335241",
+      "hashscan": "https://hashscan.io/testnet/transaction/0.0.9185802-1794009702-803350043"
+    },
+    "amount_tinybar": 100000000,
+    "split": {
+      "artist_hbar": "0.9631",
+      "compute_hbar": "0.0369",
+      "total_hbar": "1",
+      "artist_tinybar": 96310000,
+      "compute_tinybar": 3690000,
+      "total_tinybar": 100000000,
+      "artist_bps": 9631,
+      "compute_bps": 369,
+      "oso_cut_tinybar": 0
+    },
+    "artist_name": "shaka.osoartist.eth",
+    "artist_account": "0.0.11347291",
+    "steward_account": "0.0.11345897",
+    "marker": "oso-378f73cabc71",
+    "transfer_tx_id": "0.0.11345897-1794009707-097642660",
+    "transfer": {
+      "transaction_id": "0.0.11345897-1794009707-097642660",
+      "consensus_timestamp": "1794009715.868880852",
+      "artist_credit_tinybar": 96310000,
+      "steward_debit_tinybar": 96458144,
+      "memo": "OSO steward oso-378f73cabc71",
+      "memo_has_marker": true,
+      "hashscan": "https://hashscan.io/testnet/transaction/0.0.11345897-1794009707-097642660"
+    },
+    "hcs_topic_id": "0.0.11345907",
+    "hcs_tx_id": null,
+    "hcs_sequence": 9,
+    "hashscan": {
+      "transfer": "https://hashscan.io/testnet/transaction/0.0.11345897-1794009707-097642660",
+      "topic": "https://hashscan.io/testnet/topic/0.0.11345907",
+      "hcs_tx": null,
+      "settlement": "https://hashscan.io/testnet/transaction/0.0.9185802-1794009702-803350043"
+    },
+    "llm": null,
+    "agent": null,
+    "verified_by": "Hedera mirror node (LLM output is not trusted)",
+    "status": "verified"
+  },
+  "ens": {
+    "name": "shaka.osoartist.eth",
+    "path": "hedera-evm",
+    "payTo": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+    "resolver": "0xdDFf981748Ec5F6D6618D830E90ba964DaA60Fb1",
+    "recordId": "1",
+    "hederaAccountId": "0.0.11347291",
+    "network": "testnet",
+    "hcsTopic": "0.0.11345907",
+    "coinType": "2147483944",
+    "source": "Ethereum mainnet"
+  }
+}

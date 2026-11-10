@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Steward desk: invite artists of the Open Source Orchestra circle to claim their name, approve their claims, and grow the circle of trust.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <link rel="stylesheet" href="/trust.css">
+    <script type="module" src="/admin.mjs"></script>
+    <title>Steward desk · invite &amp; approve artists · Open Source Orchestra</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the steward desk</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/">Artist circle</a><a href="/consent">Artist consent</a><a href="/steward">Steward</a><a href="/arkiv">Arkiv proof</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="admin-heading">
+        <p class="kicker">Steward desk · the circle's chain of trust</p>
+        <h1 id="admin-heading">Invite an artist. <em>Approve their claim.</em></h1>
+        <p class="sub">Nobody claims a name in the circle alone. A <strong>steward invites</strong>, the <strong>artist consents</strong> with their own wallet, a <strong>steward approves</strong> — and only then does the ops key issue <code>&lt;name&gt;.osoartist.eth</code> to the artist's own address. Every step is a free signature; no gas, no funds move here.</p>
+        <ol class="trust-chain" aria-label="chain of trust">
+          <li><b>Root</b> · owner of osoartist.eth <span id="root-name"></span></li>
+          <li><b>Stewards</b> · people the root trusts (grants) <span id="steward-count"></span></li>
+          <li><b>Invitation</b> · a steward invites one artist</li>
+          <li><b>Consent</b> · the artist signs with their own key</li>
+          <li><b>Approval</b> · a steward checks it and signs</li>
+          <li><b>Name</b> · issued to the artist's wallet; OSO keeps no record rights</li>
+        </ol>
+      </section>
+
+      <section class="card" aria-labelledby="who-heading">
+        <p class="eyebrow">00 / Who you are</p>
+        <h2 id="who-heading">Connect your steward wallet</h2>
+        <p><button type="button" id="connect" class="primary-button">Connect wallet</button> <code id="account">not connected</code></p>
+        <p id="who-status" class="editor-status" role="status" aria-live="polite">Signatures only count from the root or a steward the root granted.</p>
+      </section>
+
+      <section class="card" aria-labelledby="invite-heading">
+        <p class="eyebrow">01 / Invite</p>
+        <h2 id="invite-heading">Invite an artist to claim their name</h2>
+        <form id="invite-form" class="editor-form" autocomplete="off">
+          <fieldset id="invite-fields" disabled>
+            <legend class="visually-hidden">Invitation</legend>
+            <label for="artist">Artist from the garden</label>
+            <select id="artist" required></select>
+            <label for="label">Name label</label>
+            <p class="field-hint" id="label-hint">lowercase a–z, 0–9, inner hyphens · becomes <code><span id="label-preview">…</span>.osoartist.eth</code></p>
+            <input id="label" required pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" spellcheck="false" aria-describedby="label-hint">
+            <label for="bind">Artist's wallet (optional)</label>
+            <p class="field-hint" id="bind-hint">If you know it, the invitation works only for that wallet. Leave empty to let the artist bring any wallet of their own — you still approve at step 02.</p>
+            <input id="bind" placeholder="0x… (optional)" spellcheck="false" aria-describedby="bind-hint">
+            <label for="days">Valid for</label>
+            <select id="days"><option value="1">1 day</option><option value="3" selected>3 days</option><option value="7">7 days</option><option value="30">30 days</option></select>
+            <div class="editor-actions"><button type="submit" class="primary-button" id="invite-go">Sign invitation (free)</button></div>
+          </fieldset>
+        </form>
+        <p id="invite-status" class="editor-status" role="status" aria-live="polite"></p>
+        <div id="invite-out" hidden>
+          <p><strong>Send this link to the artist</strong> (WhatsApp, Telegram, in person). It holds no secret: a leaked link still needs the artist's own signature and your approval.</p>
+          <p><input id="invite-link" readonly aria-label="invitation link"></p>
+          <p><button type="button" id="invite-copy">Copy link</button> <a id="invite-open" href="#" target="_blank" rel="noopener">open it ↗</a></p>
+          <pre id="invite-message" class="draft-notice"></pre>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="approve-heading">
+        <p class="eyebrow">02 / Approve</p>
+        <h2 id="approve-heading">Approve an artist's signed claim</h2>
+        <p>The artist sends you the JSON from their consent page. Paste it here: the desk checks the invitation, the artist's own signature and the wallet binding before you sign anything.</p>
+        <form id="approve-form" class="editor-form" autocomplete="off">
+          <fieldset id="approve-fields" disabled>
+            <legend class="visually-hidden">Approval</legend>
+            <label for="claim">Artist's consent JSON</label>
+            <textarea id="claim" rows="8" spellcheck="false"></textarea>
+            <div class="editor-actions"><button type="button" id="check">Check claim</button> <button type="submit" class="primary-button" id="approve-go" disabled>Sign approval (free)</button></div>
+          </fieldset>
+        </form>
+        <ul id="checks" class="trust-checks" aria-live="polite"></ul>
+        <p id="approve-status" class="editor-status" role="status" aria-live="polite"></p>
+        <div id="approve-out" hidden>
+          <p><strong>Approved.</strong> Send this file to the ʻohana ops (Telegram or chat). They record the invitation, consent and approval on Arkiv (<a href="/trust">trust ledger</a>), then the ops key issues the name to the artist's wallet — every signature is re-verified first and anything incomplete is refused.</p>
+          <p><button type="button" id="approve-copy">Copy JSON</button> <a id="approve-download" href="#" download="approved.json">Download approved.json</a></p>
+          <pre id="approve-json"></pre>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="grow-heading">
+        <p class="eyebrow">03 / Grow the circle</p>
+        <h2 id="grow-heading">Trust another steward</h2>
+        <p>Today the root steward is the single point of trust. The root can grant other people the right to invite and approve; each grant is a signed message added to <code>fork/stewards.json</code>, checked by every page and by the issuer.</p>
+        <form id="grow-form" class="editor-form" autocomplete="off">
+          <fieldset id="grow-fields" disabled>
+            <legend class="visually-hidden">Steward grant</legend>
+            <label for="g-name">Steward's name</label>
+            <input id="g-name" maxlength="80" required>
+            <label for="g-addr">Steward's wallet</label>
+            <input id="g-addr" placeholder="0x…" spellcheck="false" required>
+            <div class="editor-actions"><button type="submit" class="primary-button">Sign grant (root only, free)</button></div>
+          </fieldset>
+        </form>
+        <p id="grow-status" class="editor-status" role="status" aria-live="polite"></p>
+        <pre id="grow-json" hidden></pre>
+        <p class="field-hint">Next, as the circle grows: grants recorded on Arkiv, two-of-N approvals, and steward roles held on the ENS name itself.</p>
+      </section>
+    </main>
+    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra · signatures stay in your browser until you share them</p><a href="/fork/stewards.json">stewards.json</a> · <a href="/trust">trust ledger on Arkiv</a></footer>
+  </body>
+</html>

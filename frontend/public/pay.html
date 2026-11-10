@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Tip the artist: run the real x402 payment loop on Hedera testnet yourself — fan agent, 0G steward, 96.31% to the artist, split logged on HCS.">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <link rel="stylesheet" href="/pay.css">
+    <script type="module" src="/pay.mjs"></script>
+    <title>⚡ Tip the artist · live x402 loop on Hedera testnet</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the live loop</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/">Artist circle</a><a href="/steward">0G steward</a><a href="/arkiv">Arkiv proof</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="pay-heading">
+        <p class="kicker">Live · Hedera testnet · x402 <code>exact</code> in HBAR · 0G Private Computer</p>
+        <h1 id="pay-heading">⚡ Tip the artist — <em>run the real x402 loop yourself.</em></h1>
+        <p id="pay-sub" class="sub">One click runs the whole money loop on Hedera testnet, right now: a fan agent asks the artist’s steward and gets <b>HTTP 402</b>, pays <b>0.1 HBAR</b> with x402, the steward pays the <b>0G meter</b> its 3.69% for real inference, forwards <b>96.31%</b> to the artist and logs the split to <b>HCS</b>. Every step links to HashScan as it lands.</p>
+        <p id="pay-notice" class="draft-notice"><strong>Synthetic demo accounts only.</strong> The fan, steward, meter and artist are four testnet accounts made for this demo; the artist is the fictional <strong>Mira Modal</strong> (<code>demo-artist.oso.eth</code>). No real artist is paid and nothing touches mainnet. The fan and steward agents run server-side in a Cloudflare Worker — no wallet or key is in your browser.</p>
+      </section>
+
+      <section id="pay-artist" class="card pay-artist" aria-labelledby="artist-heading" hidden>
+        <p class="eyebrow">00 / Who gets paid</p>
+        <h2 id="artist-heading">💸 Paying <span id="pay-artist-ens"></span></h2>
+        <p id="pay-artist-detail" class="editor-status"></p>
+      </section>
+
+      <section class="card" aria-labelledby="run-heading">
+        <p class="eyebrow">01 / Run it</p>
+        <h2 id="run-heading">Trigger one live tip</h2>
+        <p id="pay-service" class="editor-status" role="status">Checking the live loop…</p>
+        <form id="pay-form" class="editor-form" autocomplete="off">
+          <fieldset id="pay-fields" disabled>
+            <legend class="visually-hidden">The fan’s question for the steward</legend>
+            <label for="pay-question">The fan agent’s question (optional)</label>
+            <p id="pay-hint" class="field-hint">Up to 280 characters. The paid answer comes from real 0G inference about Mira’s public demo profile.</p>
+            <textarea id="pay-question" rows="2" maxlength="280" aria-describedby="pay-hint">Who are you, and which song should a first-time fan hear?</textarea>
+            <div class="pay-amount" role="group" aria-labelledby="pay-amount-label">
+              <p id="pay-amount-label" class="field-label">How much? <span class="field-hint">testnet HBAR · any amount from 0.01 to 10</span></p>
+              <div class="pay-chips">
+                <button type="button" class="pay-chip" data-amount="0.1" aria-pressed="true">0.1</button>
+                <button type="button" class="pay-chip" data-amount="1" aria-pressed="false">1</button>
+                <button type="button" class="pay-chip" data-amount="5" aria-pressed="false">5</button>
+                <label class="pay-custom"><span class="visually-hidden">Amount in HBAR</span><input id="pay-amount" type="text" inputmode="decimal" value="0.1" autocomplete="off" spellcheck="false" aria-describedby="pay-split"> HBAR</label>
+              </div>
+              <p id="pay-split" class="field-hint" aria-live="polite"></p>
+            </div>
+            <div class="editor-actions"><button id="pay-go" class="primary-button" type="submit">⚡ tip the artist — run the real x402 loop on Hedera testnet</button></div>
+          </fieldset>
+        </form>
+        <p class="field-hint">Fair use: one live run per minute for everyone, a small daily cap. If it is busy, the <a href="https://github.com/Open-Source-Orchestra/fork-the-first-artist/blob/main/docs/TX-PROOF.md" target="_blank" rel="noopener noreferrer">recorded proof ↗</a> shows an earlier run.</p>
+        <p id="pay-status" class="editor-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card" id="pay-steps-card" aria-labelledby="steps-heading" hidden>
+        <p class="eyebrow">02 / The loop, step by step</p>
+        <h2 id="steps-heading" tabindex="-1">What just happened on-chain</h2>
+        <ol id="pay-steps" class="pay-steps"></ol>
+        <div id="pay-answer" class="pay-answer" hidden>
+          <p class="eyebrow">the paid steward answer · real 0G</p>
+          <p id="pay-answer-text" dir="auto"></p>
+        </div>
+      </section>
+    </main>
+    <footer class="wrap"><p>Fork the First Artist · Open Source Orchestra · real testnet transactions, never a mock</p><a href="https://oso-tip-loop.shakaverse.workers.dev/health" rel="noopener noreferrer" target="_blank">Worker health ↗</a></footer>
+  </body>
+</html>

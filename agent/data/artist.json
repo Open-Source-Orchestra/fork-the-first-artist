@@ -1,0 +1,6 @@
+{
+  "name": "Demo Artist",
+  "bio": "Fictional profile for local/demo tests only; no real artist activation or verified claim.",
+  "songs": ["Demo Song"],
+  "consent": true
+}

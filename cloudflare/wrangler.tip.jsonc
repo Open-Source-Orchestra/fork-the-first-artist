@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "oso-tip-loop",
+  "main": "src/tip-worker.ts",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "tsconfig": "./tsconfig.json",
+  "alias": {
+    "@x402/core/client": "./node_modules/@x402/core/dist/esm/client/index.mjs",
+    "@x402/core/http": "./node_modules/@x402/core/dist/esm/http/index.mjs",
+    "@x402/hedera": "./node_modules/@x402/hedera/dist/esm/index.mjs",
+    "@x402/hedera/exact/client": "./node_modules/@x402/hedera/dist/esm/exact/client/index.mjs"
+  },
+  "vars": {
+    "FAN_ACCOUNT_ID": "0.0.11345895",
+    "ARTIST_ACCOUNT_ID": "0.0.11345896",
+    "STEWARD_ACCOUNT_ID": "0.0.11345897",
+    "METER_ACCOUNT_ID": "0.0.11345898",
+    "HCS_TOPIC_ID": "0.0.11345907",
+    "ARTIST_LABEL": "demo-artist.oso.eth",
+    "UPSTREAM_BASE_URL": "https://router-api.0g.ai/v1",
+    "UPSTREAM_MODEL": "0gm-1.0-35b-a3b",
+    "TIP_TINYBAR": "10000000",
+    "METER_TINYBAR": "369000",
+    "DAILY_CAP": "80",
+    "DAILY_HBAR_CAP": "100",
+    "MAX_TIP_HBAR": "10",
+    "MIN_GAP_SECONDS": "30"
+  },
+  "durable_objects": { "bindings": [{ "name": "TIP_GATE", "class_name": "TipGate" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TipGate"] }],
+  "observability": { "enabled": false }
+}

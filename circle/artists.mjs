@@ -112,7 +112,7 @@ export const roster = {
   },
   {
    "slug": "amerge-x-subcult",
-   "name": "Amerge × Subcult",
+   "name": "Amerge Music Co-op",
    "kind": "placed",
    "status": "placed",
    "set": "Nov 4 · 12:40p · 60 min",

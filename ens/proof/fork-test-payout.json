@@ -1,0 +1,225 @@
+{
+  "generatedAt": "2026-11-08T15:32:04.340Z",
+  "mode": "anvil fork of Ethereum mainnet (nothing broadcast); OSO registrar + Shaka impersonated, throwaway artist key",
+  "forkBlock": "26371070",
+  "registry": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+  "ops": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+  "testName": "payout-test-77f746cc.osoartist.eth",
+  "artist": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+  "resolver": "0xE085a56Ac483614ab113140bc1c61391Af0D5a32",
+  "payout": {
+    "accountMode": {
+      "path": "hbar",
+      "payTo": "0.0.7777777",
+      "network": "mainnet"
+    },
+    "walletMode": {
+      "path": "hedera-evm",
+      "payTo": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+      "network": "mainnet"
+    }
+  },
+  "gas": [
+    {
+      "step": "ops: deploy payout-test-77f746cc.osoartist.eth PermissionedResolver (records+grants in initialize)",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0x77510ba162dfea3d8989e3f0928a691b345730d2",
+      "gasUsed": "672239",
+      "hash": "0x974fe7ad5a23805ebf54efc86f0d45a9ab638438964e8129f3ff0971d1a667c8"
+    },
+    {
+      "step": "ops: register payout-test-77f746cc.osoartist.eth → owner 0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+      "from": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293",
+      "to": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48",
+      "gasUsed": "172980",
+      "hash": "0xca806e8e285e5e45cd44b39453ee3d8fdf01159ea0e75d5f313c96abd9b0ddcc"
+    },
+    {
+      "step": "ARTIST: multicall(setAddress 3030, setText hedera.network=mainnet)",
+      "gasUsed": "73898",
+      "hash": "0xa7d83cbdaaea9bef084d5e7e5d295657d2da793ed72dfa8fff3034f10ab67365",
+      "signer": "artist"
+    },
+    {
+      "step": "ARTIST: multicall(clear 3030, setAddress 0x80000127, setText hedera.network=mainnet)",
+      "gasUsed": "101006",
+      "hash": "0x8a1aa4424fee7f6c173346e4d0418dd0947ab54b966706a1e90879eaa293ae8a",
+      "signer": "artist"
+    }
+  ],
+  "checks": [
+    {
+      "name": "osoartist.eth subregistry = the live OSO UserRegistry (registry.json)",
+      "ok": true,
+      "detail": "0xE9d4002cb12a53b50FAA244Cf801Ced40D7c3b48"
+    },
+    {
+      "name": "OSO registrar address holds REGISTRAR on the live registry",
+      "ok": true,
+      "detail": "0xe70050DF1587aA0E5CBD5735D448E5A9C9392293"
+    },
+    {
+      "name": "page reads shaka.osoartist.eth: owner = Shaka 0x2596",
+      "ok": true,
+      "detail": "0x25965899f4600b3AA5362ee4f34be95E5E62c934"
+    },
+    {
+      "name": "page reads shaka.osoartist.eth: his own resolver + testnet alias payout",
+      "ok": true,
+      "detail": {
+        "resolver": "0xdDFf981748Ec5F6D6618D830E90ba964DaA60Fb1",
+        "records": {
+          "eth": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+          "hbarRaw": null,
+          "hbarAccount": null,
+          "evmTestnet": "0x25965899f4600b3AA5362ee4f34be95E5E62c934",
+          "evmMainnet": null,
+          "network": "testnet",
+          "consent": "active",
+          "stewardStatus": null
+        }
+      }
+    },
+    {
+      "name": "DRY RUN: Shaka's own address may set a mainnet payout on shaka.osoartist.eth (not sent)",
+      "ok": true
+    },
+    {
+      "name": "NEG DRY RUN: the OSO registrar cannot change Shaka's payout",
+      "ok": true,
+      "detail": "the resolver refused: 0xe70050DF1587aA0E5CBD5735D448E5A9C9392293 does not hold the record roles on this name"
+    },
+    {
+      "name": "page reads the test name: owner = the artist, resolver = their own",
+      "ok": true,
+      "detail": {
+        "owner": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+        "resolver": "0xE085a56Ac483614ab113140bc1c61391Af0D5a32"
+      }
+    },
+    {
+      "name": "page reads the test name: testnet account + hedera.network=testnet",
+      "ok": true,
+      "detail": {
+        "eth": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+        "hbarRaw": "0x0000000000000000000000000000000000ad1fe8",
+        "hbarAccount": "0.0.11345896",
+        "evmTestnet": null,
+        "evmMainnet": null,
+        "network": "testnet",
+        "consent": "active",
+        "stewardStatus": null
+      }
+    },
+    {
+      "name": "before: resolvePayTo(testnet) → the testnet account",
+      "ok": true
+    },
+    {
+      "name": "before: resolvePayTo(mainnet) refuses (network-mismatch)",
+      "ok": true
+    },
+    {
+      "name": "NEG page gate: a stranger's wallet is not offered the send button",
+      "ok": true
+    },
+    {
+      "name": "NEG a stranger cannot set this artist's payout (resolver refuses)",
+      "ok": true,
+      "detail": "the resolver refused: 0xA542F9787Fc7aC061726392767016fE9243A5331 does not hold the record roles on this name"
+    },
+    {
+      "name": "NEG the OSO registrar cannot set this artist's payout (resolver refuses)",
+      "ok": true,
+      "detail": "the resolver refused: 0xe70050DF1587aA0E5CBD5735D448E5A9C9392293 does not hold the record roles on this name"
+    },
+    {
+      "name": "NEG the parent owner (Shaka) cannot set this artist's payout (resolver refuses)",
+      "ok": true,
+      "detail": "the resolver refused: 0x25965899f4600b3AA5362ee4f34be95E5E62c934 does not hold the record roles on this name"
+    },
+    {
+      "name": "NEG a stranger's sent tx reverts and the payout is unchanged",
+      "ok": true,
+      "detail": "reverted"
+    },
+    {
+      "name": "page gate: the artist's own wallet may sign",
+      "ok": true
+    },
+    {
+      "name": "DRY RUN from the artist succeeds",
+      "ok": true
+    },
+    {
+      "name": "ARTIST tx 1 (mainnet Hedera account) succeeds",
+      "ok": true,
+      "detail": "gas 73898"
+    },
+    {
+      "name": "page re-read: addr(3030) = mainnet account, hedera.network=mainnet",
+      "ok": true,
+      "detail": {
+        "eth": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+        "hbarRaw": "0x000000000000000000000000000000000076adf1",
+        "hbarAccount": "0.0.7777777",
+        "evmTestnet": null,
+        "evmMainnet": null,
+        "network": "mainnet",
+        "consent": "active",
+        "stewardStatus": null
+      }
+    },
+    {
+      "name": "resolve-artist.mjs (mainnet) → path hbar, payTo 0.0.7777777",
+      "ok": true,
+      "detail": {
+        "path": "hbar",
+        "payTo": "0.0.7777777",
+        "network": "mainnet"
+      }
+    },
+    {
+      "name": "resolve-artist.mjs (testnet) now refuses (network-mismatch)",
+      "ok": true
+    },
+    {
+      "name": "page plan predicted exactly this payout",
+      "ok": true
+    },
+    {
+      "name": "page plan clears the old addr(3030) first",
+      "ok": true
+    },
+    {
+      "name": "ARTIST tx 2 (mainnet wallet alias) succeeds",
+      "ok": true,
+      "detail": "gas 101006"
+    },
+    {
+      "name": "page re-read: 3030 cleared, 0x80000127 = artist address",
+      "ok": true,
+      "detail": {
+        "eth": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+        "hbarRaw": null,
+        "hbarAccount": null,
+        "evmTestnet": null,
+        "evmMainnet": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+        "network": "mainnet",
+        "consent": "active",
+        "stewardStatus": null
+      }
+    },
+    {
+      "name": "resolve-artist.mjs (mainnet) → path hedera-evm, payTo = the artist's own address",
+      "ok": true,
+      "detail": {
+        "path": "hedera-evm",
+        "payTo": "0xAF62F67aD6721E5E0324f90b8bAC432640147196",
+        "network": "mainnet"
+      }
+    }
+  ],
+  "passed": 26,
+  "failed": 0
+}

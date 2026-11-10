@@ -131,7 +131,7 @@ export function initKeys(ctx) {
 
   function renderGarden() {
     const a = BY[session.slug];
-    if (!draft) draft = { tagline: a.tagline || '', headline: a.headline || '', bio: a.bio || '', glyph: a.glyph || '', links: (a.links || []).map((l) => ({ ...l })), orig: null };
+    if (!draft) draft = { tagline: a.tagline || '', headline: a.headline || '', bio: a.bio || '', glyph: a.glyph || '', links: (Array.isArray(a.links) ? a.links : []).map((l) => ({ ...l })), orig: null };
     if (!draft.orig) draft.orig = JSON.stringify({ tagline: draft.tagline, headline: draft.headline, bio: draft.bio, glyph: draft.glyph, links: draft.links });
     body.innerHTML = `
       <div class="gk-welcome"><div class="gk-who">${avatar(a)}<div><h3>Welcome home, ${esc(a.name)} 🌺</h3><div class="gk-sub">your key is open · <button class="gk-link" id="gk-lock">lock it</button></div></div></div></div>

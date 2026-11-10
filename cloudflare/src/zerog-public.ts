@@ -1,4 +1,4 @@
-import { callZeroG, DEFAULT_STEWARD, STEWARDS, ZeroGError, type ZeroGConfig } from './zero-g.ts';
+import { callZeroG, DEFAULT_STEWARD, STEWARDS, ZeroGError, type StewardMode, type ZeroGConfig } from './zero-g.ts';
 import { DemoLimiter } from './limiter.ts';
 
 interface ZeroGPublicEnv {
@@ -15,6 +15,24 @@ const ALLOWED_ORIGINS = new Set([
   'http://127.0.0.1:4173',
   'http://localhost:4173',
 ]);
+const GROUNDING: Record<StewardMode, string> = {
+  demo: 'fictional demo profile',
+  asked: 'public garden profile only',
+  preview: 'public garden profile only · preview, the artist has not activated their own steward',
+};
+
+/** Counts only: the roster itself is public on the garden, the Worker need not echo 40 slugs. */
+function stewardCounts() {
+  const all = Object.values(STEWARDS);
+  return {
+    total: all.length,
+    demo: all.filter((s) => s.mode === 'demo').length,
+    asked: all.filter((s) => s.mode === 'asked').length,
+    preview: all.filter((s) => s.mode === 'preview').length,
+    default: DEFAULT_STEWARD,
+  };
+}
+
 const limiter = new DemoLimiter({ ip: 4, global: 12, inflight: 2 });
 
 function config(env: ZeroGPublicEnv): ZeroGConfig {
@@ -66,7 +84,7 @@ export default {
         inference: 'live 0G Private Computer',
         payment: false,
         selfFunding: false,
-        stewards: Object.values(STEWARDS).map((s) => ({ slug: s.slug, name: s.label, fictional: s.fictional })),
+        stewards: stewardCounts(),
         rateLimit: 'best-effort isolate-local; tiny capped credit is the final ceiling',
       }, 200, origin);
     }
@@ -88,12 +106,12 @@ export default {
       const slug = body.artist === undefined || body.artist === null ? DEFAULT_STEWARD : body.artist;
       const steward = typeof slug === 'string' && Object.hasOwn(STEWARDS, slug) ? STEWARDS[slug] : undefined;
       if (!steward) {
-        return json({ ok: false, error: { code: 'UNKNOWN_ARTIST', message: `artist must be one of: ${Object.keys(STEWARDS).join(', ')}` } }, 400, origin);
+        return json({ ok: false, error: { code: 'UNKNOWN_ARTIST', message: 'artist must be the slug of an artist in the Open Source Orchestra garden (omit it for the fictional demo steward)' } }, 400, origin);
       }
       const result = await callZeroG(body.instruction.trim(), config(env), fetch, steward);
       return json({
         ok: true,
-        artist: { slug: steward.slug, name: steward.label, fictional: steward.fictional, grounding: steward.fictional ? 'fictional demo profile' : 'public garden profile only' },
+        artist: { slug: steward.slug, name: steward.label, fictional: steward.fictional, mode: steward.mode, grounding: GROUNDING[steward.mode] },
         reply: { text: result.answer },
         usage: result.usage,
         charged: false,

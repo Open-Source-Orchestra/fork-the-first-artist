@@ -441,7 +441,7 @@ function select(s, quiet = false) {
   if (a.rider) links.push(`<a class="pill" href="${a.rider}" target="_blank" rel="noopener">🎚 rider</a>`);
   if (a.code) links.push(`<a class="pill teal" href="${DEVCON}/schedule/${a.code}" target="_blank" rel="noopener">📱 in the Devcon app</a>`);
   else if (a.kind === 'placed') links.push(`<span class="pill" style="opacity:.6">📱 Devcon app · session being added</span>`);
-  (a.links || []).forEach(l => links.push(`<a class="pill violet" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`));
+  (Array.isArray(a.links) ? a.links : []).forEach(l => links.push(`<a class="pill violet" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`));
   if (s === 'alaska-x-subcult') links.push(`<button class="pill violet" data-open="radio">📻 the circle is a station</button>`);
   $('#detail-body').innerHTML = `
     <div class="hero">${a.photo ? `<img src="${a.photo}" alt="">` : `<div class="mono" style="background:linear-gradient(140deg,hsl(${hueOf(s)} 52% 42%),hsl(${hueOf(s) + 55} 58% 28%))">${initials(a)}</div>`}

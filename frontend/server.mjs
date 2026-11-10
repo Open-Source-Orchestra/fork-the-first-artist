@@ -49,6 +49,11 @@ const assets = new Map(await Promise.all([
   ['/trust', 'trust.html', 'text/html; charset=utf-8'],
   ['/consent', 'consent.html', 'text/html; charset=utf-8'],
   ['/ens-sign', 'ens-sign.html', 'text/html; charset=utf-8'],
+  // An artist changes the Hedera payout on their OWN osoartist.eth name (their wallet signs; OSO can't).
+  ['/payout', 'payout.html', 'text/html; charset=utf-8'],
+  ['/payout.mjs', 'payout.mjs', 'text/javascript; charset=utf-8'],
+  ['/payout-plan.mjs', 'payout-plan.mjs', 'text/javascript; charset=utf-8'],
+  ['/payout.css', 'payout.css', 'text/css; charset=utf-8'],
   ...['admin.mjs', 'consent.mjs', 'consent-message.mjs', 'trust-message.mjs', 'wallet-connect.mjs', 'trust-ledger.mjs', 'ens-sign.mjs'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
   ['/trust.css', 'trust.css', 'text/css; charset=utf-8'],
   ['/steward.mjs', 'steward.mjs', 'text/javascript; charset=utf-8'],
@@ -100,6 +105,10 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const stewardPolicy = route === '/steward'
       ? " connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev;"
       : '';
+    // /payout reads public ENS records straight from the same public Ethereum RPCs as PUBLIC_RPCS in payout-plan.mjs.
+    const payoutPolicy = route === '/payout'
+      ? " connect-src 'self' https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io;"
+      : '';
     const payPolicy = route === '/pay'
       ? " connect-src 'self' https://oso-tip-loop.shakaverse.workers.dev;"
       : '';
@@ -108,7 +117,7 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
     const gardenPolicy = route === '/'
       ? "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org; base-uri 'none'; form-action 'none'; frame-ancestors 'none';"
       : null;
-    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy + trustPolicy + payPolicy));
+    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy + trustPolicy + payPolicy + payoutPolicy));
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

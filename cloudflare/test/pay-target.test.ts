@@ -65,7 +65,7 @@ test('resolveArtistTarget fails closed: no consent, paused, wrong name, OSO demo
   await assert.rejects(resolveArtistTarget('Bad!', tdeps()), /garden slug/);
 });
 
-test('stewardFor: example run = demo artist; Shaka = his public profile; others = minimal consented profile', () => {
+test('stewardFor: example run = demo artist; Shaka = asked; roster artists = preview; others = minimal consented profile', () => {
   assert.equal(stewardFor(null), undefined);
   const base = { ens: 'x.osoartist.eth', payTo: '0.0.1', accountId: '0.0.1', alias: null, path: 'hbar', resolver: null, source: '', lastLiveReadAt: null };
   assert.equal(stewardFor({ ...base, label: 'shaka', ens: 'shaka.osoartist.eth' })!.label, 'Shaka');
@@ -73,6 +73,12 @@ test('stewardFor: example run = demo artist; Shaka = his public profile; others 
   assert.equal(other.fictional, false);
   assert.equal(other.label, 'lexi.osoartist.eth');
   assert.equal(stewardFor({ ...base, label: 'mira-modal' })!.fictional, false, 'a real label never borrows the fictional profile');
+  assert.equal(other.mode, 'preview');
+  const roster = stewardFor({ ...base, label: 'dj-chalk', ens: 'dj-chalk.osoartist.eth' })!;
+  assert.equal(roster.mode, 'preview', 'a roster artist gets their public-profile preview steward');
+  assert.equal(roster.label, 'DJ Chalk');
+  assert.equal(stewardFor({ ...base, label: 'shaka', ens: 'shaka.osoartist.eth' })!.mode, 'asked');
+  assert.equal(stewardFor({ ...base, label: 'perrie', ens: 'perrie.osoartist.eth' })!.label, 'perrie.osoartist.eth', 'held-back artist: no garden profile is loaded');
 });
 
 test('targetDeps.aliasAccount reads the mirror node and only trusts a matching evm_address', async () => {

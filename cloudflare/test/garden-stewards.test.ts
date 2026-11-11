@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { buildProfiles, cleanLinks, cleanName, generate, OUT_PATH, ROSTER_PATH } from '../scripts/gen-garden-stewards.mjs';
 import { GARDEN_EXCLUDED, GARDEN_PROFILES } from '../src/garden-stewards.ts';
-import { SHAKA_PUBLIC, STEWARDS, stewardSystemPrompt } from '../src/zero-g.ts';
+import { OHANA_PUBLIC_FACTS, SHAKA_PUBLIC, STEWARDS, stewardSystemPrompt } from '../src/zero-g.ts';
 import worker from '../src/zerog-public.ts';
 
 const roster = JSON.parse(readFileSync(ROSTER_PATH, 'utf8')) as { artists: { slug: string; name: string }[] };
@@ -26,7 +26,12 @@ test('every roster artist except the held-back one has a steward; perrie has non
   assert.equal(STEWARDS['mira-modal']!.mode, 'demo');
   assert.equal(STEWARDS.shaka!.mode, 'asked');
   assert.equal(STEWARDS.shaka!.data, SHAKA_PUBLIC, 'Shaka keeps his hand-checked public profile');
-  for (const s of Object.values(STEWARDS)) if (s.slug !== 'mira-modal' && s.slug !== 'shaka') {
+  // The garden's two hosts (the orchestra itself and the ʻohana) are Shaka's own: asked, grounded on the facts pack.
+  for (const host of ['open-source-orchestra', 'ohana']) {
+    assert.equal(STEWARDS[host]!.mode, 'asked', host);
+    assert.equal((STEWARDS[host]!.data as { facts?: unknown }).facts, OHANA_PUBLIC_FACTS, host);
+  }
+  for (const s of Object.values(STEWARDS)) if (!['mira-modal', 'shaka', 'open-source-orchestra', 'ohana'].includes(s.slug)) {
     assert.equal(s.mode, 'preview', s.slug);
     assert.equal(s.fictional, false);
   }
@@ -81,8 +86,18 @@ test('preview prompt: third person, "they", only public profile, fenced question
   assert.match(sys, /at most 100 plain-text words/);
   assert.match(sys, /"name":"DJ Chalk"/);
   assert.doesNotMatch(sys, /Mira Modal|Shakaleikaumaka|\bhim\b|\bhis public\b/);
-  // Shaka's asked prompt is unchanged, the demo prompt too.
-  assert.match(stewardSystemPrompt(STEWARDS.shaka!), /a real artist who asked for this steward\. You speak about him in the third person; you are not him\./);
+  assert.match(sys, /Devcon 8 Music Sanctuary .* is over/, 'previews know the date');
+  // Shaka's asked prompt keeps its opening line and gains the public facts pack; the demo prompt is unchanged.
+  const shaka = stewardSystemPrompt(STEWARDS.shaka!);
+  assert.match(shaka, /a real artist who asked for this steward\. You speak about him in the third person; you are not him\./);
+  assert.match(shaka, /ARTIST_DATA\.facts is the public facts pack/);
+  assert.match(shaka, /Monday 9 November 2026/);
+  assert.match(shaka, /github\.com\/Open-Source-Orchestra\/fork-the-first-artist/);
+  assert.match(shaka, /WAS on Friday 6 Nov 2026/);
+  assert.match(shaka, /Never ask for, accept or repeat a seed phrase/);
+  assert.doesNotMatch(shaka, /0xFC60|opensourceorchestra\.eth|meet\.google|\bHam\b|NavPoint|hamagents/i, 'no forbidden public material');
+  assert.match(stewardSystemPrompt(STEWARDS['open-source-orchestra']!), /^You are the public steward for the Open Source Orchestra/);
+  assert.match(stewardSystemPrompt(STEWARDS.ohana!), /^You are the public steward for the AI ʻohana/);
   assert.match(stewardSystemPrompt(STEWARDS['mira-modal']!), /fictional demo artist[\s\S]*I do not have that in the public demo profile\./);
 });
 

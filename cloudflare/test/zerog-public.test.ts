@@ -69,7 +69,7 @@ test('public 0G health is honest and input validation happens before upstream', 
   assert.equal(bad.status, 400);
 });
 
-test('public 0G steward speaks for Shaka from his public garden profile only', async () => {
+test('public 0G steward speaks for Shaka from public facts only (garden profile + facts pack)', async () => {
   const original = globalThis.fetch;
   let system = '';
   globalThis.fetch = async (_input, init) => {
@@ -86,7 +86,7 @@ test('public 0G steward speaks for Shaka from his public garden profile only', a
     }), env);
     assert.equal(response.status, 200);
     const body = await response.json();
-    assert.deepEqual(body.artist, { slug: 'shaka', name: 'Shaka', fictional: false, mode: 'asked', grounding: 'public garden profile only' });
+    assert.deepEqual(body.artist, { slug: 'shaka', name: 'Shaka', fictional: false, mode: 'asked', grounding: 'public facts only · garden profile + public facts pack (9 Nov 2026)' });
     assert.equal(body.proof.requestId, 'req-shaka');
     assert.equal(body.charged, false);
     assert.match(system, /real artist who asked for this steward/);
@@ -130,8 +130,8 @@ test('public 0G steward defaults to Mira and rejects unknown artists before upst
     assert.equal(calls, 1);
     const health = await (await worker.fetch(new Request('https://worker.example/health'), env)).json();
     assert.equal(health.stewards.demo, 1);
-    assert.equal(health.stewards.asked, 1);
-    assert.equal(health.stewards.preview, 39, 'every garden artist except Shaka and the held-back one');
+    assert.equal(health.stewards.asked, 3, 'Shaka + the two hosts (the orchestra, the ʻohana)');
+    assert.equal(health.stewards.preview, 37, 'every other garden artist except the held-back one');
     assert.equal(health.stewards.total, 41);
     assert.equal(health.stewards.default, 'mira-modal');
   } finally { globalThis.fetch = original; }

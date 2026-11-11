@@ -16,7 +16,7 @@ test('static build creates public routes/assets and keeps wallets disabled witho
   t.after(async () => { await import('node:fs/promises').then(({ rm }) => rm(temp, { recursive: true, force: true })); });
   const out = join(temp, 'site');
   await execute(process.execPath, [script, out, '--cname=artist.example.org'], { env: { ...process.env, REOWN_PROJECT_ID: '' } });
-  for (const path of ['index.html', 'home/index.html', 'draft/index.html', 'wallets/index.html', 'arkiv/index.html', 'steward/index.html', 'steward.mjs', 'pay/index.html', 'pay.mjs', 'pay.css', 'payout/index.html', 'payout.mjs', 'payout-plan.mjs', 'payout.css', 'vendor/viem-ens.min.js', 'circle/artists.mjs', 'circle/img/shaka.jpg', 'arkiv-proof.json', 'arkiv-query.mjs', 'CNAME', '.nojekyll']) {
+  for (const path of ['index.html', 'home/index.html', 'draft/index.html', 'wallets/index.html', 'arkiv/index.html', 'steward/index.html', 'steward.mjs', 'pay/index.html', 'pay.mjs', 'pay.css', 'payout/index.html', 'payout.mjs', 'payout-plan.mjs', 'payout.css', 'vendor/viem-ens.min.js', 'tip/index.html', 'tip.mjs', 'tip-core.mjs', 'tip-ens.mjs', 'tip.css', 'tip-config.json', 'tip-chains.json', 'vendor/viem-tip.min.js', 'circle/artists.mjs', 'circle/img/shaka.jpg', 'arkiv-proof.json', 'arkiv-query.mjs', 'CNAME', '.nojekyll']) {
     assert.equal(await exists(join(out, path)), true, path);
   }
   const config = JSON.parse(await readFile(join(out, 'wallet-config.json'), 'utf8'));

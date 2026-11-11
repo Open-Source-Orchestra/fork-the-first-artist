@@ -16,6 +16,10 @@ frontend/generated/
 *.key
 *.pem
 
+.env
+venv/
+.venv/
+__pycache__/
 # --- runtime state, not source ---
 # the spend ledger and the budget file are outputs of running the service;
 # committing them would make every demo dirty the working tree.

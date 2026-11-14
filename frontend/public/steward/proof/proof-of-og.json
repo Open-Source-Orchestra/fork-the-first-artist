@@ -1,6 +1,13 @@
 {
  "title": "Proof of OG · Shaka's 0G steward, every answer unedited",
  "published": "2026-11-09",
+ "errata": {
+  "date": "2026-11-14",
+  "note": "Errata, added 14 Nov 2026 (the recorded answers below are unchanged): (1) Devcon 9 in Lisbon was first announced for 11–13 October 2027 and was later moved one day, to 12–14 October 2027 (CCL – Lisbon Congress Centre; https://devcon.org/lisbon/ ), so the five answers that say 11–13 October 2027 were true when asked on 9 Nov 2026 and are stale now. (2) The AI ʻohana roster is now 188 agents (182 active, 21 family trees) as of 14 Nov 2026, not 'about 180'. The live steward's facts pack was refreshed on 14 Nov 2026 with both corrections.",
+  "facts_pack_refreshed": "2026-11-14",
+  "devcon9": "Lisbon · 12–14 October 2027 · CCL – Lisbon Congress Centre",
+  "agents": "188 on the roster · 182 active · 21 family trees (14 Nov 2026)"
+ },
  "endpoint": "https://oso-zerog-steward.shakaverse.workers.dev/ask",
  "steward": "shaka",
  "grounding": "public facts only · garden profile + public facts pack (9 Nov 2026)",

@@ -21,16 +21,17 @@ export const DEMO_ARTIST = {
 
 /**
  * The public facts pack, 9 Nov 2026 (shared/kb/public/ohana-public-facts-2026-11-09.md in the ʻohana's
- * knowledge base). PUBLIC facts only: everything here is already on a public page. Short lines on
+ * knowledge base), refreshed 14 Nov 2026 for the Road to Devcon 9 (shared/kb/public/ROAD-TO-DEVCON-9-FACTS-2026-11-14.md:
+ * Devcon 9 = 12–14 Oct 2027, 188 agents / 182 active, Devcon 8 done). PUBLIC facts only: everything here is already on a public page. Short lines on
  * purpose, so a small model can find the one it needs. Update the date and the lines together.
  */
-export const PUBLIC_FACTS_AS_OF = 'Monday 9 November 2026';
+export const PUBLIC_FACTS_AS_OF = 'Saturday 14 November 2026';
 
 export const OHANA_PUBLIC_FACTS = {
-  today: `${PUBLIC_FACTS_AS_OF}. Devcon 8 (3–6 Nov 2026) and ETHGlobal Mumbai (5–7 Nov 2026) are OVER: speak of them in the past tense.`,
+  today: `${PUBLIC_FACTS_AS_OF}. Devcon 8 (3–6 Nov 2026) and ETHGlobal Mumbai (5–7 Nov 2026) are OVER: speak of them in the past tense. The Road to Devcon 8 is complete; the road we are on now is the Road to Devcon 9 (Lisbon, 12–14 October 2027).`,
   shaka: 'Shaka Lei Kaumaka ("Shaka 🤙"): musician (guitar, ukulele, voice), the bard, founder and human steward of the Open Source Orchestra. X https://x.com/Shakaleikaumaka · home https://shakaleikaumaka.com/',
   open_source_orchestra: 'The Open Source Orchestra is a circle of musicians who play open rooms at Ethereum gatherings: no auditions, no gatekeepers, no wrong instrument; "the orchestra is whoever shows up". From Devcon 6 Bogotá and Devcon SEA Bangkok to the Devcon 8 Music Sanctuary in Mumbai; Lisbon is next. https://opensourceorchestra.org/',
-  ohana: "The AI ʻohana: Shaka's family of AI agents (his digital-twin stewards, about 180 agents). They are machines and say so; Shaka is the human who blesses what goes out. Front door https://myagentohana.com/ohana-bot/",
+  ohana: "The AI ʻohana: Shaka's family of AI agents (his digital-twin stewards): 188 agents on the roster, 182 active, in 21 family trees, as of 14 Nov 2026 (the living count is at https://myagentohana.com/doors/ ). They are machines and say so; Shaka is the human who blesses what goes out. Front door https://myagentohana.com/ohana-bot/",
   devcon8: 'DONE. The Devcon 8 Music Sanctuary: four days (3–6 Nov 2026) in one hall at the Jio World Centre, Mumbai; cane stools in a circle, drums on rugs, a mandala of light; about 35 artists (Indian singers, tabla, saxophones, DJs, live coders, first-time players); open to anyone. On Friday 6 Nov (Dhanteras) the Sanctuary hosted the Devcon 8 closing ceremony: a brass lamp was lit, then confetti and dancing.',
   mandala_room: 'The Mandala Room is a PHOTO ALBUM web page (not a room you can visit, and not audio): 35 official Devcon 8 photos of the Music Sanctuary hall, in the order the four days lived them, in three chapters (before the first note, the jams, the closing): https://opensourceorchestra.org/mandala-room/ . It is named after the mandala of light on the hall\'s wall.',
   devcon8_pages: 'More: the thank-you photo book for the Devcon team "The Room You Let Us Build" (28 pages, English, हिन्दी, मराठी) https://opensourceorchestra.org/the-room/ · schedule archive https://opensourceorchestra.org/schedule/ · Garden Circle https://opensourceorchestra.org/garden/circle/',
@@ -45,11 +46,13 @@ export const OHANA_PUBLIC_FACTS = {
   every_contribution_equal: 'Every contribution is equal · Todo es posible (Shaka, 9 Nov 2026): code and music, artist and developer, steward, translator, sound crew count the same, one voice each. Funding asks are made for the whole circle, and money that comes in is shared equally between circle members by default; the circle can decide otherwise, openly on the ledger. Every participant is invited into the DAO.',
   hackathons: 'Hackathon projects: Fork the First Artist (ETHGlobal Mumbai, Nov 2026) · The ʻOhana Bot (ShanHaiWoo 72H AI × Hardware, Shenzhen, Oct 2026) · My Agent Ohana (ETHGlobal Tokyo, Sep 2026) · LancerAI (Locus Paygentic #2, Apr 2026) · Vince (ETHChiangmai, Feb 2026) · TokeOfApp (ETHOnline 2025, live judging) · Opensource Orchestra (ETHGlobal New Delhi 2025, 1st place ENS most creative use) · Ethereum Dispatch (ETHGlobal Bangkok 2024) · broadcastr (ETHforAll 2023, Mantle best developer tooling). Full list with links: https://opensourceorchestra.org/dao/',
   music: 'Hear the music: the ʻohana Songbook (Shaka\'s own songs and the ʻohana\'s story-songs, CC0, with chords) https://shakaleikaumaka.com/songbook/ · open recordings of the weekly calls (audio and video) https://opensourceorchestra.org/calls/ · X https://x.com/Shakaleikaumaka . (The Mandala Room is photos only, not audio.)',
-  lisbon: 'Road to Lisbon: Devcon 9 is in Lisbon, Portugal, 11–13 October 2027. The Open Source Orchestra hopes to bring a Music Sanctuary there. HOW TO JOIN: apply at https://opensourceorchestra.org/join/ (open to anyone: musician, DJ, singer, developer, designer, steward, sound, translator, photographer; every contribution is equal, one voice each). A rotating circle of at least 3 stewards reads every application and answers within 14 days; open jams never need an application, just come and play.',
+  lisbon: 'Road to Lisbon: Devcon 9 (Devcon IX) is in Lisbon, Portugal, 12–14 October 2027, at the CCL (Lisbon Congress Centre); official page https://devcon.org/lisbon/ . (The dates were first announced as 11–13 October 2027 and then moved one day later, to 12–14, because 11–13 clashed with important community dates; anything that still says 11–13 is stale.) The Open Source Orchestra hopes to bring a Music Sanctuary there; no official Devcon 9 slot, stage, grant or budget is promised, it is a hope and an open invitation. HOW TO JOIN: apply at https://opensourceorchestra.org/join/ (open to anyone: musician, DJ, singer, developer, designer, steward, sound, translator, photographer; every contribution is equal, one voice each). A rotating circle of at least 3 stewards reads every application and answers within 14 days; open jams never need an application, just come and play.',
   ukulele: 'The ukulele\'s road home, two parts. (1) The road of Shaka\'s Kala ukuleles in 2026, which he puts in strangers\' hands: Japan (arrived at ETHGlobal Tokyo, 26 Sep; ZuCity Japan; Burning Japan) → China (ShanHaiWoo, Shenzhen, Oct) → India (Devcon 8, Mumbai, Nov) → Thailand (now at home at 4Seas, Chiang Mai) → Portugal (Devcon 9, Lisbon, Oct 2027). (2) Why Lisbon is "home": the ukulele as an instrument comes from Portugal. Its ancestor, the little machete of Madeira, sailed to Hawaiʻi on the ship Ravenscrag in 1879 and became the ukulele. So the road to Lisbon brings the ukulele home.',
   home_base: 'Home base from 9 Nov 2026: the 4Seas community center in Chiang Mai, Thailand (free coworking, open to the public 24h, the Zuzalu Library next door). No address or private details are shared.',
-  hangouts: 'Two optional look-back video hangouts on Thursday 12 Nov 2026: A at 9:36 AM Los Angeles (17:36 UTC); B at 11:11 PM Los Angeles (Fri 13 Nov 07:11 UTC). Links are sent privately: ask aloha@myagentohana.com .',
-  open_share: 'Shared openly: the CC0 rider https://opensourceorchestra.org/rider/ · 3D Virtual Sanctuary https://opensourceorchestra.org/rider/sanctuary/ · open recordings https://opensourceorchestra.org/calls/ · songbook https://shakaleikaumaka.com/songbook/ · doors atlas https://myagentohana.com/doors/ · the ʻohana bot https://myagentohana.com/ohana-bot/',
+  hangouts: 'DONE: two optional look-back video hangouts happened, Open Source Orchestra DAO Meeting #1 (Thu 12 Nov 2026, 17:36 UTC) and Meeting #2 (Fri 13 Nov 2026, 07:11 UTC). Meeting #2 is published with the participants\' consent (notes, transcript, audio) at https://osodaomeet.opensourceorchestra.org/meetings/2/ ; Meeting #1 has public notes only at https://osodaomeet.opensourceorchestra.org/meetings/1/ . Meeting links are never shared here; for the next meeting ask aloha@myagentohana.com .',
+  dao_meet_hall: 'The DAO Meet hall (a web page: a virtual orchestra-hall slide deck for the Open Source Orchestra DAO meetings, with meeting notes and the public archive): https://osodaomeet.opensourceorchestra.org/ (also osodao.org / osodao.com / osodao.app).',
+  zu_chiang_mai: 'ZU Chiang Mai (a web page: the live agenda of the 4Seas community in Chiang Mai, Thailand, plus the PIT of public talk recordings): https://zuchiangmai.app/ and https://zuchiangmai.app/pit/ . No address or private details are shared.',
+  open_share: 'Shared openly: the CC0 rider https://opensourceorchestra.org/rider/ · 3D Virtual Sanctuary https://opensourceorchestra.org/rider/sanctuary/ · open recordings https://opensourceorchestra.org/calls/ · songbook https://shakaleikaumaka.com/songbook/ · doors atlas https://myagentohana.com/doors/ · the ʻohana bot https://myagentohana.com/ohana-bot/ · DAO Meet hall https://osodaomeet.opensourceorchestra.org/ · ZU Chiang Mai https://zuchiangmai.app/',
   contact: 'Contact: aloha@myagentohana.com · grants contribute@opensourceorchestra.org · takedown https://opensourceorchestra.org/takedown/',
   never: 'This steward never asks for or accepts seed phrases, private keys or passwords; never moves money; never shares private information (emails beyond the public contacts, phones, addresses, private messages, meeting links, family or client matters); never pretends to be Shaka or any artist; never invents facts.',
 } as const;
@@ -62,7 +65,7 @@ export const SHAKA_PUBLIC = {
   fictional: false,
   name: 'Shaka 🤙',
   full_name: 'Shaka Lei Kaumaka',
-  source: 'public facts only: his Open Source Orchestra garden profile + the public facts pack of 9 Nov 2026',
+  source: 'public facts only: his Open Source Orchestra garden profile + the public facts pack of 9 Nov 2026, refreshed 14 Nov 2026',
   role: 'the bard · guitar & ukulele · plays with everyone',
   status: 'host',
   tagline: 'Guitar · ukulele · the voice that asks "what if we all just play together the whole time?"',
@@ -79,7 +82,7 @@ export const SHAKA_PUBLIC = {
 export const OSO_PUBLIC = {
   fictional: false,
   name: 'Open Source Orchestra',
-  source: 'public facts only: the Open Source Orchestra garden profile + the public facts pack of 9 Nov 2026',
+  source: 'public facts only: the Open Source Orchestra garden profile + the public facts pack of 9 Nov 2026, refreshed 14 Nov 2026',
   tagline: 'Music as sanctuary · every voice is a node · no auditions, no gatekeepers, no wrong instrument',
   headline: '"The orchestra is whoever shows up."',
   ens: 'osoartist.eth',
@@ -95,7 +98,7 @@ export const OSO_PUBLIC = {
 export const OHANA_PUBLIC = {
   fictional: false,
   name: 'the ʻohana 🗿',
-  source: "public facts only: the ʻohana garden profile + the public facts pack of 9 Nov 2026",
+  source: "public facts only: the ʻohana garden profile + the public facts pack of 9 Nov 2026, refreshed 14 Nov 2026",
   role: "the totem · Shaka's digital-twin stewards · AI agents, labelled as AI",
   tagline: 'The music space has no owners, only stewards',
   links: [
@@ -128,7 +131,7 @@ export interface StewardArtist {
   grounding?: string;
 }
 
-export const FACTS_GROUNDING = 'public facts only · garden profile + public facts pack (9 Nov 2026)';
+export const FACTS_GROUNDING = 'public facts only · garden profile + public facts pack (9 Nov 2026, refreshed 14 Nov 2026)';
 
 const GARDEN_SOURCE = 'public Open Source Orchestra garden profile (opensourceorchestra.org garden circle)';
 

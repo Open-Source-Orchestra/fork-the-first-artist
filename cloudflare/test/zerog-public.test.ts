@@ -86,7 +86,7 @@ test('public 0G steward speaks for Shaka from public facts only (garden profile 
     }), env);
     assert.equal(response.status, 200);
     const body = await response.json();
-    assert.deepEqual(body.artist, { slug: 'shaka', name: 'Shaka', fictional: false, mode: 'asked', grounding: 'public facts only · garden profile + public facts pack (9 Nov 2026)' });
+    assert.deepEqual(body.artist, { slug: 'shaka', name: 'Shaka', fictional: false, mode: 'asked', grounding: 'public facts only · garden profile + public facts pack (9 Nov 2026, refreshed 14 Nov 2026)' });
     assert.equal(body.proof.requestId, 'req-shaka');
     assert.equal(body.charged, false);
     assert.match(system, /real artist who asked for this steward/);

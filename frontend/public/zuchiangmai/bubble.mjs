@@ -28,7 +28,7 @@ let ARTISTS = [], BY = {}, ORDER = [], HOSTS = [];
 const figures = new Map();
 let circle = [];
 let selected = null, everyone = false, mode = 'circle';
-let ledRing = null, ledLights = [], threads, sparks, haloSprite, centreRing, pulseRing, motes;
+let ledRing = null, ledLights = [], threads, sparks, centreRing, pulseRing, motes;
 let world = null, rider = null, AU = null, RUI = null, riderMounted = false, muted = false;
 const orbit = { yaw: 0.0, h: 3.4, r: 9.6, targetYaw: null, auto: true, lastTouch: 0, rTarget: null, hTarget: null,
   center: new THREE.Vector3(0, 0.9, 0), centerTarget: new THREE.Vector3(0, 0.9, 0), swayBase: 0 };
@@ -76,6 +76,8 @@ async function boot() {
   });
   document.addEventListener('visibilitychange', () => renderer.setAnimationLoop(document.hidden ? null : tick));
   renderer.setAnimationLoop(tick);
+  // a tiny debug hook (also used by the local test harness)
+  window.__zcm = { orbit, setMode, focusInstrument, world: () => world, rider: () => rider, renderer: () => renderer, scene: () => scene, setCircle: () => circle, play };
 }
 function t2m(tm) { if (!tm) return 0; const m = /(\d+):(\d+)([ap])/.exec(tm); if (!m) return 0; let h = +m[1] % 12; if (m[3] === 'p') h += 12; return h * 60 + +m[2]; }
 
@@ -125,8 +127,6 @@ function buildScene() {
   const xi = xiTexture();
   const inlay = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.4), new THREE.MeshBasicMaterial({ map: xi, transparent: true, opacity: 0.16, depthWrite: false }));
   inlay.rotation.x = -Math.PI / 2; inlay.position.y = 0.022; scene.add(inlay);
-  haloSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: xi, transparent: true, opacity: 0.2, depthWrite: false }));
-  haloSprite.scale.set(2.0, 2.0, 1); haloSprite.position.set(0, 4.4, 0); scene.add(haloSprite);
 
   buildThreads();
   buildMotes();
@@ -636,7 +636,6 @@ function tick() {
   ledRing.instanceColor.needsUpdate = true;
   ledLights.forEach((l) => { const a = tt * 0.25 + l.userData.i * Math.PI / 2; l.position.set(Math.cos(a) * 6.0, 3.4, Math.sin(a) * 6.0); l.intensity = 1.0 + beat * 0.8 * mood; });
   centreRing.material.emissiveIntensity = 0.6 + beat * 1.2; centreRing.rotation.z += dt * 0.3;
-  haloSprite.material.opacity = 0.14 + beat * 0.14; haloSprite.position.y = 4.4 + Math.sin(tt * 0.6) * 0.15;
   if (motes.visible) motes.rotation.y += dt * 0.01;
   const bs = tt - bloomAt; if (bs >= 0 && bs < 3.2) { const u = bs / 3.2; pulseRing.scale.setScalar(1 + u * 5.5); pulseRing.material.opacity = (1 - u) * 0.9; } else pulseRing.material.opacity = 0;
 

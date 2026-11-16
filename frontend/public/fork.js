@@ -116,8 +116,8 @@ const ensLabel = (slug) => String(slug || '').toLowerCase().replace(/[^a-z0-9-]/
 let registry = { parent: 'osoartist.eth', consentPage: null, artists: {} };
 let arkiv = null;
 const ready = Promise.all([
-  fetch('./fork/registry.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && typeof d === 'object') registry = { ...registry, ...d, artists: d.artists || {} }; }).catch(() => {}),
-  fetch('./arkiv-proof.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((d) => { arkiv = d; }).catch(() => {}),
+  fetch('/fork/registry.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && typeof d === 'object') registry = { ...registry, ...d, artists: d.artists || {} }; }).catch(() => {}),
+  fetch('/arkiv-proof.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((d) => { arkiv = d; }).catch(() => {}),
 ]);
 
 /* ── ribbon + opener in the garden's top-right corner ───────────────────────── */

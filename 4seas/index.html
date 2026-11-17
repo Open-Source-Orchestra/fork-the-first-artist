@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>🌺 Lunch Open Jam @ 4Seas · Fork the First Artist · Open Source Orchestra</title>
+<meta name="description" content="Open Source Orchestra Lunch Open Jam at 4Seas, Chiang Mai — Wed 18 Nov 2026, 12:00–15:00 (GMT+7). Free and open: bring any instrument, or just your voice. Fork the First Artist: a name the artist owns, a steward agent and a tip jar that pays 96.31% to the artist. The Open Source Orchestra takes zero.">
+<meta property="og:title" content="🌺 Open Source Orchestra Lunch Open Jam @ 4Seas">
+<meta property="og:description" content="Come eat, come play, come sit in the circle. Wed 18 Nov 2026 · 12:00–15:00 · 4Seas, Chiang Mai. No auditions, no gatekeepers.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://artist.opensourceorchestra.org/4seas">
+<meta property="og:image" content="https://artist.opensourceorchestra.org/img/4seas/circle-room.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0b0612">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌺</text></svg>">
+<style>
+:root{
+  --night:#0b0612; --deep:#150b22; --violet:#2a1740; --thread:#b48cff;
+  --cream:#f7ecd9; --cream-dim:rgba(247,236,217,.74); --cream-faint:rgba(247,236,217,.46);
+  --gold:#f0c464; --gold-bright:#ffd97a; --gold-soft:rgba(240,196,100,.35);
+  --coral:#ff8a5c; --rose:#e86a92; --teal:#2dd4bf;
+  --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--night);-webkit-text-size-adjust:100%}
+body{background:radial-gradient(1200px 700px at 80% -10%,rgba(180,140,255,.14),transparent 60%),radial-gradient(900px 600px at -10% 40%,rgba(232,106,146,.10),transparent 60%),var(--night);color:var(--cream);font-family:var(--sans);line-height:1.55;min-height:100vh}
+a{color:var(--gold)}
+a:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px;border-radius:6px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--gold);color:#1a1206;padding:.5em 1em;border-radius:999px;z-index:20}
+.skip:focus{left:12px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.top{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1080px;margin:0 auto}
+.brand{font-family:var(--serif);font-size:1.05rem;color:var(--cream);text-decoration:none;font-weight:600}
+.brand b{color:var(--gold-bright);font-weight:600}
+nav.pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;border:1px solid var(--gold-soft);border-radius:999px;padding:.55em 1em;color:var(--cream-dim);background:rgba(21,11,34,.78);white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:.4em;line-height:1}
+.pill:hover{color:var(--gold-bright);border-color:var(--gold)}
+.pill.teal{border-color:rgba(45,212,191,.5);color:#8ff1e2}
+.pill.rose{border-color:rgba(232,106,146,.5);color:#ffb3c9}
+.pill.violet{border-color:rgba(180,140,255,.5);color:#d8c6ff}
+.big{display:inline-flex;align-items:center;gap:.5em;background:linear-gradient(135deg,var(--gold),#ffb36b);color:#1a1206;font-weight:800;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;border-radius:999px;padding:1em 1.8em;box-shadow:0 10px 36px rgba(240,196,100,.28);text-decoration:none;white-space:nowrap}
+.big:hover{filter:brightness(1.08)}
+.big.ghost{background:transparent;color:var(--gold-bright);border:1px solid var(--gold-soft);box-shadow:none}
+
+/* hero */
+.hero{position:relative;border-radius:28px;overflow:hidden;margin:6px 0 0;min-height:560px;display:flex;align-items:flex-end;border:1px solid rgba(240,196,100,.18)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.05)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,6,18,.25) 0%,rgba(11,6,18,.55) 45%,rgba(11,6,18,.96) 100%)}
+.hero .in{position:relative;z-index:1;padding:34px 30px 30px;max-width:780px}
+.kicker{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,5.4vw,3.6rem);line-height:1.04;margin:10px 0 12px;letter-spacing:.005em}
+h1 em{color:var(--gold-bright);font-style:italic}
+.lede{font-size:clamp(1rem,1.9vw,1.2rem);color:var(--cream-dim);max-width:60ch}
+.when{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 20px}
+.when span{font-size:.8rem;background:rgba(21,11,34,.82);border:1px solid var(--gold-soft);border-radius:999px;padding:.45em 1em;color:var(--cream)}
+.when span b{color:var(--gold-bright);font-weight:700}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.credit{position:absolute;right:14px;top:12px;z-index:1;font-size:.64rem;letter-spacing:.06em;color:var(--cream-faint);background:rgba(11,6,18,.6);padding:.3em .7em;border-radius:999px}
+
+section{margin:64px 0}
+.sec-head{margin-bottom:20px}
+.num{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-faint)}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,3.6vw,2.4rem);line-height:1.12;margin-top:6px}
+h2 em{color:var(--gold-bright)}
+h3{font-family:var(--serif);font-weight:600;font-size:1.25rem;margin-bottom:6px}
+.card{background:linear-gradient(160deg,rgba(42,23,64,.55),rgba(21,11,34,.92));border:1px solid rgba(240,196,100,.2);border-radius:22px;padding:24px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+.card p{color:var(--cream-dim)}
+.card .glyph{font-size:1.8rem;display:block;margin-bottom:8px}
+.split{display:grid;gap:22px;grid-template-columns:1.1fr .9fr;align-items:center}
+.split img.photo{width:100%;height:auto;border-radius:22px;border:1px solid rgba(240,196,100,.18);display:block}
+.figcap{font-size:.72rem;color:var(--cream-faint);margin-top:8px}
+.big-num{font-family:var(--serif);font-size:clamp(2.6rem,7vw,4.4rem);color:var(--gold-bright);line-height:1}
+.facts{list-style:none;display:grid;gap:10px;margin-top:16px}
+.facts li{padding-left:1.6em;position:relative;color:var(--cream-dim)}
+.facts li::before{content:"🌺";position:absolute;left:0;top:.05em;font-size:.9em}
+.facts li b{color:var(--cream)}
+.qr-row{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.qr{display:flex;gap:18px;align-items:center}
+.qr img{width:150px;height:150px;border-radius:16px;flex:none;background:var(--cream)}
+.qr .t{min-width:0}
+.qr .t p{color:var(--cream-dim);font-size:.92rem;margin:4px 0 10px;overflow-wrap:anywhere}
+blockquote{font-family:var(--serif);font-size:clamp(1.4rem,3.4vw,2.2rem);line-height:1.25;text-align:center;max-width:820px;margin:0 auto;color:var(--cream)}
+blockquote em{color:var(--gold-bright)}
+.attrib{display:block;text-align:center;margin-top:14px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-faint)}
+.doors{display:flex;flex-wrap:wrap;gap:8px}
+footer{border-top:1px solid rgba(240,196,100,.15);margin-top:72px;padding:26px 0 40px;color:var(--cream-faint);font-size:.8rem}
+footer p+p{margin-top:6px}
+.note{font-size:.8rem;color:var(--cream-faint);margin-top:12px}
+@media (max-width:760px){
+  header.top{flex-direction:column;align-items:flex-start}
+  nav.pills{justify-content:flex-start}
+  .hero{min-height:620px;border-radius:22px;padding-top:40px}
+  .credit{right:12px;top:12px}
+  .hero .in{padding:24px 20px 22px}
+  .split{grid-template-columns:1fr}
+  section{margin:48px 0}
+  .qr img{width:120px;height:120px}
+}
+@media (prefers-reduced-motion:no-preference){.big{transition:filter .2s}.pill{transition:color .2s,border-color .2s}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="/">🎻 <b>Fork the First Artist</b> · Open Source Orchestra</a>
+  <nav class="pills" aria-label="Main navigation">
+    <a class="pill" href="/">🌀 The circle</a>
+    <a class="pill teal" href="/steward">🤖 Steward</a>
+    <a class="pill rose" href="/tip?who=shaka">💸 Tip</a>
+    <a class="pill violet" href="https://sola.day/event/detail/3n2icl5rcux3g" rel="noopener">📅 RSVP</a>
+  </nav>
+</header>
+
+<main id="main" class="wrap">
+  <section class="hero" aria-labelledby="title" style="margin-top:6px">
+    <img src="/img/4seas/circle-room.jpg" alt="Cane stools set in a circle on rugs with drums, before the first note at the Devcon 8 Music Sanctuary in Mumbai" width="1600" height="1066">
+    <span class="credit">Photo: official Devcon 8 photographers</span>
+    <div class="in">
+      <p class="kicker">🌺 Open Source Orchestra · now at 4Seas, Chiang Mai</p>
+      <h1 id="title">Lunch Open Jam <em>@ 4Seas</em></h1>
+      <p class="lede">Aloha, come eat, come play, come sit in the circle. The Open Source Orchestra is music as sanctuary. Like Ethereum, it is owned by no one: decentralized, open to permissionless contribution, and every voice is a node.</p>
+      <div class="when" aria-label="When and where">
+        <span>📅 <b>Wed 18 Nov 2026</b></span>
+        <span>🕛 <b>12:00–15:00</b> Bangkok (GMT+7)</span>
+        <span>📍 4Seas, 1st Floor Event Space · Chiang Mai</span>
+        <span>🤙 Free and open</span>
+      </div>
+      <div class="cta">
+        <a class="big" href="https://sola.day/event/detail/3n2icl5rcux3g" rel="noopener">RSVP on Social Layer ↗</a>
+        <a class="big ghost" href="#fork">Fork the First Artist ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="circle-h">
+    <div class="sec-head"><span class="num">01 / The circle</span><h2 id="circle-h">Not a stage. <em>A circle on the floor.</em></h2></div>
+    <div class="grid">
+      <div class="card"><span class="glyph" aria-hidden="true">🎸</span><h3>No auditions, no gatekeepers</h3><p>Casual play from 12:00 to 15:00. Bring any instrument, or just your voice. The orchestra is whoever shows up.</p></div>
+      <div class="card"><span class="glyph" aria-hidden="true">🍜</span><h3>Come eat, come play</h3><p>A lunch jam at 4Seas, 1st Floor Event Space. Come eat, come play, come sit in the circle. The session itself is free and open.</p></div>
+      <div class="card"><span class="glyph" aria-hidden="true">🌏</span><h3>Prague → Mumbai → Chiang Mai</h3><p>Born at ETH Prague in 2022, the circle played the Devcon 8 Music Space in Mumbai, 3 to 6 November 2026, and now it gathers at 4Seas in Chiang Mai.</p></div>
+    </div>
+  </section>
+
+  <section id="fork" aria-labelledby="fork-h">
+    <div class="sec-head"><span class="num">02 / Fork the First Artist</span><h2 id="fork-h">Every artist, <em>their own home.</em></h2></div>
+    <div class="split">
+      <div class="card">
+        <p>Built at ETHGlobal Mumbai 2026. Every artist of the Open Source Orchestra garden can hold:</p>
+        <ul class="facts">
+          <li><b>A name they own</b> — an ENS name in the artist's own wallet, not ours.</li>
+          <li><b>A steward agent</b> — an AI steward agent running on 0G. <a href="/steward">Meet the steward</a>.</li>
+          <li><b>A tip jar</b> — fans pay the artist straight into the artist's own wallet. <a href="/tip?who=shaka">Try the tip page</a>.</li>
+          <li><b>Consent first</b> — nothing is activated before the artist signs.</li>
+        </ul>
+        <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-end;margin-top:22px">
+          <div><div class="big-num">96.31%</div><div class="num">to the artist</div></div>
+          <div><div class="big-num" style="color:var(--teal)">3.69%</div><div class="num">to the steward's compute</div></div>
+          <div><div class="big-num" style="color:var(--rose)">0%</div><div class="num">to the Open Source Orchestra</div></div>
+        </div>
+        <p class="note">No token. No platform fee. The Open Source Orchestra takes zero.</p>
+      </div>
+      <figure>
+        <img class="photo" src="/img/4seas/jam.jpg" alt="Two musicians jamming on tabla and guitar at the Devcon 8 Music Sanctuary" width="1600" height="1066" loading="lazy">
+        <figcaption class="figcap">Devcon 8 Music Sanctuary, Mumbai · Photo: official Devcon 8 photographers</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="scan-h">
+    <div class="sec-head"><span class="num">03 / Scan in the circle</span><h2 id="scan-h">Join, play, <em>give.</em></h2></div>
+    <div class="qr-row">
+      <div class="card qr">
+        <img src="/img/4seas/qr-event.png" alt="QR code to the event page on Social Layer" width="150" height="150">
+        <div class="t"><h3>📅 The jam</h3><p>sola.day/event/detail/3n2icl5rcux3g</p><a class="pill violet" href="https://sola.day/event/detail/3n2icl5rcux3g" rel="noopener">Open the event ↗</a></div>
+      </div>
+      <div class="card qr">
+        <img src="/img/4seas/qr-tip.png" alt="QR code to tip Shaka on the Fork the First Artist tip page" width="150" height="150">
+        <div class="t"><h3>💸 Tip Shaka</h3><p>shaka.osoartist.eth · from your own wallet, on the tip page</p><a class="pill rose" href="/tip?who=shaka">Open the tip page</a></div>
+      </div>
+    </div>
+    <p class="note">Tips are a gift offered with aloha, never a ticket or a fee. A sent transfer is final, so check the name before you send.</p>
+  </section>
+
+  <section aria-label="Shaka's words">
+    <blockquote>“You don't join the Open Source Orchestra. <em>You notice you were always in it.</em>”</blockquote>
+    <span class="attrib">— Shaka's words · CC0</span>
+  </section>
+
+  <section aria-labelledby="doors-h">
+    <div class="sec-head"><span class="num">04 / Open doors</span><h2 id="doors-h">Find the <em>orchestra.</em></h2></div>
+    <div class="doors">
+      <a class="pill" href="https://opensourceorchestra.org" rel="noopener">🎻 opensourceorchestra.org</a>
+      <a class="pill teal" href="https://myagentohana.com" rel="noopener">🗿 myagentohana.com</a>
+      <a class="pill violet" href="https://publicinform.com" rel="noopener">📜 publicinform.com</a>
+      <a class="pill" href="https://github.com/Open-Source-Orchestra" rel="noopener">⌨️ github.com/Open-Source-Orchestra</a>
+      <a class="pill rose" href="https://x.com/Shakaleikaumaka" rel="noopener">𝕏 @Shakaleikaumaka</a>
+      <a class="pill rose" href="https://x.com/opensourceorch" rel="noopener">𝕏 @opensourceorch</a>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>🌺 Fork the First Artist · the Open Source Orchestra is open for forking and hosting. Built with the ʻohana.</p>
+  <p>Photos: official Devcon 8 photographers. Mahalo nui loa to 4Seas for hosting the circle.</p>
+</footer>
+</body>
+</html>

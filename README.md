@@ -92,3 +92,12 @@ AI assisted implementation, review, tests and documentation as disclosed in thos
 Branch → pull request → required human/code-owner review → merge. No direct pushes to `main`.
 
 Nothing goes live for an artist without consent and verified activation. The artist's key is never a backend credential; payout destinations are server-bound to verified configuration. Hedera/Arkiv demo setup is testnet-only. ENS deployment/spend needs separate review. Never commit `.env`, keys, bearer tokens, pairing URIs, ledgers containing private data, or seed phrases.
+
+## License
+
+Code in this repository is licensed **GPL-3.0** (copyleft — share-alike for code); see [`LICENSE`](LICENSE).
+
+Songs, lyrics, chords, spoken words, art, Pages and other creative content are **CC BY-SA 4.0** (credit, share alike); see [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md). Credit: Shaka Lei Kaumaka & the Open Source Orchestra ʻohana. Works already published under an earlier licence stay under that licence, irrevocably.
+
+Full content license: https://creativecommons.org/licenses/by-sa/4.0/
+

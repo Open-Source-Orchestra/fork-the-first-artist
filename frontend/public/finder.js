@@ -1,4 +1,4 @@
-/* ── THE GREENHOUSE · find any artist in the garden · CC0 ────────────────────
+/* ── THE GREENHOUSE · find any artist in the garden · GPL-3.0 ────────────────────
    A search that grows a garden: every match is a flower, butterflies and
    dragonflies drift over it, roots run to a beating heart at the bottom.
    Client-side only · no tracking · respects prefers-reduced-motion.

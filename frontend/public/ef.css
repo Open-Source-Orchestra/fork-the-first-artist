@@ -1,4 +1,4 @@
-/* ── THE EF SEATS · see the Ethereum Foundation committee in the circle · CC0 · by the ʻohana, Shaka's AI family ── */
+/* ── THE EF SEATS · see the Ethereum Foundation committee in the circle · GPL-3.0 · by the ʻohana, Shaka's AI family ── */
 #ef-fab{position:fixed;z-index:27;right:150px;top:16px;display:flex;align-items:center;gap:11px;padding:.95em 1.7em;border-radius:999px;border:2px solid #ffd97a;
   background:linear-gradient(135deg,#3a2210,#1b0f2e 55%,#2a1740);color:#ffe9a8;font-weight:800;font-size:.8rem;letter-spacing:.17em;text-transform:uppercase;white-space:nowrap;
   box-shadow:0 0 0 0 rgba(255,217,122,.55),0 12px 40px rgba(0,0,0,.65);animation:efpulse 2.8s ease-in-out infinite;transition:transform .2s}

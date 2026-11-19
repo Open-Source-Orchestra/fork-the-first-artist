@@ -1,4 +1,4 @@
-/* ── THE GREENHOUSE · artist finder (right side of the circle) · CC0 ───────── */
+/* ── THE GREENHOUSE · artist finder (right side of the circle) · GPL-3.0 ───────── */
 #gh-fab{position:fixed;z-index:26;right:18px;bottom:18px;display:flex;align-items:center;gap:9px;padding:.8em 1.25em .8em 1em;border-radius:999px;border:1px solid var(--gold);
   background:linear-gradient(135deg,rgba(42,23,64,.95),rgba(21,11,34,.95));color:var(--gold-bright);font-weight:700;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;
   box-shadow:0 0 0 0 rgba(240,196,100,.5),0 10px 34px rgba(0,0,0,.6);backdrop-filter:blur(10px);transition:right .32s cubic-bezier(.2,.8,.2,1),transform .2s,opacity .2s;animation:ghpulse 3.2s ease-in-out infinite}

@@ -1,7 +1,7 @@
 /* ── OPEN SOURCE ORCHESTRA · THE FULL CIRCLE ────────────────────────────────
    The virtual sanctuary (Devcon 8 Music Space, Ø 6 m circle on the floor)
    with every artist of the garden in it. Add anyone. Add everyone.
-   three.js r169 vendored locally · no CDN, no trackers · CC0.
+   three.js r169 vendored locally · no CDN, no trackers · GPL-3.0.
    ------------------------------------------------------------------------- */
 import * as THREE from './vendor/three.module.min.js';
 import { initFinder } from './finder.js';

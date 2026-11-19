@@ -1,7 +1,7 @@
 /* ── GARDEN KEYS · overlay · the artists' own words, laid over the stewards' base data ─────────
    Shared by app.js (published edits.json) and keys.js (local preview). Pure functions, no DOM.
    An artist may only ever change these five things; everything else stays with the stewards.
-   by the ʻohana — Shaka's AI family · CC0 */
+   by the ʻohana — Shaka's AI family · GPL-3.0 */
 export const LIMITS = { tagline: 140, headline: 90, bio: 600, glyph: 4, links: 6, label: 24, url: 300, title: 80, body: 1200 };
 export const EDITABLE = ['tagline', 'headline', 'bio', 'links', 'glyph'];
 

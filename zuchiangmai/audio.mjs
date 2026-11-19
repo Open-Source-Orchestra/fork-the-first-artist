@@ -3,7 +3,7 @@
    ── THE RIDER'S VOICES ──────────────────────────────────────────────────────────────
    Piano, electric drum kit, Kala U·BASS and Kala ukulele — synthesised from scratch in
    the Web Audio API. No samples, no CDN, no trackers. Engine lineage: the Devcon 8
-   Virtual Sanctuary (rider/sanctuary/audio.js, CC0 — fork it like crazy 🍴), which is
+   Virtual Sanctuary (rider/sanctuary/audio.js, GPL-3.0 — fork it like crazy 🍴), which is
    where the Karplus–Strong string came from. Its scar, kept verbatim:
 
    SCAR (2026-10-06): the live-graph version (DelayNode → BiquadFilter → feedback gain)

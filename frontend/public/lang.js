@@ -677,7 +677,7 @@
       p.style.maxHeight = (innerHeight - py - 12) + 'px';
     }
     var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(place, 150); });
-    if (isFolded()) setFold(true, false);
+    setFold(isFolded(), false);
     place(); setTimeout(place, 1200);              // once more after the door's own late UI settles
 
     ui.refresh = function () {

@@ -409,7 +409,9 @@ function mountRider(remount = false) {
   if (riderMounted && !remount) return;
   const el = $('#rider-body'); el.innerHTML = '';
   try {
-    RUI.mountRiderUI(el, { audio: AU, rider, t: (k, fb, vars) => t('rider.' + k, fb ?? RUI.RIDER_STRINGS_EN?.[k] ?? k, vars), onFocus: focusInstrument, onPlay: (id, part) => rider.hit?.(id, part, 1), isMuted: () => muted });
+    // RIDER_STRINGS_EN is nested ({piano:{name:…}}) but keys arrive dotted ('piano.name') — resolve by path.
+    const enFor = (k) => k.split('.').reduce((o, p) => (o == null ? o : o[p]), RUI.RIDER_STRINGS_EN);
+    RUI.mountRiderUI(el, { audio: AU, rider, t: (k, fb, vars) => t('rider.' + k, fb ?? enFor(k) ?? k, vars), onFocus: focusInstrument, onPlay: (id, part) => rider.hit?.(id, part, 1), isMuted: () => muted });
     riderMounted = true;
   } catch (e) { console.warn('rider ui failed', e); el.textContent = 'The rider panel could not start on this device.'; }
 }

@@ -84,7 +84,7 @@ export const roster = {
    "tagline": "Live voice over his own tracks · classic Hindi songbook in his heart · mid-morning Wednesday",
    "headline": "\"Music unites all\" — three words, and he flew with them",
    "glyph": "🎤",
-   "photo": null,
+   "photo": "/circle/img/adegbenga.jpg",
    "links": []
   },
   {

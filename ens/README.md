@@ -18,6 +18,7 @@ owner of `osoartist.eth`. See [ENS-PROOF.md](ENS-PROOF.md) for what to fill in a
 | Consent (EIP-191) verify; canonical text shared with the web page | [src/consent.mjs](src/consent.mjs), [../frontend/public/consent-message.mjs](../frontend/public/consent-message.mjs) |
 | Batch onboarding (plan by default; `--send` on a fork; mainnet only with `--mainnet-yes`) | [scripts/onboard.mjs](scripts/onboard.mjs) |
 | Full mainnet-fork test incl. negative paths + gas | [scripts/fork-test.mjs](scripts/fork-test.mjs) → [proof/fork-test.json](proof/fork-test.json) |
+| Artist changes their own payout (`/payout` helpers) on a fork of today's mainnet | [scripts/fork-test-payout.mjs](scripts/fork-test-payout.mjs) → [proof/fork-test-payout.json](proof/fork-test-payout.json) |
 | Shaka signing kit (exact `to/value/data/chainId` + MetaMask page `/ens-sign`) | [scripts/build-signing-kit.mjs](scripts/build-signing-kit.mjs) → [signing-kit/kit.md](signing-kit/kit.md) |
 | Artist consent page (`/consent`, plain `window.ethereum` `personal_sign`, outputs JSON) | [../frontend/public/consent.html](../frontend/public/consent.html) |
 | Garden feed of per-artist ENS state (mainnet runs only) | [../frontend/public/fork/registry.json](../frontend/public/fork/registry.json) |
@@ -26,7 +27,8 @@ owner of `osoartist.eth`. See [ENS-PROOF.md](ENS-PROOF.md) for what to fill in a
 ```sh
 npm --prefix ens install
 npm run test:ens                                   # 26 unit tests (mock client, calldata decoding, consent)
-node ens/scripts/fork-test.mjs                     # starts anvil --fork-url mainnet, impersonates 0x2596, 43 checks
+node ens/scripts/fork-test.mjs                     # starts anvil --fork-url mainnet, impersonates 0x2596, 43 checks — written for the PRE-activation state; on today's mainnet it fails "no subregistry yet"
+node ens/scripts/fork-test-payout.mjs              # today's mainnet: artist sets a mainnet payout on their own name, 26 checks
 node ens/src/resolve-artist.mjs demo-artist.osoartist.eth --rpc http://127.0.0.1:8545
 ENS_RPC_URL=http://127.0.0.1:8545 ARTIST_NAME=demo-artist.osoartist.eth node scripts/live-e2e.mjs --dev
 ```

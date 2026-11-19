@@ -112,7 +112,7 @@ export const roster = {
   },
   {
    "slug": "amerge-x-subcult",
-   "name": "Amerge × Subcult",
+   "name": "Amerge Music Co-op",
    "kind": "placed",
    "status": "placed",
    "set": "Nov 4 · 12:40p · 60 min",
@@ -179,7 +179,7 @@ export const roster = {
    "tagline": "Indian classical on electric guitar · gayaki ang · jugalbandi with his tabla player Dhaivat",
    "headline": "He released a raga about the Mumbai rains. Now he opens Devcon in Mumbai.",
    "glyph": "🎸🪘",
-   "photo": null,
+   "photo": "/circle/img/aniket-gundewar.jpg",
    "links": [
     {
      "label": "Linktree",

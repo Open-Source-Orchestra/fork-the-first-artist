@@ -1,4 +1,4 @@
-/*! ʻŌLELO · the ʻohana language bridge · v1.3 · CC0 · built by the ʻohana (machines, not people)
+/*! ʻŌLELO · the ʻohana language bridge · v1.4 · CC0 · built by the ʻohana (machines, not people)
  *
  *  One line on any door:
  *    <script src="https://lang.opensourceorchestra.org/lang.js" async></script>
@@ -9,7 +9,9 @@
  *    · each door remembers it (localStorage 'olelo'); the old 🌐 corner button (otr / googtrans cookie) is adopted
  *  Translation: hand-made versions first (native EN/中文 toggles), otherwise Google Translate —
  *  which is loaded ONLY after a visitor has chosen a language. Default visitors make zero extra requests.
- *  No trackers. Respects prefers-reduced-motion. Per-door options on the script tag:
+ *  No trackers. Respects prefers-reduced-motion. THE BUTTON LAW (19 Nov 2026): the globe never covers text —
+ *  it nudges below text blocks, folds to a 17px dot when no clear spot exists, and its tiny ✕ folds it any time
+ *  (tap the dot to bring it back; the choice is remembered per door). Per-door options on the script tag:
  *    data-top="120"  data-left="10"  data-side="right"  data-family="extra.host other.host"  data-button="off"
  */
 (function () {
@@ -17,7 +19,7 @@
   if (window.__olelo) return;
   window.__olelo = 1;
 
-  var VERSION = '1.3.1';
+  var VERSION = '1.4.0';
   var KEY = 'olelo';          // localStorage key (per door)
   var PARAM = 'olelo';        // URL parameter that carries the choice between doors
   var HOME = 'https://lang.opensourceorchestra.org/';
@@ -541,6 +543,12 @@
       'background:rgba(20,18,45,.88);border:1px solid rgba(124,211,255,.6);color:#fff;font:25px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;' +
       'cursor:pointer;opacity:.9;box-shadow:0 4px 18px rgba(0,0,0,.35);transition:opacity .3s,transform .3s;-webkit-tap-highlight-color:transparent}' +
       '.b:hover,.b:focus-visible,.b[aria-expanded=true]{opacity:1;transform:scale(1.06)}' +
+      '.fx{position:fixed;display:none;width:17px;height:17px;border-radius:50%;border:1px solid rgba(124,211,255,.55);background:rgba(20,18,45,.92);' +
+      'color:#9d97c9;font:700 10px/16px system-ui,sans-serif;text-align:center;cursor:pointer;padding:0;box-shadow:0 1px 4px rgba(0,0,0,.45);z-index:99981}' +
+      '.fx:hover,.fx:focus-visible{color:#fff;background:rgba(124,211,255,.25);outline:none}' +
+      '.b.fold{width:17px!important;height:17px!important;font-size:9px!important;opacity:.4;animation:none!important}' +
+      '.b.fold:hover,.b.fold:focus-visible{opacity:.95;transform:none}' +
+      '.b.fold .chip{display:none}' +
       '.b:focus-visible{outline:2px solid #7cd3ff;outline-offset:3px}' +
       '.chip{position:absolute;right:-7px;bottom:-5px;min-width:20px;height:18px;padding:0 5px;border-radius:9px;background:#7cd3ff;color:#0c0b1c;' +
       'font:700 10px/18px system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.45);white-space:nowrap}' +
@@ -584,6 +592,17 @@
     doc.body.appendChild(host);
     var $ = function (id) { return root.getElementById ? root.getElementById(id) : root.querySelector('#' + id); };
     var b = $('b'), p = $('p'), chip = $('chip');
+    var fx = doc.createElement('button'); fx.type = 'button'; fx.className = 'fx notranslate'; fx.setAttribute('translate', 'no');
+    fx.textContent = '✕'; fx.setAttribute('aria-label', 'Hide the language button'); fx.title = 'Hide the 🌐 button (tap the small dot to bring it back)';
+    doc.body.appendChild(fx);
+    var FOLD_KEY = 'olelo-fold';
+    function isFolded() { try { return localStorage.getItem(FOLD_KEY) === '1'; } catch (e) { return false; } }
+    function setFold(v, persist) {
+      if (persist) { try { localStorage.setItem(FOLD_KEY, v ? '1' : '0'); } catch (e) {} }
+      b.classList.toggle('fold', v); fx.style.display = v ? 'none' : 'block';
+      b.title = v ? '🌐 ' + t('label') : '';
+    }
+    fx.addEventListener('click', function () { setFold(true, true); open(false); });
     if (!reduced) b.classList.add('bob');
 
     function open(v) {
@@ -595,7 +614,7 @@
         if (on && on.closest('details')) $('more').open = true;
       }
     }
-    b.addEventListener('click', function () { open(!p.classList.contains('open')); });
+    b.addEventListener('click', function () { if (b.classList.contains('fold')) { setFold(false, true); } else { open(!p.classList.contains('open')); } });
     $('x').addEventListener('click', function () { open(false); b.focus(); });
     p.addEventListener('click', function (e) {
       var el = e.target.closest ? e.target.closest('.l') : null;
@@ -607,6 +626,7 @@
     doc.addEventListener('click', function (e) { if (p.classList.contains('open') && e.target !== host && !(e.composedPath && e.composedPath().indexOf(host) >= 0)) open(false); }, true);
 
     // placement: top-left like the 🌐 everywhere; step below any small fixed bar that already lives there
+    var TEXT_TAGS = { P: 1, H1: 1, H2: 1, H3: 1, H4: 1, H5: 1, H6: 1, LI: 1, SPAN: 1, A: 1, BUTTON: 1, LABEL: 1, TD: 1, TH: 1, SUMMARY: 1, FIGCAPTION: 1, DT: 1, DD: 1, BLOCKQUOTE: 1 };
     function obstacle(x, y, s) {
       var pts = [[x + s / 2, y + s / 2], [x + 3, y + 3], [x + s - 3, y + s - 3], [x + s - 3, y + 3], [x + 3, y + s - 3]];
       for (var k = 0; k < pts.length; k++) {
@@ -617,6 +637,11 @@
           if (el === host || el === html || el === doc.body) continue;
           for (var a = el; a && a !== doc.body && a !== html; a = a.parentElement) {
             var cs = getComputedStyle(a);
+            if (cs.visibility === 'hidden' || +cs.opacity < 0.05) continue;
+            if (TEXT_TAGS[a.tagName] && (a.innerText || '').replace(/\s+/g, ' ').trim().length > 20) {
+              var tr = a.getBoundingClientRect();
+              if (tr.width * tr.height > 900 && tr.width * tr.height < innerWidth * innerHeight * 0.45) return tr;
+            }
             if (cs.position === 'fixed' || cs.position === 'sticky') {
               var r = a.getBoundingClientRect();
               if (r.width * r.height > innerWidth * innerHeight * 0.35) break;   // a background layer, not a control
@@ -638,10 +663,13 @@
       var right = opt('side') === 'right';
       if (right) x = innerWidth - s - x;
       if (!opt('top')) {
-        for (var k = 0; k < 6; k++) { var r = obstacle(x, y, s); if (!r) break; y = Math.ceil(r.bottom) + 8; }
+        for (var k = 0; k < 8; k++) { var r = obstacle(x, y, s); if (!r) break; y = Math.ceil(r.bottom) + 8; }
         if (y + s > innerHeight - 70) y = Math.max(8, Math.round(innerHeight * 0.42));
+        if (obstacle(x, y, s)) { setFold(true, false); }          // never cover text: fold session-only
+        else if (!isFolded()) { setFold(false, false); }          // clear again → unfold (unless the visitor folded it)
       }
       b.style.top = y + 'px'; b.style.left = x + 'px';
+      fx.style.top = (y - 8) + 'px'; fx.style.left = (x - 8) + 'px';
       var py = y + s + 8, pw = Math.min(280, innerWidth - 16);
       if (py + 260 > innerHeight) py = Math.max(8, innerHeight - Math.min(innerHeight - 16, 520));
       p.style.top = py + 'px';
@@ -649,6 +677,7 @@
       p.style.maxHeight = (innerHeight - py - 12) + 'px';
     }
     var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(place, 150); });
+    if (isFolded()) setFold(true, false);
     place(); setTimeout(place, 1200);              // once more after the door's own late UI settles
 
     ui.refresh = function () {

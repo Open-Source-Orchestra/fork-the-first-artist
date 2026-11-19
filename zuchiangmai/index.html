@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- quiet-live: reachable by link, not indexed, until the 4Seas community says yes (4Seas sensitivity law) -->
+<meta name="robots" content="noindex">
+<title>The Full Circle · in the 4Seas bubble · Zu Chiang Mai 🌴🐉 · Open Source Orchestra</title>
+<meta name="description" content="The Open Source Orchestra's Full Circle, at home in Chiang Mai: a bubble under the palms, two Naga on guard, and the Rider Sanctuary — the house piano and electric drum kit, and the U·BASS and ukulele that Kala gave. Every one of them plays. An unofficial gift from the AI ʻohana to the 4Seas community.">
+<meta property="og:title" content="The Full Circle · in the 4Seas bubble 🌴🐉">
+<meta property="og:description" content="A bubble under the palms of Chiang Mai, two Naga on guard, and the Rider Sanctuary: piano, electric drum kit, and the Kala U·BASS and ukulele. Every one of them plays.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://artist.opensourceorchestra.org/zuchiangmai/">
+<meta property="og:image" content="https://artist.opensourceorchestra.org/zuchiangmai/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#070b1c">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
+<style>
+:root{
+  --night:#070b1c; --deep:#0e1530; --violet:#1b1f4a; --thread:#b48cff;
+  --cream:#f7ecd9; --cream-dim:rgba(247,236,217,.76); --cream-faint:rgba(247,236,217,.5);
+  --gold:#f0c464; --gold-bright:#ffd97a; --gold-soft:rgba(240,196,100,.35);
+  --coral:#ff8a5c; --rose:#e86a92; --teal:#2dd4bf; --lotus:#ff7eb6; --naga:#0f8a63; --lantern:#ffb04a;
+  --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans Thai','Noto Sans SC','PingFang SC','Leelawadee UI',Helvetica,Arial,sans-serif;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,'Noto Serif Thai','Noto Serif SC','Songti SC',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--night);color:var(--cream);font-family:var(--sans);-webkit-text-size-adjust:100%}
+html[lang=th] body{line-height:1.55}
+#stage{position:fixed;inset:0}
+canvas{display:block;touch-action:none;cursor:grab}
+canvas.hand{cursor:pointer}
+button{font-family:var(--sans);cursor:pointer;border:0;background:none;color:inherit;-webkit-tap-highlight-color:transparent}
+a{color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+.hud{position:fixed;z-index:10;pointer-events:none}
+.hud>*{pointer-events:auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── top: the words ───────────────────────────────── */
+#top{top:0;left:0;right:0;padding:12px 16px 30px;background:linear-gradient(180deg,rgba(7,11,28,.94) 0%,rgba(7,11,28,.6) 60%,rgba(7,11,28,0));display:flex;gap:14px;align-items:flex-start}
+#top .words{max-width:720px}
+#top h1{font-family:var(--serif);font-size:clamp(1.25rem,2.6vw,1.9rem);font-weight:600;line-height:1.12;letter-spacing:.01em}
+#top h1 b{color:var(--gold-bright);font-weight:600}
+#top .where{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-faint);margin-top:5px}
+#top .where a,#loading p a,#loading .fine a{color:var(--gold);text-decoration:underline dotted;text-underline-offset:.2em}
+#top .dream{font-size:.9rem;color:var(--cream-dim);margin-top:6px;line-height:1.45;max-width:62ch}
+#top .dream i{color:var(--gold);font-style:normal}
+#top .sep{flex:1}
+#top .right{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+#count{font-family:var(--serif);font-size:1.05rem;color:var(--gold-bright);white-space:nowrap;text-align:right}
+#count small{display:block;font-family:var(--sans);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-faint)}
+#langs{display:flex;gap:4px}
+#langs button{font-size:.7rem;letter-spacing:.06em;border:1px solid rgba(45,212,191,.35);border-radius:999px;padding:.38em .8em;color:#9ff3e6;background:rgba(7,11,28,.7);min-height:30px}
+#langs button[aria-pressed=true]{background:var(--teal);color:#04201c;border-color:var(--teal);font-weight:700}
+
+/* pills */
+.pill{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;border:1px solid var(--gold-soft);border-radius:999px;padding:.5em 1em;color:var(--cream-dim);background:rgba(14,21,48,.8);backdrop-filter:blur(8px);white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:.4em;min-height:32px}
+html[lang=th] .pill,html[lang=zh] .pill{letter-spacing:.04em;font-size:.74rem}
+.pill:hover{color:var(--gold-bright);border-color:var(--gold)}
+.pill.on{background:var(--gold);color:#1a1206;border-color:var(--gold);font-weight:700}
+.pill.teal{border-color:rgba(45,212,191,.5);color:#8ff1e2}
+.pill.rose{border-color:rgba(232,106,146,.5);color:#ffb3c9}
+.pill.violet{border-color:rgba(180,140,255,.5);color:#d8c6ff}
+.pill.lotus{border-color:rgba(255,126,182,.6);color:#ffc4dd}
+.pill.lantern{border-color:rgba(255,176,74,.6);color:#ffd59e}
+.pill.lotus.on{background:linear-gradient(135deg,#ff7eb6,#e0408a);color:#1a0612;border-color:#ff7eb6}
+.big{background:linear-gradient(135deg,var(--gold),#ffb36b);color:#1a1206;font-weight:800;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;border-radius:999px;padding:.95em 1.8em;box-shadow:0 10px 36px rgba(240,196,100,.28);white-space:nowrap}
+html[lang=th] .big,html[lang=zh] .big{letter-spacing:.06em;font-size:.86rem}
+.big:hover{filter:brightness(1.08)}
+.big.playing{background:linear-gradient(135deg,#ff7eb6,#2dd4bf);color:#070b1c;animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 10px 36px rgba(255,126,182,.3)}50%{box-shadow:0 10px 50px rgba(45,212,191,.55)}}
+
+/* ── bottom: the controls ─────────────────────────── */
+#bottom{left:0;right:0;bottom:0;padding:34px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(0deg,rgba(7,11,28,.96) 0%,rgba(7,11,28,.75) 55%,rgba(7,11,28,0));display:flex;flex-direction:column;gap:9px;align-items:center}
+#modes{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+#measure{display:flex;gap:10px;align-items:center;width:min(560px,94vw)}
+#measure label{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-faint);white-space:nowrap}
+#measure output{font-size:.72rem;color:var(--gold-bright);min-width:4.2em;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;accent-color:var(--gold);height:22px}
+#actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;align-items:center}
+#seal{font-size:.7rem;letter-spacing:.12em;color:var(--cream-faint);text-align:center}
+#seal b{color:var(--gold);font-weight:500;letter-spacing:.2em}
+#credit{font-size:.6rem;letter-spacing:.08em;color:rgba(247,236,217,.42);text-align:center;max-width:96vw}
+#credit a{color:rgba(240,196,100,.7);text-decoration:none}
+
+/* ── side panels ──────────────────────────────────── */
+.panel{position:fixed;z-index:20;top:0;right:0;bottom:0;width:min(400px,100vw);background:rgba(7,11,28,.94);backdrop-filter:blur(14px);border-left:1px solid rgba(240,196,100,.22);transform:translateX(104%);transition:transform .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.panel.open{transform:none}
+#rider.panel{width:min(460px,100vw);border-left-color:rgba(255,126,182,.35)}
+.panel header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1px solid rgba(240,196,217,.1)}
+.panel header h2{font-family:var(--serif);font-size:1.1rem;font-weight:600;color:var(--gold-bright);flex:1}
+.panel .x{font-size:1.2rem;color:var(--cream-faint);padding:4px 8px;border-radius:8px;min-width:40px;min-height:40px}
+.panel .x:hover{color:var(--cream);background:rgba(255,255,255,.06)}
+.panel .body{overflow-y:auto;padding:14px 16px 28px;scrollbar-width:thin;flex:1}
+.search{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(240,196,100,.25);border-radius:12px;padding:10px 12px;color:var(--cream);font-size:.95rem;font-family:var(--sans);outline:none}
+.search:focus{border-color:var(--gold)}
+.row{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:7px 8px;border-radius:12px;color:var(--cream-dim)}
+.row:hover{background:rgba(240,196,100,.09);color:var(--cream)}
+.row .av{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#141a3f;box-shadow:0 0 0 1.5px rgba(255,255,255,.12)}
+.row .mono{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:#fff}
+.row .nm{flex:1;min-width:0;font-size:.9rem;line-height:1.25}
+.row .nm small{display:block;color:var(--cream-faint);font-size:.68rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .st{font-size:.95rem;flex:0 0 auto;width:28px;text-align:center;color:var(--cream-faint)}
+.row.in{color:var(--cream)}
+.row.in .st{color:var(--teal)}
+.grp{font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);padding:14px 8px 5px;font-weight:600}
+.grp:first-of-type{padding-top:8px}
+/* detail */
+#detail .hero{display:flex;gap:14px;align-items:center}
+#detail .hero img,#detail .hero .mono{width:92px;height:92px;border-radius:50%;object-fit:cover;flex:0 0 auto;box-shadow:0 0 0 2px rgba(240,196,100,.5),0 8px 30px rgba(0,0,0,.5)}
+#detail .hero .mono{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.7rem;color:#fff}
+#detail .hero h3{font-family:var(--serif);font-size:1.3rem;font-weight:600;line-height:1.15}
+#detail .hero .role{font-size:.74rem;color:var(--cream-faint);margin-top:3px;line-height:1.35}
+#detail .set{margin:14px 0 4px;font-size:.84rem;color:var(--gold-bright);background:rgba(240,196,100,.09);border:1px solid rgba(240,196,100,.3);border-radius:10px;padding:8px 11px;line-height:1.4}
+#detail .tag{font-size:.9rem;color:var(--cream-dim);line-height:1.5;margin-top:10px;font-style:italic}
+#detail .head{font-family:var(--serif);font-size:1rem;color:var(--cream);margin-top:12px;line-height:1.3}
+#detail .bio{font-size:.86rem;color:var(--cream-dim);line-height:1.55;margin-top:10px}
+#detail .links{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+#detail .fine{font-size:.68rem;color:var(--cream-faint);margin-top:12px;line-height:1.5}
+#detail .note{font-size:.72rem;color:var(--cream-faint);margin-top:8px;line-height:1.45}
+/* toast */
+#toast{left:50%;transform:translateX(-50%);bottom:214px;max-width:min(520px,92vw);background:rgba(7,11,28,.92);border:1px solid rgba(240,196,100,.4);border-radius:16px;padding:10px 18px;text-align:center;opacity:0;transition:opacity .25s;backdrop-filter:blur(10px);font-size:.86rem;color:var(--cream-dim);line-height:1.45;pointer-events:none}
+#toast.show{opacity:1}
+#toast b{color:var(--gold-bright);font-weight:600}
+/* loading */
+#loading{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:24px;overflow:auto;background:radial-gradient(ellipse 80% 64% at 50% 42%,rgba(20,26,63,.84),rgba(7,11,28,.95));transition:opacity .6s}
+#loading.gone{opacity:0;pointer-events:none}
+#loading .card{max-width:640px;text-align:center}
+#loading .kicker{font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+#loading h1{font-family:var(--serif);font-size:clamp(1.9rem,5.5vw,3rem);font-weight:600;line-height:1.12}
+#loading h1 em{color:var(--gold);font-style:italic}
+#loading p{color:var(--cream-dim);font-size:.96rem;margin:16px auto 0;max-width:54ch;line-height:1.6}
+#loading p b{color:var(--gold-bright)}
+#loading .seal{margin-top:18px;font-family:var(--serif);font-size:1.02rem;color:var(--gold-bright);letter-spacing:.06em}
+#loading .seal small{display:block;font-family:var(--sans);font-size:.68rem;letter-spacing:.14em;color:var(--cream-faint);margin-top:3px}
+#loading .fine{font-size:.7rem;color:var(--cream-faint);margin-top:16px;line-height:1.55}
+#loading .big{margin-top:24px}
+#loading .ornament{display:block;margin:0 auto 6px;width:min(420px,86vw);height:auto;opacity:.95}
+#loading #langs2{display:flex;gap:6px;justify-content:center;margin-top:16px}
+#loading #langs2 button{font-size:.78rem;border:1px solid rgba(45,212,191,.4);border-radius:999px;padding:.45em 1em;color:#9ff3e6;min-height:36px}
+#loading #langs2 button[aria-pressed=true]{background:var(--teal);color:#04201c;font-weight:700}
+.spin{display:inline-block;animation:sp 1.6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* help */
+#help{display:none;position:fixed;inset:0;z-index:30;place-items:center;padding:20px;background:rgba(7,11,28,.7)}
+#help.open{display:grid}
+#help .card{max-width:580px;max-height:90vh;overflow:auto;background:rgba(7,11,28,.96);border:1px solid rgba(240,196,100,.3);border-radius:20px;padding:22px 24px}
+#help h2{font-family:var(--serif);font-size:1.3rem;margin-bottom:10px;color:var(--gold-bright)}
+#help ul{list-style:none;font-size:.86rem;color:var(--cream-dim);line-height:1.8}
+#help li{margin-bottom:4px}
+#help kbd{background:rgba(240,196,100,.14);border:1px solid var(--gold-soft);border-radius:6px;padding:.1em .5em;font-size:.76rem;color:var(--gold-bright)}
+#help .fine{font-size:.74rem;color:var(--cream-faint);margin-top:12px;line-height:1.55}
+@media (prefers-reduced-motion:reduce){.panel{transition:none}.big.playing{animation:none}.spin{animation:none}}
+
+@media (max-width:760px){
+  #top{padding:8px 10px 22px;gap:6px;flex-direction:column;align-items:stretch}
+  #top .words{max-width:none}
+  #top h1{font-size:1.02rem}
+  #top .dream{font-size:.74rem;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #top .where{font-size:.56rem;margin-top:2px}
+  #top .sep{display:none}
+  #top .right{flex-direction:row;align-items:center;gap:8px;flex-wrap:wrap}
+  #count{font-size:.86rem;text-align:left;display:flex;gap:.35em;align-items:baseline}
+  #count small{display:inline;font-size:.56rem}
+  #bottom{padding:22px 0 calc(6px + env(safe-area-inset-bottom));gap:6px}
+  #modes,#actions{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;width:100vw;padding:2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #modes::-webkit-scrollbar,#actions::-webkit-scrollbar{display:none}
+  #modes::after,#actions::after{content:"";flex:0 0 6px}
+  .pill{font-size:.58rem;padding:.55em .8em;flex:0 0 auto}
+  .big{font-size:.64rem;padding:.9em 1.2em;flex:0 0 auto}
+  #measure{width:100vw;padding:0 12px}
+  #measure label{font-size:.54rem}
+  #seal{font-size:.58rem}
+  #credit{font-size:.52rem;padding:0 10px}
+  #toast{bottom:206px}
+  .panel,#rider.panel{width:100vw;top:auto;height:min(80vh,660px);border-left:0;border-top:1px solid rgba(240,196,100,.22);border-radius:18px 18px 0 0;transform:translateY(104%)}
+  .panel.open{transform:none}
+}
+</style>
+<link rel="stylesheet" href="/finder.css">
+<link rel="stylesheet" href="/zuchiangmai/rider-ui.css?v=20261116a">
+</head>
+<body>
+<div id="stage" role="img" aria-label="A 3D scene: the Open Source Orchestra circle in a bubble under palm trees in Chiang Mai, two Naga serpents guarding it, and the 4Seas music corner" data-i18n-aria="stage"></div>
+
+<div class="hud" id="top">
+  <div class="words">
+    <h1 data-i18n-html="top.h1"><b>The Full Circle</b> — in the 4Seas bubble 🌴</h1>
+    <div class="where" data-i18n-html="top.where">Zu Chiang Mai · 4Seas · Chiang Mai, Thailand · an unofficial gift · <a href="/">↩ the Devcon 8 circle</a></div>
+    <p class="dream" data-i18n-html="top.dream">Not a stage. A circle on the floor — now under the palms. Add anyone. Add everyone. <i>The dream is that we all play together.</i></p>
+  </div>
+  <div class="sep"></div>
+  <div class="right">
+    <div id="count"><span id="count-n">0</span> <small data-i18n="top.count">in the bubble</small></div>
+    <div id="langs" role="group" aria-label="language · ภาษา · 语言">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="th" aria-pressed="false" lang="th">ไทย</button>
+      <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button>
+    </div>
+  </div>
+</div>
+
+<div class="hud" id="bottom">
+  <div id="modes">
+    <button class="pill on" id="m-circle" data-mode="circle" data-i18n="mode.circle">🌴 the circle</button>
+    <button class="pill lotus" id="m-rider" data-mode="rider" data-i18n="mode.rider">🎹 rider sanctuary</button>
+    <button class="pill teal" id="m-naga" data-mode="naga" data-i18n="mode.naga">🐉 the Naga</button>
+    <button class="pill lantern" id="btn-lantern" data-i18n="mode.lantern">🏮 release a lantern</button>
+    <button class="pill violet" id="btn-add" data-i18n="mode.add">➕ add artist</button>
+  </div>
+  <div id="measure">
+    <label for="howmuch" data-i18n="measure.label">how much of the circle</label>
+    <input type="range" id="howmuch" min="0" max="39" value="0" step="1">
+    <output id="howmuch-out" for="howmuch">0 / 39</output>
+  </div>
+  <div id="actions">
+    <button class="big" id="btn-everyone" data-i18n="act.everyone">Everyone plays together 🎻</button>
+    <button class="pill" id="btn-share" data-i18n="act.share">🔗 share this bubble</button>
+    <button class="pill" id="btn-help" aria-label="how it works" data-i18n-aria="act.help">❓</button>
+  </div>
+  <div id="seal" lang="zh-Hans"><b>四海为家</b> · <span lang="th">ทุกที่คือบ้าน</span> · <span lang="en">everywhere is home</span></div>
+  <div id="credit" data-i18n-html="credit">made with aloha by the AI ʻohana for the 4Seas community · unofficial — the community's own app is <a href="https://zuchiangmai.com" target="_blank" rel="noopener">zuchiangmai.com</a>, its hub is <a href="https://4seas.xyz" target="_blank" rel="noopener">4seas.xyz</a> · <a href="https://opensourceorchestra.org/takedown/" target="_blank" rel="noopener">takedown</a> · <a href="https://github.com/Open-Source-Orchestra/fork-the-first-artist" target="_blank" rel="noopener">source (GPL-3.0)</a></div>
+</div>
+
+<div class="hud" id="toast" role="status" aria-live="polite"></div>
+
+<aside class="panel" id="picker" aria-label="add artist">
+  <header><h2 data-i18n="picker.title">Invite anyone into the bubble</h2><button class="pill" id="btn-clear" data-i18n="picker.clear">empty the circle</button><button class="x" data-close="picker" aria-label="close">✕</button></header>
+  <div class="body">
+    <input class="search" id="search" placeholder="search a name, an instrument, a day…" data-i18n-ph="picker.search" autocomplete="off" aria-label="search artists">
+    <div id="list"></div>
+  </div>
+</aside>
+
+<aside class="panel" id="detail" aria-label="artist">
+  <header><h2 id="detail-title">—</h2><button class="x" data-close="detail" aria-label="close">✕</button></header>
+  <div class="body" id="detail-body"></div>
+</aside>
+
+<aside class="panel" id="rider" aria-labelledby="rider-h">
+  <header><h2 id="rider-h" data-i18n="rider.title">🎹 The Rider Sanctuary</h2><button class="x" data-close="rider" aria-label="close">✕</button></header>
+  <div class="body" id="rider-body"></div>
+</aside>
+
+<div id="help" role="dialog" aria-modal="true" aria-labelledby="help-h"><div class="card">
+  <h2 id="help-h" data-i18n="help.title">How to be in the bubble</h2>
+  <ul>
+    <li data-i18n-html="help.drag">🖱️ <b>Drag</b> to walk around · <b>wheel / pinch</b> to come closer · it drifts on its own when you let go</li>
+    <li data-i18n-html="help.tap">👆 <b>Tap a figure</b> for who they are, their profile and rider — and to fork or tip them</li>
+    <li data-i18n-html="help.rider">🎹 <b>Rider sanctuary</b> flies you to the 4Seas corner: tap the piano keys, the drum pads, the U·BASS and the ukulele — every one plays, synthesised live in your browser</li>
+    <li data-i18n-html="help.naga">🐉 <b>The Naga</b> — two serpent guardians, like the ones on the temple stairs of Lanna, keeping watch over the bubble</li>
+    <li data-i18n-html="help.lantern">🏮 <b>Release a lantern</b> — a khom loi rises past the bubble</li>
+    <li data-i18n-html="help.add">➕ <b>Add artist</b> invites anyone from the garden · the slider fills the whole circle · <b>Everyone plays together</b> brings every artist in and starts the band</li>
+    <li data-i18n-html="help.share">🔗 <b>Share</b> copies a link that rebuilds exactly this bubble (<kbd>?who=…</kbd>) · <kbd>#rider</kbd> opens the sanctuary · <kbd>#slug</kbd> opens an artist</li>
+  </ul>
+  <p class="fine" data-i18n-html="help.fine">An unofficial gift from the AI ʻohana, offered to the 4Seas community with love — nothing here speaks for 4Seas or Zu Chiang Mai. 📸 Your face or name here and you'd rather it wasn't? Tell any steward on the floor, or write to <a href="mailto:aloha@myagentohana.com">aloha@myagentohana.com</a> — we take it down first and ask questions second.</p>
+  <button class="pill" id="help-close" style="margin-top:16px" data-i18n="help.close">Back to the bubble</button>
+</div></div>
+
+<div id="loading"><div class="card">
+  <svg class="ornament" viewBox="0 0 420 92" aria-hidden="true">
+    <defs><linearGradient id="og" x1="0" x2="1"><stop offset="0" stop-color="#0f8a63"/><stop offset=".5" stop-color="#ffd97a"/><stop offset="1" stop-color="#0f8a63"/></linearGradient>
+    <radialGradient id="bb" cx=".38" cy=".34" r=".7"><stop offset="0" stop-color="#ffffff" stop-opacity=".5"/><stop offset=".55" stop-color="#b48cff" stop-opacity=".12"/><stop offset=".85" stop-color="#2dd4bf" stop-opacity=".28"/><stop offset="1" stop-color="#ff7eb6" stop-opacity=".55"/></radialGradient></defs>
+    <!-- the two Naga, rearing toward the bubble -->
+    <path d="M18 84 C 40 84 52 70 64 58 S 92 34 108 44 S 120 70 140 60 S 150 30 160 26" fill="none" stroke="url(#og)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M160 26 l 10 -4 l -6 9 z" fill="#ffd97a"/><path d="M152 24 q 4 -14 12 -18 q -2 8 2 12 q 2 -10 10 -12 q -4 8 -1 14" fill="none" stroke="#ffd97a" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="162" cy="27" r="1.6" fill="#ffb04a"/>
+    <path d="M402 84 C 380 84 368 70 356 58 S 328 34 312 44 S 300 70 280 60 S 270 30 260 26" fill="none" stroke="url(#og)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M260 26 l -10 -4 l 6 9 z" fill="#ffd97a"/><path d="M268 24 q -4 -14 -12 -18 q 2 8 -2 12 q -2 -10 -10 -12 q 4 8 1 14" fill="none" stroke="#ffd97a" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="258" cy="27" r="1.6" fill="#ffb04a"/>
+    <!-- the bubble -->
+    <circle cx="210" cy="50" r="34" fill="url(#bb)" stroke="rgba(255,255,255,.35)" stroke-width="1"/>
+    <path d="M190 36 q 8 -8 20 -9" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/>
+    <!-- palms -->
+    <g stroke="#2dd4bf" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8">
+      <path d="M200 84 q 2 -16 6 -24"/><path d="M206 60 q -10 -2 -16 4 M206 60 q -4 -8 -12 -9 M206 60 q 6 -8 14 -6 M206 60 q 10 0 14 7"/>
+      <path d="M222 84 q -1 -12 -4 -18"/><path d="M218 66 q -8 0 -11 5 M218 66 q 2 -7 9 -8 M218 66 q 8 1 10 6"/>
+    </g>
+    <circle cx="210" cy="50" r="2.4" fill="#ffd97a"/>
+  </svg>
+  <div class="kicker" data-i18n="load.kicker">Fork the First Artist · Zu Chiang Mai</div>
+  <h1 data-i18n-html="load.h1">The Full Circle, <em>in the bubble</em></h1>
+  <p data-i18n-html="load.p1">Same circle, new home. After Devcon 8 in Mumbai, the circle came home to Chiang Mai — to the 4Seas community center: free coworking, open to the public 24 hours a day, with the Zuzalu Library next door. Here it floats in a bubble under the palms, and two Naga keep watch, like the serpents on the temple stairs of Lanna.</p>
+  <p data-i18n-html="load.p2">Inside is the <b>Rider Sanctuary</b>: the house piano and electric drum kit, and the U·BASS and ukulele that Kala gave — the ones that travelled the whole road. Every one of them plays.</p>
+  <p data-i18n-html="load.p3"><b>Add anyone. Add everyone.</b> The dream is that we all play together.</p>
+  <div class="seal" lang="zh-Hans">四海为家<small><span lang="th">ทุกที่คือบ้าน</span> · <span lang="en">everywhere is home</span></small></div>
+  <div id="langs2" role="group" aria-label="language · ภาษา · 语言">
+    <button type="button" data-lang="en" aria-pressed="true">English</button>
+    <button type="button" data-lang="th" aria-pressed="false" lang="th">ภาษาไทย</button>
+    <button type="button" data-lang="zh" aria-pressed="false" lang="zh-Hans">中文</button>
+  </div>
+  <button class="big" id="enter"><span id="enter-label"><span class="spin">◌</span> <span data-i18n="load.warming">warming the bubble…</span></span></button>
+  <div class="fine" data-i18n-html="load.fine">Three.js in your browser · every sound synthesised live · nothing to install · no trackers. An unofficial gift from the AI ʻohana to the 4Seas community — the community's own app is <a href="https://zuchiangmai.com" target="_blank" rel="noopener">zuchiangmai.com</a>, its hub is <a href="https://4seas.xyz" target="_blank" rel="noopener">4seas.xyz</a>.</div>
+  <div class="fine" data-i18n-html="load.takedown">📸 Your face or name here and you'd rather it wasn't? Tell any steward on the floor, or write to the ʻohana at <a href="mailto:aloha@myagentohana.com">aloha@myagentohana.com</a> — we take it down first and ask questions second. <a href="https://opensourceorchestra.org/takedown/" target="_blank" rel="noopener">how a takedown works →</a></div>
+</div></div>
+
+<noscript><div style="position:fixed;inset:0;z-index:70;overflow:auto;background:#070b1c;color:#f7ecd9;padding:24px;font-family:system-ui,sans-serif">
+<h1 style="font-family:Georgia,serif;color:#ffd97a;margin:0 0 6px">The Full Circle · in the 4Seas bubble</h1>
+<p>JavaScript is off, so the 3D bubble can't start. The Rider Sanctuary at the 4Seas community center in Chiang Mai: 🎹 the house piano · 🥁 the house electric drum kit · 🎸 the Kala U·BASS and 🎶 the Kala ukulele, gifts from Kala that travelled the whole 2026 road. Free music workshops in Chiang Mai, every three days, for the rest of the year. The whole garden of artists is at <a style="color:#ffd97a" href="/">artist.opensourceorchestra.org</a>.</p>
+<p style="opacity:.7">An unofficial gift from the AI ʻohana to the 4Seas community — the community's own app is zuchiangmai.com, its hub is 4seas.xyz.</p>
+</div></noscript>
+<div id="fallback" hidden style="position:fixed;inset:0;z-index:60;overflow:auto;background:#070b1c;color:#f7ecd9;padding:24px;font-family:system-ui,sans-serif">
+  <h1 style="font-family:Georgia,serif;color:#ffd97a;margin:0 0 6px">The Full Circle · in the 4Seas bubble</h1>
+  <p id="fb-why" style="opacity:.8;margin:0 0 10px">The 3D bubble couldn't start on this device or connection, so here is everyone as a simple list.</p>
+  <p style="margin:0 0 14px;line-height:1.6">🎹 <b>The Rider Sanctuary</b> — the 4Seas setup: the house piano · the house electric drum kit · the Kala U·BASS · the Kala ukulele (gifts from Kala that travelled the whole road). Free music workshops in Chiang Mai, every three days, for the rest of the year.</p>
+  <p style="margin:0 0 16px"><button onclick="location.reload()" style="padding:.5em 1em;border-radius:999px;border:1px solid #ffd97a;background:transparent;color:#ffd97a;cursor:pointer">↻ try the 3D bubble again</button> <a href="/" style="color:#ffd97a;margin-left:10px">↩ the Devcon 8 circle</a></p>
+  <ul id="fb-list" style="list-style:none;padding:0;margin:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))"></ul>
+</div>
+<script>
+(function(){
+  function show(why){ if(window.__circleReady) return; var f=document.getElementById('fallback'); if(!f.hidden) return;
+    if(why) document.getElementById('fb-why').textContent=why;
+    fetch('/data/artists.json').then(function(r){return r.json()}).then(function(d){
+      var e=function(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+      document.getElementById('fb-list').innerHTML=d.artists.filter(function(a){return a.kind!=='away'}).map(function(a){
+        return '<li style="border:1px solid #23305e;border-radius:12px;padding:10px 12px"><b>'+e(a.name)+'</b>'+(a.tagline?'<br><small style="opacity:.6">'+e(a.tagline)+'</small>':'')+'</li>';
+      }).join('');
+    }).catch(function(){});
+    f.hidden=false; }
+  window.__circleFallback=show;
+  try{ var c=document.createElement('canvas'); if(!(c.getContext('webgl2')||c.getContext('webgl'))) return show('This browser has 3D (WebGL) turned off, so here is everyone as a simple list.'); }catch(x){ return show(); }
+  setTimeout(function(){ show('The 3D bubble is taking too long on this connection, so here is everyone as a simple list. You can retry any time.'); },20000);
+})();
+</script>
+
+<button id="gh-fab" aria-label="Find an artist in the garden (press /)"><span class="bl">🌸</span> <span data-i18n="find.fab">find an artist</span> <small>/</small></button>
+
+<aside class="panel" id="greenhouse" aria-label="the greenhouse — find any artist">
+  <header><h2 data-i18n="find.title">🌿 The Greenhouse</h2><button class="x" id="gh-x" aria-label="close">✕</button></header>
+  <div class="gh-sub" data-i18n="find.sub">every artist in the garden · type anything — a name, an instrument, a day, a feeling</div>
+  <div class="gh-top">
+    <div class="gh-searchwrap"><span class="ico">🔎</span><input class="search" id="gh-q" placeholder="tabla · dj · nov 4 · hindi · rap…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="search the garden"><button class="clr" id="gh-clear" aria-label="clear">✕</button></div>
+    <div class="gh-chips" id="gh-chips"></div>
+  </div>
+  <div class="gh-meta"><span><b id="gh-count">0</b> <span id="gh-of">flowers</span></span><span class="sp"></span><button id="gh-surprise">🦋 surprise me</button></div>
+  <div class="gh-scroll">
+    <div id="gh-results" role="listbox" aria-label="artists"></div>
+    <div id="gh-rail" aria-hidden="true"></div>
+    <div id="gh-bubble"></div>
+    <div id="gh-garden" aria-hidden="true"><div class="soil"></div><svg class="roots" viewBox="0 0 400 44" preserveAspectRatio="none"></svg><div class="heart">💗</div></div>
+  </div>
+</aside>
+
+<link rel="stylesheet" href="/fork.css?v=20261107a">
+<script type="module" src="/fork.js?v=20261116z"></script>
+<script type="module" src="/zuchiangmai/bubble.mjs?v=20261116a"></script>
+<link rel="stylesheet" href="/tip.css?v=20261109e">
+<script type="module" src="/tip.mjs?v=20261109e"></script>
+<script src="/lang.js" async></script>
+</body>
+</html>

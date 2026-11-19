@@ -1,0 +1,40 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later — the rider panel styles (scoped under .rider-ui) */
+.rider-ui{color:var(--cream-dim);font-size:.9rem;line-height:1.55}
+.rider-ui .ri-intro{font-size:.84rem;line-height:1.6;margin-bottom:14px;padding:11px 12px;background:rgba(255,126,182,.07);border:1px solid rgba(255,126,182,.28);border-radius:14px}
+.rider-ui .ri-intro b{color:var(--cream)}
+.rider-ui .ri-card{border:1px solid rgba(240,196,100,.22);border-radius:16px;padding:12px 13px;margin-bottom:12px;background:linear-gradient(160deg,rgba(180,140,255,.07),rgba(45,212,191,.04))}
+.rider-ui .ri-card header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.rider-ui .ri-card h3{font-family:var(--serif);font-size:1.02rem;font-weight:600;color:var(--gold-bright);flex:1}
+.rider-ui .ri-card p{font-size:.8rem;line-height:1.5;margin-bottom:10px}
+.rider-ui .ri-card small{display:block;margin-top:8px;font-size:.66rem;letter-spacing:.08em;color:var(--cream-faint)}
+.rider-ui .pill{min-height:44px}
+
+/* the piano keyboard */
+.ri-kbd{display:flex;gap:2px;align-items:flex-start;user-select:none;touch-action:none}
+.ri-kbd .wk{position:relative;flex:1;height:118px;background:linear-gradient(180deg,#f5f1e6,#e8e2d2);border:1px solid #9a937f;border-radius:0 0 6px 6px;color:#5a5342;font-size:.6rem;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;cursor:pointer}
+.ri-kbd .wk:active,.ri-kbd .wk.on{background:linear-gradient(180deg,#ffe9b8,#ffd97a);color:#1a1206}
+.ri-kbd .bk{position:absolute;top:0;right:-30%;width:60%;height:62%;background:linear-gradient(180deg,#2a2a30,#0c0c10);border:1px solid #000;border-radius:0 0 4px 4px;z-index:2;cursor:pointer}
+.ri-kbd .bk:active,.ri-kbd .bk.on{background:linear-gradient(180deg,#b48cff,#7a5cc0)}
+.ri-kbd .wk span{pointer-events:none}
+
+/* drum pads */
+.ri-pads{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.ri-pad{min-height:56px;border-radius:12px;border:1px solid rgba(45,212,191,.4);background:rgba(45,212,191,.08);color:#9ff3e6;font-size:.68rem;letter-spacing:.05em;cursor:pointer}
+.ri-pad:active,.ri-pad.on{background:rgba(45,212,191,.4);color:#04201c}
+
+/* U·BASS + uke rows */
+.ri-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ri-lab{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-faint);min-width:64px}
+.ri-btns{display:flex;gap:6px;flex-wrap:wrap}
+.ri-note{min-width:52px;justify-content:center;font-size:.8rem;font-weight:700}
+.ri-note:active,.ri-note.on{background:var(--teal);color:#04201c;border-color:var(--teal)}
+.ri-chord{min-width:56px;justify-content:center;font-size:.85rem;font-weight:800;color:var(--gold-bright);border-color:rgba(255,217,122,.5)}
+.ri-chord:active,.ri-chord.on{background:var(--gold);color:#1a1206}
+.ri-strums .pill.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+
+/* the jam */
+.ri-together{text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(240,196,100,.18)}
+.ri-together p{font-size:.76rem;color:var(--cream-faint);margin-top:10px}
+.ri-together .ri-synth{font-size:.66rem;opacity:.8}
+.ri-together .big.playing{background:linear-gradient(135deg,#ff7eb6,#2dd4bf);color:#070b1c}
+@media (max-width:760px){.ri-kbd .wk{height:96px}.ri-pads{grid-template-columns:repeat(4,1fr)}.ri-pad{min-height:52px;font-size:.62rem}}

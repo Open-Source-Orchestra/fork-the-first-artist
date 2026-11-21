@@ -132,7 +132,7 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
         : null;
     // 🖼️ Pages that wear Open Source Orchestra Frames (the same widening as the pages' own <meta> CSP; the signing lane
     // /pay /payout /wallets /consent /ens-sign /admin keeps script-src 'self' with no third-party runtime).
-    const FRAME_ROUTES = new Set(['/', '/tip', '/list', '/home', '/draft', '/arkiv', '/trust', '/steward', '/artists']);
+    const FRAME_ROUTES = new Set(['/', '/tip', '/arkiv', '/trust', '/steward', '/artists']);   // not /home /list /draft: those preview pages make no network connections by design
     const withFrames = (policy) => {
       if (!FRAME_ROUTES.has(route)) return policy;
       const FR = 'https://frames.opensourceorchestra.org', add = {

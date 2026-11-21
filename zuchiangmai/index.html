@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://frames.opensourceorchestra.org https://lang.opensourceorchestra.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://frames.opensourceorchestra.org https://opensourceorchestra.org https://osodaomeet.opensourceorchestra.org https://theater.opensourceorchestra.org https://archive.org; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io https://frames.opensourceorchestra.org https://chat.opensourceorchestra.org https://ohana-chat.shakaverse.workers.dev https://chat.shakaleikaumaka.com https://osodaomeet.opensourceorchestra.org https://live.zuchiangmai.app; base-uri 'none'; form-action 'none'; media-src https://frames.opensourceorchestra.org https://shakaleikaumaka.com https://theater.opensourceorchestra.org https://archive.org https://osodaomeet.opensourceorchestra.org; frame-src https://www.youtube-nocookie.com">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- quiet-live: reachable by link, not indexed, until the 4Seas community says yes (4Seas sensitivity law) -->
 <meta name="robots" content="noindex">
@@ -350,6 +350,9 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
 <script type="module" src="/zuchiangmai/bubble.mjs?v=20261116a"></script>
 <link rel="stylesheet" href="/tip.css?v=20261109e">
 <script type="module" src="/tip.mjs?v=20261109e"></script>
+<link rel="stylesheet" href="/artist-frame.css">
+<script src="/frame-overlay.js"></script>
+<script src="https://frames.opensourceorchestra.org/frames.js" data-door="auto" defer></script>
 <script src="/lang.js" async></script>
 </body>
 </html>

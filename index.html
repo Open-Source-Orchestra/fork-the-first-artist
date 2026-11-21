@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://frames.opensourceorchestra.org https://lang.opensourceorchestra.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://frames.opensourceorchestra.org https://opensourceorchestra.org https://osodaomeet.opensourceorchestra.org https://theater.opensourceorchestra.org https://archive.org; connect-src 'self' https://oso-zerog-steward.shakaverse.workers.dev https://opensourceorchestra.org https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io https://frames.opensourceorchestra.org https://chat.opensourceorchestra.org https://ohana-chat.shakaverse.workers.dev https://chat.shakaleikaumaka.com https://osodaomeet.opensourceorchestra.org https://live.zuchiangmai.app; base-uri 'none'; form-action 'none'; media-src https://frames.opensourceorchestra.org https://shakaleikaumaka.com https://theater.opensourceorchestra.org https://archive.org https://osodaomeet.opensourceorchestra.org; frame-src https://www.youtube-nocookie.com">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fork the First Artist · The Full Circle · Open Source Orchestra 🎻</title>
 <meta name="description" content="Fork the First Artist (ETHGlobal Mumbai): every artist of the Open Source Orchestra garden can hold a name they own, a steward agent on 0G and an x402 tip jar on Hedera that pays 96.31% straight to them — OSO takes zero. Not a stage. A circle on the floor. Every artist of the Devcon 8 Music Sanctuary (it happened: Jio World Centre, Mumbai, Nov 3–6 2026) in the virtual sanctuary — add anyone, add everyone. The dream is that we all play together. Next: the Road to Lisbon, Devcon 9, Oct 2027.">
@@ -339,5 +339,8 @@ input[type=range]{flex:1;accent-color:var(--gold);height:22px}
 <script type="module" src="./app.js?v=20261107a"></script>
 <link rel="stylesheet" href="./tip.css?v=20261109e">
 <script type="module" src="./tip.mjs?v=20261109e"></script>
+<link rel="stylesheet" href="/artist-frame.css">
+<script src="/frame-overlay.js"></script>
+<script src="https://frames.opensourceorchestra.org/frames.js" data-door="auto" defer></script>
 </body>
 </html>

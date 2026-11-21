@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data: https://frames.opensourceorchestra.org https://opensourceorchestra.org https://osodaomeet.opensourceorchestra.org https://theater.opensourceorchestra.org https://archive.org; base-uri 'none'; form-action 'none'; script-src 'self' https://frames.opensourceorchestra.org https://lang.opensourceorchestra.org; connect-src 'self' https://frames.opensourceorchestra.org https://chat.opensourceorchestra.org https://ohana-chat.shakaverse.workers.dev https://chat.shakaleikaumaka.com https://osodaomeet.opensourceorchestra.org https://live.zuchiangmai.app; media-src https://frames.opensourceorchestra.org https://shakaleikaumaka.com https://theater.opensourceorchestra.org https://archive.org https://osodaomeet.opensourceorchestra.org; frame-src https://www.youtube-nocookie.com">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>🌺 Lunch Open Jam @ 4Seas · Fork the First Artist · Open Source Orchestra</title>
@@ -207,5 +207,8 @@ footer p+p{margin-top:6px}
   <p>🌺 Fork the First Artist · the Open Source Orchestra is open for forking and hosting. Built with the ʻohana.</p>
   <p>Photos: official Devcon 8 photographers. Mahalo nui loa to 4Seas for hosting the circle.</p>
 </footer>
+<link rel="stylesheet" href="/artist-frame.css">
+<script src="/frame-overlay.js"></script>
+<script src="https://frames.opensourceorchestra.org/frames.js" data-door="auto" defer></script>
 </body>
 </html>

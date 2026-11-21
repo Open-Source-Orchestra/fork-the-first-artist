@@ -1,0 +1,16 @@
+/* artist.opensourceorchestra.org × Open Source Orchestra Frames — page-side clearance (GPL-3.0-or-later, by the ʻohana).
+   The circle page is a full-screen app with two full-width fixed decks: #top (the words) and #bottom (the controls).
+   The frame keeps clear of small corner widgets by itself; full-width bars it cannot see — /frame-overlay.js measures them into
+   --artist-top / --artist-deck and these rules lift the frame's corner slots clear of both decks. The rails fit between the
+   corners (the frame computes that itself), so nothing of the frame sits on the words or on a control. Pages without decks: 0. */
+#oso-frames [data-slot=top-left], #oso-frames [data-slot=top-right] { top: calc(var(--artist-top, 0px) + 8px) !important; }
+#oso-frames [data-slot=bottom-left], #oso-frames [data-slot=bottom-right] { bottom: calc(var(--artist-deck, 0px) + 8px + env(safe-area-inset-bottom, 0px)) !important; }
+/* the first-visit tour caption bar is pinned to the top edge; under the words deck instead of over them */
+#oso-frames .osof-tourbar { top: calc(var(--artist-top, 0px) + 10px) !important; }
+/* the page's own 🌸 find-an-artist button stays where it is; when the frame is on, its tour/sheet never needs this corner */
+/* the tip page (a normal document): the header's right corner and the end of the page stay clear of the frame's pieces */
+@media (max-width: 720px) { body:has(#tip-root) .top { padding-right: 72px; } }
+body:has(#tip-root) { padding-bottom: 150px; }
+/* the artists guide: a reading column that leaves the bottom-right corner to the frame on wide screens */
+body.artists-guide main { padding-bottom: 170px; }
+@media (min-width: 1100px) { body.artists-guide main { margin-left: max(24px, calc(50% - 560px)); } }

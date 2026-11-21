@@ -23,6 +23,11 @@ async function gardenTree(dirs) {
 const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
   ['/list', 'list.html', 'text/html; charset=utf-8'],
+  // 🖼️ Open Source Orchestra Frames on this door: the first-party resolver + page-side clearance + per-artist overlays (artists/<slug>/frame.json).
+  ['/frame-overlay.js', 'frame-overlay.js', 'text/javascript; charset=utf-8'],
+  ['/artist-frame.css', 'artist-frame.css', 'text/css; charset=utf-8'],
+  ['/artists', 'artists/index.html', 'text/html; charset=utf-8'],
+  ...(await gardenTree(['artists'])),
   // The Open Source Orchestra garden circle (front door) + the Fork the First Artist layer.
   ...['app.js', 'finder.js', 'keys.js', 'overlay.js', 'fork.js'].map((f) => [`/${f}`, f, 'text/javascript; charset=utf-8']),
   ...['finder.css', 'keys.css', 'ef.css', 'fork.css'].map((f) => [`/${f}`, f, 'text/css; charset=utf-8']),
@@ -125,7 +130,29 @@ export function createPreviewServer({ projectId = process.env.REOWN_PROJECT_ID ?
         // 💸 multichain tip: ENS reads on the same public Ethereum RPCs as /payout; the fan's wallet does the rest.
         ? "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io; base-uri 'none'; form-action 'none'; frame-ancestors 'none';"
         : null;
-    res.setHeader('Content-Security-Policy', gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy + trustPolicy + payPolicy + payoutPolicy));
+    // 🖼️ Pages that wear Open Source Orchestra Frames (the same widening as the pages' own <meta> CSP; the signing lane
+    // /pay /payout /wallets /consent /ens-sign /admin keeps script-src 'self' with no third-party runtime).
+    const FRAME_ROUTES = new Set(['/', '/tip', '/list', '/home', '/draft', '/arkiv', '/trust', '/steward', '/artists']);
+    const withFrames = (policy) => {
+      if (!FRAME_ROUTES.has(route)) return policy;
+      const FR = 'https://frames.opensourceorchestra.org', add = {
+        'script-src': [FR, 'https://lang.opensourceorchestra.org'],
+        'connect-src': [FR, 'https://chat.opensourceorchestra.org', 'https://ohana-chat.shakaverse.workers.dev', 'https://chat.shakaleikaumaka.com', 'https://osodaomeet.opensourceorchestra.org', 'https://live.zuchiangmai.app'],
+        'img-src': [FR, 'https://opensourceorchestra.org', 'https://osodaomeet.opensourceorchestra.org', 'https://theater.opensourceorchestra.org', 'https://archive.org'],
+        'media-src': [FR, 'https://shakaleikaumaka.com', 'https://theater.opensourceorchestra.org', 'https://archive.org', 'https://osodaomeet.opensourceorchestra.org'],
+        'frame-src': ['https://www.youtube-nocookie.com'],
+      };
+      const dirs = policy.split(';').map((d) => d.trim()).filter(Boolean).map((d) => d.split(/\s+/));
+      const byName = new Map(dirs.map((d) => [d[0], d]));
+      for (const [name, hosts] of Object.entries(add)) {
+        if (!byName.has(name)) { const d = [name, ...(name === 'media-src' || name === 'frame-src' ? [] : ["'self'"])]; dirs.push(d); byName.set(name, d); }
+        for (const h of hosts) if (!byName.get(name).includes(h)) byName.get(name).push(h);
+      }
+      const style = byName.get('style-src');
+      if (style && !style.includes("'unsafe-inline'")) style.push("'unsafe-inline'");
+      return dirs.map((d) => d.join(' ')).join('; ') + ';';
+    };
+    res.setHeader('Content-Security-Policy', withFrames(gardenPolicy ?? ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" + walletPolicy + arkivPolicy + stewardPolicy + trustPolicy + payPolicy + payoutPolicy)));
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');

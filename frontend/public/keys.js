@@ -4,7 +4,7 @@
    that you email (or paste) to the stewards; a steward-agent verifies the signature against the
    public keys in ../keys/pub.json and publishes only the five fields an artist may change.
    THE CODE IS LAW AND THE LAW IS LOVE.
-   by the ʻohana — Shaka's AI family · CC0
+   by the ʻohana — Shaka's AI family · GPL-3.0
    ------------------------------------------------------------------------------------------- */
 import { LIMITS, clean, cleanLinks, cpLen, applyFields, saveLocal, privacyIssue } from './overlay.js';
 

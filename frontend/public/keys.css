@@ -1,4 +1,4 @@
-/* ── GARDEN KEYS · "My garden" panel · by the ʻohana — Shaka's AI family · CC0 ───────────────── */
+/* ── GARDEN KEYS · "My garden" panel · by the ʻohana — Shaka's AI family · GPL-3.0 ───────────────── */
 #gardenkeys{background:rgba(11,6,18,.97);width:min(400px,100vw)}
 #gardenkeys header h2{display:flex;gap:8px;align-items:center}
 .gk-strip{display:flex;justify-content:space-around;align-items:flex-end;padding:0 14px;height:30px;font-size:1.15rem;overflow:hidden;position:relative;border-bottom:1px solid rgba(240,196,100,.1);background:linear-gradient(transparent,rgba(45,212,191,.05))}

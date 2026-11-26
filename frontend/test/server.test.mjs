@@ -99,7 +99,7 @@ test('preview serves only public assets and refuses writes and repository paths'
       assert.equal((await get(path)).status, 200, path);
     }
   }
-  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs', '/steward.mjs', '/pay.mjs', '/payout.mjs', '/payout-plan.mjs', '/vendor/viem-ens.min.js']) {
+  for (const path of ['/draft.mjs', '/profile-draft.mjs', '/circle-state.mjs', '/wallets.mjs', '/ethereum-wallet.mjs', '/hedera-wallet.mjs', '/hashpack-ui.mjs', '/arkiv.mjs', '/arkiv-query.mjs', '/steward.mjs', '/pay.mjs', '/payout.mjs', '/payout-plan.mjs', '/vendor/viem-ens.min.js', '/tip.mjs', '/tip-core.mjs', '/tip-ens.mjs', '/vendor/viem-tip.min.js']) {
     const module = await get(path);
     assert.equal(module.status, 200);
     assert.match(module.headers['content-type'], /^text\/javascript/);

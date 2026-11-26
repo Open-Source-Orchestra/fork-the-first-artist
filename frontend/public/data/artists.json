@@ -725,7 +725,7 @@
    "status": "host — the circle itself",
    "kind": "host",
    "role": "",
-   "set": "every day · Nov 3–6 · the open jam, the Open Source Orchestra welcome, the coffee lounge, the songwriters' circle, the long goodbye",
+   "set": "every day of the Devcon 8 Music Sanctuary, Nov 3–6 2026 · the open jam, the welcome, the coffee lounge, the songwriters’ circle, the long goodbye · next: the Road to Lisbon (Devcon 9, Oct 2027)",
    "day": null,
    "time": "",
    "dur": "",
@@ -764,7 +764,7 @@
    "status": "placed",
    "kind": "placed",
    "role": "",
-   "set": "not yet on the stage schedule · time added once she confirms",
+   "set": "in the garden",
    "day": "6",
    "time": "10:00a",
    "dur": "2h",
@@ -1095,7 +1095,7 @@
    "status": "host",
    "kind": "host",
    "role": "the bard · guitar & ukulele · plays with everyone",
-   "set": "every day · Nov 3–6 · and his talk Nov 6 · 12:00 · Jasmine Stage 4",
+   "set": "played every day of the Devcon 8 Music Sanctuary, Nov 3–6 2026 · his talk was Nov 6 · 12:00 · Jasmine Stage 4",
    "day": null,
    "time": "",
    "dur": "",
@@ -1110,7 +1110,7 @@
      "url": "https://x.com/Shakaleikaumaka"
     },
     {
-     "label": "his talk in the Devcon app",
+     "label": "his Devcon 8 session (archive)",
      "url": "https://app.devcon.org/schedule/W8HAES"
     }
    ],
@@ -1127,7 +1127,7 @@
    "status": "host",
    "kind": "host",
    "role": "the totem · Shaka's digital-twin stewards · agentic, human, soon robotic",
-   "set": "every day · Nov 3–6 · on the floor beside the humans",
+   "set": "on the floor beside the humans, every day of Devcon 8, Nov 3–6 2026",
    "day": null,
    "time": "",
    "dur": "",
@@ -1157,7 +1157,7 @@
    "status": "host",
    "kind": "host",
    "role": "Devcon Music Space steward · keeps the floor list, the riders and the vendors",
-   "set": "on the floor Nov 3–6 · the person to ask",
+   "set": "on the floor Nov 3–6 2026 · the person who held the room",
    "day": null,
    "time": "",
    "dur": "",

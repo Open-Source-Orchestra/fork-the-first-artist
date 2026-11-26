@@ -91,7 +91,7 @@ test('preview prompt: third person, "they", only public profile, fenced question
   const shaka = stewardSystemPrompt(STEWARDS.shaka!);
   assert.match(shaka, /a real artist who asked for this steward\. You speak about him in the third person; you are not him\./);
   assert.match(shaka, /ARTIST_DATA\.facts is the public facts pack/);
-  assert.match(shaka, /Monday 9 November 2026/);
+  assert.match(shaka, /Saturday 14 November 2026/);
   assert.match(shaka, /github\.com\/Open-Source-Orchestra\/fork-the-first-artist/);
   assert.match(shaka, /WAS on Friday 6 Nov 2026/);
   assert.match(shaka, /Never ask for, accept or repeat a seed phrase/);

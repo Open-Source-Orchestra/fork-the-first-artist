@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://frames.opensourceorchestra.org https://lang.opensourceorchestra.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://frames.opensourceorchestra.org https://opensourceorchestra.org https://osodaomeet.opensourceorchestra.org https://theater.opensourceorchestra.org https://archive.org; connect-src 'self' https://ethereum-rpc.publicnode.com https://eth.drpc.org https://1rpc.io https://frames.opensourceorchestra.org https://chat.opensourceorchestra.org https://ohana-chat.shakaverse.workers.dev https://chat.shakaleikaumaka.com https://osodaomeet.opensourceorchestra.org https://live.zuchiangmai.app; base-uri 'none'; form-action 'none'; media-src https://frames.opensourceorchestra.org https://shakaleikaumaka.com https://theater.opensourceorchestra.org https://archive.org https://osodaomeet.opensourceorchestra.org; frame-src https://www.youtube-nocookie.com">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <meta name="description" content="Tip an Open Source Orchestra artist straight into their own wallet — Ethereum, Base, OP, Arbitrum, World Chain, BNB Chain and more. 96.31% to the artist, 3.69% to the AI steward's compute, no platform fee. No custody, no contract.">
@@ -36,5 +36,8 @@ a{color:var(--gold)}
 <header class="top"><h1>💸 Tip the artist</h1><a class="pill" href="/">← the circle</a></header>
 <main id="tip-root"><noscript><p style="padding:16px">This page needs JavaScript and your own wallet. You can always tip without it: on Ethereum mainnet, send to the artist's ENS name (for example shaka.osoartist.eth) from any wallet.</p></noscript></main>
 <script type="module" src="/tip.mjs?v=20261109e"></script>
+<link rel="stylesheet" href="/artist-frame.css">
+<script src="/frame-overlay.js"></script>
+<script src="https://frames.opensourceorchestra.org/frames.js" data-door="auto" defer></script>
 </body>
 </html>

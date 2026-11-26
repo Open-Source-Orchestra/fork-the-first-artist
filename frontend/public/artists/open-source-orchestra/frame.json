@@ -1,0 +1,26 @@
+{
+  "$schema": "https://frames.opensourceorchestra.org/schema/frame-0.1.json",
+  "frame": "osoframes/0.1",
+  "id": "artist-open-source-orchestra",
+  "name": "Open Source Orchestra · the circle itself",
+  "emoji": "🎼",
+  "accent": "#ffd97a",
+  "description": "The orchestra is whoever shows up. The circle's own frame: the home, the garden, the lesson sheet, the public-goods ledger, the trust ledger — and the talk line to the Open Source Orchestra desk.",
+  "license": { "data": "CC-BY-SA-4.0" },
+  "slots": {
+    "left": {
+      "prepend": [
+        { "kind": "door", "id": "oso-home", "emoji": "🎻", "label": "Open Source Orchestra", "href": "https://opensourceorchestra.org/", "tip": "Music as sanctuary: every voice is a node, no auditions, no gatekeepers, no wrong instrument.", "anim": "bob" },
+        { "kind": "door", "id": "chords", "emoji": "🎸", "label": "Learn the chords", "href": "https://opensourceorchestra.org/learn/", "tip": "Five songs, six chords: the lesson sheet anyone can play from, CC BY-SA 4.0.", "anim": "pulse" },
+        { "kind": "door", "id": "trust", "emoji": "📜", "label": "Trust ledger", "href": "https://artist.opensourceorchestra.org/trust/", "tip": "Who invited whom, who consented, who approved: the public ledger on Arkiv.", "anim": "none" },
+        { "kind": "door", "id": "profile", "emoji": "🌿", "label": "Profile in the garden", "href": "https://opensourceorchestra.org/garden/profiles/#open-source-orchestra", "tip": "The circle's own profile among every artist of the garden.", "anim": "none" }
+      ]
+    },
+    "bottom-right": {
+      "set": {
+        "chat": { "label": "Talk to the Open Source Orchestra", "greeting": "Aloha — I am the Open Source Orchestra desk, an AI agent (a machine) made by the ʻohana. Ask about the circle, the sessions, the lesson sheet or how to join. Replies may take a moment." },
+        "radio": { "label": "Orchestra radio" }
+      }
+    }
+  }
+}

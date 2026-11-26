@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Make your ʻohana frame · artists · Open Source Orchestra</title>
+<meta name="description" content="Every artist of the Open Source Orchestra may wear their own frame on artist.opensourceorchestra.org: emoji doors to their own links, a talk line to their agent, a radio of their consented songs, their downloads. One small JSON file, one pull request, five minutes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E🖼️%3C/text%3E%3C/svg%3E">
+<style>
+:root{--night:#0b0612;--cream:#f7ecd9;--dim:rgba(247,236,217,.74);--gold:#f0c464;--bright:#ffd97a;--thread:#b48cff;--teal:#2dd4bf}
+*{box-sizing:border-box}
+body{margin:0;background:var(--night);color:var(--cream);font:16px/1.6 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:28px 20px 120px}
+h1{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.15;color:var(--bright);margin:.2em 0}
+h2{font-family:Georgia,serif;font-size:1.25rem;color:var(--gold);margin:2em 0 .4em}
+a{color:var(--gold)}
+.kicker{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.lead{color:var(--dim);font-size:1.05rem}
+ol li,ul li{margin:.45em 0}
+code,pre{font:.86em/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+pre{background:#150b22;border:1px solid rgba(240,196,100,.25);border-radius:12px;padding:14px 16px;overflow:auto;color:#e9ddff}
+code{background:rgba(240,196,100,.12);padding:.1em .35em;border-radius:5px}
+.law{border-left:3px solid var(--thread);padding:.3em 0 .3em 14px;color:var(--dim);margin:.8em 0}
+.pill{display:inline-block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(240,196,100,.4);border-radius:999px;padding:.45em 1em;color:var(--dim);text-decoration:none;margin:.2em .2em .2em 0}
+.pill:hover{color:var(--bright);border-color:var(--gold)}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+td,th{border-bottom:1px solid rgba(240,196,100,.18);padding:.5em .4em;text-align:left;vertical-align:top}
+th{color:var(--gold);font-weight:600}
+footer{margin-top:60px;font-size:.78rem;color:rgba(247,236,217,.5)}
+</style>
+</head>
+<body class="artists-guide">
+<main>
+<div class="kicker">artist.opensourceorchestra.org · artists</div>
+<h1>Make your ʻohana frame <span translate="no">🖼️</span></h1>
+<p class="lead">Every artist of the Open Source Orchestra may wear their own frame on this door: emoji doors to your own links, a talk line to your agent, a radio of your consented songs, your downloads — for the pleasure of the listener, the creator, the builder and the singer. One small JSON file, one pull request, about five minutes.</p>
+<p><a class="pill" href="/?who=shaka">see Shaka's frame</a> <a class="pill" href="/?who=open-source-orchestra">see the circle's frame</a> <a class="pill" href="/artists/index.json">index.json</a> <a class="pill" href="https://frames.opensourceorchestra.org/" rel="noopener">Open Source Orchestra Frames</a></p>
+
+<h2>How the frame finds you</h2>
+<p>The frame is dressed <b>once per page load</b>: the <b>first slug</b> in <code>?who=a,b,c</code> wins (so <code>/?who=shaka,ohana,amogh</code> wears Shaka's frame); <code>?who=everyone</code> wears the door's own frame; on the tip page <code>?artist=</code> counts; a bare <code>#slug</code> counts too. Everyone without a file wears the door's frame — nothing is missing, nothing breaks.</p>
+
+<h2>Five minutes</h2>
+<ol>
+<li>Copy <a href="/artists/shaka/frame.json">artists/shaka/frame.json</a> (or the smaller <a href="/artists/open-source-orchestra/frame.json">circle one</a>) to <code>frontend/public/artists/&lt;your-slug&gt;/frame.json</code> in <a href="https://github.com/Open-Source-Orchestra/fork-the-first-artist" rel="noopener">the repo</a>. Your slug is the one in <a href="/data/artists.json">data/artists.json</a> (the same as <code>?who=</code>).</li>
+<li>Edit the data: <code>id</code> (<code>artist-&lt;slug&gt;</code>), <code>name</code>, <code>emoji</code>, <code>accent</code> (one <code>#rrggbb</code>; keep it readable on dark glass), up to <b>12 doors</b> (your songs, chords, socials, tip jar, ENS name), your <b>talk line</b> (the <code>hub</code> of your agent's desk on the open PIT chat protocol — or leave the Open Source Orchestra desk), your <b>radio</b> (only songs you may share, each with its <code>license</code>), your <b>downloads</b> (a 📥 door to stems, chords, a PDF — each labelled with its terms).</li>
+<li>Run <code>node frontend/scripts/artist-frames.mjs</code> (checks the file, rebuilds <code>artists/index.json</code> and <code>frame-overlay.js</code>). Open a pull request. A steward merges and deploys; your frame is live at <code>/?who=&lt;your-slug&gt;</code>.</li>
+</ol>
+<p>Preview before the PR: <code>/?who=&lt;slug&gt;&amp;frame-overlay=/artists/&lt;slug&gt;/frame.json</code> works once the file is on this origin; a local build (<code>npm run dev:frontend</code>) shows it right away.</p>
+
+<h2>The pieces you can set</h2>
+<table>
+<tr><th>piece</th><th>what to write</th></tr>
+<tr><td>🚪 doors</td><td><code>{"kind":"door","id":"songs","emoji":"🎵","label":"My songs","href":"https://…","tip":"one line the tour says once"}</code> in <code>slots.left</code> / <code>slots.right</code> → <code>prepend</code>. Up to 12. <code>newTab:true</code> for outside links. <code>remove:["shaka"]</code> drops a door of the base frame by id.</td></tr>
+<tr><td>💬 talk line</td><td><code>{"kind":"chat","id":"chat","label":"Talk to my agent","name":"…'s agent","emoji":"🎸","hub":"https://…","storage":"artist-&lt;slug&gt;","greeting":"… I am a machine …"}</code> in <code>slots.bottom-right</code> → <code>replace</code>. Machines say they are machines. It connects only when opened.</td></tr>
+<tr><td>📻 radio</td><td><code>{"kind":"radio","id":"radio","label":"My radio","tracks":[{"title","artist","src","license"}]}</code>. Only consented songs; a licence on every track (CC BY-SA 4.0, or "the artist's own terms"). Nothing loads before play.</td></tr>
+<tr><td>📥 files</td><td>a door with emoji 📥 to your downloads page or file, its <code>tip</code> naming the terms.</td></tr>
+<tr><td>✍️ signature</td><td>optional: <code>slots.overlay</code> → <code>replace</code> with your own SVG (<code>src</code> on this origin). Shaka's signature stays his — the base frame keeps it unless you bring yours.</td></tr>
+<tr><td>🎨 accent · name · emoji · credit.add</td><td>your colour, your name on the sheet, your glyph; <code>credit.add:["Your Name"]</code> puts you next to the ʻohana's credit (never instead of it).</td></tr>
+</table>
+
+<h2>The laws (short)</h2>
+<p class="law"><b>Consent per link and per file.</b> Only what is yours to share, or shared with the maker's yes; a licence on every song and file.</p>
+<p class="law"><b>Every contribution equal.</b> Your tip door pays you by name; the circle's funding asks are made for the whole circle.</p>
+<p class="law"><b>Write "Open Source Orchestra" in full</b>, never the short form; never translated.</p>
+<p class="law"><b>BUTTON LAW.</b> Nothing of the frame covers text; every floating piece folds with a tiny ✕ or ⚙; animations play once. The frame does this for you — keep tips to one line.</p>
+<p class="law"><b>Machines say they are machines.</b> A talk line's greeting says it is an AI agent.</p>
+<p class="law"><b>Copyleft.</b> Your frame.json is data under CC BY-SA 4.0 (credit, share alike); the frame code is AGPL-3.0-or-later and keeps the credit "Built on Open Source Orchestra Frames by Open Source Orchestra: Shaka Lei Kaumaka &amp; the AI ʻohana".</p>
+
+<h2>Turn it off, see the blueprint</h2>
+<p>Visitors keep control: <b>⚙</b> in the credit mark (bottom-left) turns the frame or any piece off, remembered in their browser only; <code>?frame=off</code> hides it for one view; <code>?frame=outline</code> shows the blueprint.</p>
+
+<footer>Open Source Orchestra Frames · <a href="https://frames.opensourceorchestra.org/docs/ARTIST-FRAMES.md">overlay API</a> · <a href="https://frames.opensourceorchestra.org/docs/DOORS.md">door frames</a> · words CC BY-SA 4.0 · built by the ʻohana · <a href="/">← the circle</a></footer>
+</main>
+<link rel="stylesheet" href="/artist-frame.css">
+<script src="/frame-overlay.js"></script>
+<script src="https://frames.opensourceorchestra.org/frames.js" data-door="auto" defer></script>
+</body>
+</html>

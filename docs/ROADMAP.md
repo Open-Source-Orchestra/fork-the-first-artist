@@ -104,6 +104,16 @@ The 0G prize-level loop is **money in → automatic credit in the agent’s own 
 - Returning fans, songs played/discovered and useful artist-specific answers—not raw chat volume.
 - Consent revocations/takedowns honored within target time and recovery-test success.
 
+## Progress on branch `mainnet` (local, 8 Nov 2026 — nothing pushed or deployed; see `/shared/ethglobal-mumbai-2026/MAINNET-PLAN.md`)
+
+- **Step 1 · a 0G steward for every garden artist** — done locally. `cloudflare/scripts/gen-garden-stewards.mjs` generates the
+  allowlist from the public roster (public fields only, Perrie held back); modes `demo` (Mira) · `asked` (Shaka) · `preview`
+  (everyone else: only repeats their public garden profile, never speaks for them). Every fork card asks *that* artist's steward.
+  Needs: bless → deploy `oso-zerog-steward` + gh-pages rebuild.
+- **Step 2 · `/payout`** — done locally. An artist sets a testnet or mainnet Hedera payout on their own name with their own
+  wallet; fork-proven (26/26). Needs: bless → gh-pages rebuild. Then Shaka sets his own mainnet payout himself (after the
+  mainnet tip loop exists, or accept that testnet tips to him stop).
+
 ## Immediate after-hackathon order
 
 1. Finish real Hedera + 0G evidence and deploy the narrow slice.

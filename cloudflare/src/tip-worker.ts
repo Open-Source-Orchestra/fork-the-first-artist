@@ -156,12 +156,13 @@ export interface RunPlan {
   target: ArtistTarget | null;
 }
 
-/** The 0G steward speaks for: the artist's public garden steward if one exists, else a minimal consented-artist profile. */
+/** The 0G steward speaks for: the artist's garden steward (asked or preview) if one exists, else a minimal consented-artist profile. */
 export function stewardFor(target: ArtistTarget | null): StewardArtist | undefined {
   if (!target) return undefined; // example run: the fictional demo artist (callZeroG default)
   const known = Object.hasOwn(STEWARDS, target.label) ? STEWARDS[target.label] : undefined;
-  if (known && !known.fictional) return known;
-  return { slug: target.label, fictional: false, label: target.ens, data: { name: target.ens, note: 'A real artist in the Open Source Orchestra garden who consented with their own key and owns this ENS name. No further public profile is loaded into this steward yet.' } };
+  // Roster artists get their preview steward (public garden profile only); never the fictional demo.
+  if (known && known.mode !== 'demo') return known;
+  return { slug: target.label, fictional: false, mode: 'preview', label: target.ens, data: { name: target.ens, note: 'A real artist in the Open Source Orchestra garden who consented with their own key and owns this ENS name. No further public profile is loaded into this steward yet.' } };
 }
 
 /** Successful ENS resolutions only, 60 s per isolate: a payout change on ENS shows up within a minute. */

@@ -69,7 +69,7 @@ test('public 0G health is honest and input validation happens before upstream', 
   assert.equal(bad.status, 400);
 });
 
-test('public 0G steward speaks for Shaka from his public garden profile only', async () => {
+test('public 0G steward speaks for Shaka from public facts only (garden profile + facts pack)', async () => {
   const original = globalThis.fetch;
   let system = '';
   globalThis.fetch = async (_input, init) => {
@@ -86,7 +86,7 @@ test('public 0G steward speaks for Shaka from his public garden profile only', a
     }), env);
     assert.equal(response.status, 200);
     const body = await response.json();
-    assert.deepEqual(body.artist, { slug: 'shaka', name: 'Shaka', fictional: false, grounding: 'public garden profile only' });
+    assert.deepEqual(body.artist, { slug: 'shaka', name: 'Shaka', fictional: false, mode: 'asked', grounding: 'public facts only · garden profile + public facts pack (9 Nov 2026)' });
     assert.equal(body.proof.requestId, 'req-shaka');
     assert.equal(body.charged, false);
     assert.match(system, /real artist who asked for this steward/);
@@ -112,19 +112,27 @@ test('public 0G steward defaults to Mira and rejects unknown artists before upst
       body: JSON.stringify({ instruction: 'List the songs.' }),
     }), env);
     assert.equal(ok.status, 200);
-    assert.equal((await ok.json()).artist.slug, 'mira-modal');
+    const okBody = await ok.json();
+    assert.equal(okBody.artist.slug, 'mira-modal');
+    assert.equal(okBody.artist.mode, 'demo');
     assert.match(system, /fictional demo artist/);
     assert.match(system, /Mira Modal/);
-    for (const [i, artist] of (['someone-else', '__proto__', 'constructor', 42] as unknown[]).entries()) {
+    for (const [i, artist] of (['someone-else', '__proto__', 'constructor', 'perrie', 42] as unknown[]).entries()) {
       const bad = await worker.fetch(new Request('https://worker.example/ask', {
         method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': `203.0.113.${10 + i}` },
         body: JSON.stringify({ instruction: 'hello', artist }),
       }), env);
       assert.equal(bad.status, 400, String(artist));
-      assert.equal((await bad.json()).error.code, 'UNKNOWN_ARTIST');
+      const err = (await bad.json()).error;
+      assert.equal(err.code, 'UNKNOWN_ARTIST');
+      assert.doesNotMatch(err.message, /dj-chalk|0xmentalist|shaka/, 'does not dump the roster');
     }
     assert.equal(calls, 1);
     const health = await (await worker.fetch(new Request('https://worker.example/health'), env)).json();
-    assert.deepEqual(health.stewards.map((s: { slug: string }) => s.slug), ['mira-modal', 'shaka']);
+    assert.equal(health.stewards.demo, 1);
+    assert.equal(health.stewards.asked, 3, 'Shaka + the two hosts (the orchestra, the ʻohana)');
+    assert.equal(health.stewards.preview, 37, 'every other garden artist except the held-back one');
+    assert.equal(health.stewards.total, 41);
+    assert.equal(health.stewards.default, 'mira-modal');
   } finally { globalThis.fetch = original; }
 });

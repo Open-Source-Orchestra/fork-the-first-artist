@@ -52,8 +52,35 @@ The fan wallet (0.0.11345895) was topped up with 200 testnet HBAR from a teammat
    **leave it empty (recommended)** → fans pay their own wallet address on Hedera (no Hedera account needed); or paste `0.0.N`.
 2. A steward approves; `ens/scripts/onboard.mjs` issues `<label>.osoartist.eth` to their wallet with that payout in the record.
 3. The pay button appears on their fork card; every payment re-reads their ENS name, so **they** stay in control.
-4. To change it later they edit their own name's record (they own it; OSO can't), e.g. on app.ens.domains. A guided `/payout`
-   page is planned after the hackathon.
+4. To change it later they edit their own name's record (they own it; OSO can't) — on **`/payout`** (below) or any ENS tool.
+
+### How an artist changes their payout (`/payout`, branch `mainnet`, not deployed yet)
+
+`/payout?artist=<label>` is a static page; it never signs or sends anything itself.
+
+1. **Read.** It reads `<label>.osoartist.eth` from Ethereum mainnet over public RPCs (publicnode → drpc → 1rpc): the owner
+   (`UserRegistry.findOwner`), the artist's own resolver (`UniversalResolver.findResolver`) and every payout record exactly as
+   ENS resolves them (`addr` 3030 / 0x80000128 / 0x80000127 / 60, `hedera.network`, `oso.consent`, `oso.steward.status`),
+   plus who a testnet and a mainnet tip would pay today.
+2. **Choose.** Network **testnet | mainnet**, and either **a Hedera account `0.0.N`** → `addr(3030)` (same bytes as
+   `ens/src/hbar.mjs`), or **my wallet address** → the ENSIP-11 Hedera EVM record for that network (`0x80000128` testnet,
+   `0x80000127` mainnet) = the connected owner wallet, paid as an alias. Always also `text hedera.network=<network>`.
+   Because `addr(3030)` outranks the EVM record in `resolvePayTo`, "my wallet address" **clears an old `addr(3030)`** first.
+3. **Review.** It shows every record it will write, the resulting payout, warnings (network flip, USDC needs an activated
+   account, consent not active) and the raw `to / value / calldata`: **one** `multicall` to the artist's own resolver.
+4. **Sign.** It connects the wallet (EIP-1193), sends nothing unless the connected address **is the name's owner**, dry-runs the
+   exact tx from that address (`eth_call`), then asks the wallet to send it on chain 1. The artist pays the gas (~74k gas for
+   an account, ~101k for wallet mode incl. the clear, measured on the fork).
+
+Proof: `node ens/scripts/fork-test-payout.mjs` (anvil fork of today's mainnet, **26/26**, `ens/proof/fork-test-payout.json`):
+a throwaway artist key sets a mainnet `addr(3030)` + `hedera.network=mainnet` on its own test name with the page's own helpers
+(`frontend/public/payout-plan.mjs`), `resolve-artist.mjs --network mainnet` then returns that account (and testnet refuses);
+switching to wallet mode clears 3030 and resolves to the alias; a stranger, the OSO registrar and the parent owner are refused
+by the resolver (`EACUnauthorizedAccountRoles`), and Shaka's real address dry-runs successfully on `shaka.osoartist.eth`.
+
+⚠️ `hedera.network` is one value. Setting **mainnet** today makes the **testnet** tip loop refuse that artist
+(`network-mismatch`) until the mainnet loop ships (plan step 5) — the page warns about it. `frontend/public/fork/registry.json`
+(`hedera:` field) is informational and is not updated by `/payout`; payments always re-read ENS.
 
 ## Accounts and money (testnet, synthetic)
 

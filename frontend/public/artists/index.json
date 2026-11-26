@@ -1,0 +1,31 @@
+{
+ "frame": "osoframes/0.1",
+ "built": "by frontend/scripts/artist-frames.mjs — do not edit; add artists/<slug>/frame.json instead",
+ "license": "CC-BY-SA-4.0",
+ "credit": "Built on Open Source Orchestra Frames by Open Source Orchestra: Shaka Lei Kaumaka & the AI ʻohana (https://opensourceorchestra.org)",
+ "how": "https://artist.opensourceorchestra.org/artists/",
+ "rule": "the frame is dressed once per page load: ?who= first slug → ?artist= → #slug → the door frame; ?who=everyone|all = the door frame",
+ "count": 2,
+ "artists": [
+  {
+   "slug": "open-source-orchestra",
+   "id": "artist-open-source-orchestra",
+   "name": "Open Source Orchestra · the circle itself",
+   "emoji": "🎼",
+   "accent": "#ffd97a",
+   "doors": 4,
+   "file": "/artists/open-source-orchestra/frame.json",
+   "bytes": 1932
+  },
+  {
+   "slug": "shaka",
+   "id": "artist-shaka",
+   "name": "Shaka Lei Kaumaka · Open Source Orchestra",
+   "emoji": "🤙",
+   "accent": "#ffb443",
+   "doors": 9,
+   "file": "/artists/shaka/frame.json",
+   "bytes": 4227
+  }
+ ]
+}

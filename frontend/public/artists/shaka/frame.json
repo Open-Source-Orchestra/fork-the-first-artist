@@ -1,0 +1,40 @@
+{
+  "$schema": "https://frames.opensourceorchestra.org/schema/frame-0.1.json",
+  "frame": "osoframes/0.1",
+  "id": "artist-shaka",
+  "name": "Shaka Lei Kaumaka · Open Source Orchestra",
+  "emoji": "🤙",
+  "accent": "#ffb443",
+  "description": "The bard's own frame on the artist door: his songs, chords, radio, agent and tip jar. Signed by Shaka himself, once.",
+  "credit": { "add": ["Shaka Lei Kaumaka"] },
+  "license": { "data": "CC-BY-SA-4.0" },
+  "slots": {
+    "left": {
+      "prepend": [
+        { "kind": "door", "id": "home", "emoji": "🏠", "label": "Shaka Lei Kaumaka", "href": "https://shakaleikaumaka.com/", "tip": "The front door of Shaka Lei Kaumaka: a musician who open-sourced his whole universe.", "anim": "bob" },
+        { "kind": "door", "id": "songbook", "emoji": "🎼", "label": "Songbook", "href": "https://shakaleikaumaka.com/songbook/", "tip": "Every song, gifted: lyrics and chords, CC BY-SA 4.0.", "anim": "sway" },
+        { "kind": "door", "id": "chords", "emoji": "🎸", "label": "Learn the chords", "href": "https://opensourceorchestra.org/learn/", "tip": "Five songs, six chords: the Open Source Orchestra lesson sheet, transposable, with a printable card.", "anim": "pulse" },
+        { "kind": "door", "id": "radio-page", "emoji": "📻", "label": "Radio page", "href": "https://shakaleikaumaka.com/radio/", "tip": "The recordings, with their licences: CC BY-SA 4.0 since 19 Nov 2026; the earlier CC0 gifts stay CC0.", "anim": "none" },
+        { "kind": "door", "id": "devcon-speaker", "emoji": "🎤", "label": "Devcon speaker", "href": "https://shakaleikaumaka.com/devconspeaker/", "tip": "His Devcon 8 talk and the road to Devcon IX, Lisbon, 12–14 October 2027.", "anim": "none" },
+        { "kind": "door", "id": "files", "emoji": "📥", "label": "Downloads", "href": "https://opensourceorchestra.org/learn/2026-11-21/chord-sheet.pdf", "tip": "Chord sheet (PDF) — words and chords CC BY-SA 4.0, credit Shaka Lei Kaumaka & the Open Source Orchestra.", "anim": "none", "newTab": true }
+      ]
+    },
+    "right": {
+      "prepend": [
+        { "kind": "door", "id": "tip", "emoji": "💸", "label": "Tip Shaka", "href": "https://artist.opensourceorchestra.org/tip/?artist=shaka", "tip": "Straight into his own wallet by name (shaka.osoartist.eth): 96.31 % to him, no platform fee. Agents can tip too, over x402.", "anim": "pulse" },
+        { "kind": "door", "id": "ens", "emoji": "🪪", "label": "shaka.osoartist.eth", "href": "https://app.ens.domains/shaka.osoartist.eth", "tip": "The name he owns in the Open Source Orchestra registry on ENS.", "anim": "none", "newTab": true },
+        { "kind": "door", "id": "x", "emoji": "🐦", "label": "@Shakaleikaumaka on X", "href": "https://x.com/Shakaleikaumaka", "tip": "His own words, his own account.", "anim": "none", "newTab": true }
+      ],
+      "remove": ["shaka"]
+    },
+    "bottom-right": {
+      "replace": [
+        { "kind": "chat", "id": "chat", "label": "Talk to Shaka's agent", "name": "Shaka's agent", "emoji": "🤙", "hub": "https://chat.shakaleikaumaka.com", "storage": "artist-shaka", "greeting": "Aloha — I am Shaka's AI agent, a machine made by the ʻohana. Ask me about his songs, the chords, or the Open Source Orchestra. Replies may take a moment.", "tip": "A talk line to Shaka's AI agent on the open PIT chat protocol — it connects only when you open it." },
+        { "kind": "radio", "id": "radio", "label": "Shaka's radio", "tip": "Two of Shaka's songs, shared under CC BY-SA 4.0. Nothing plays until you press play.", "tracks": [
+          { "title": "Butterflies and Love", "artist": "Shaka Lei Kaumaka", "src": "https://shakaleikaumaka.com/radio-assets/i-open-sourced-my-whole-universe.mp3", "license": "CC BY-SA 4.0 since 19 Nov 2026 (earlier CC0 gifts stay CC0), gifted on shakaleikaumaka.com/radio/" },
+          { "title": "A Planet We Share As One", "artist": "Shaka Lei Kaumaka", "src": "https://shakaleikaumaka.com/radio-assets/a-planet-we-share-as-one.mp3", "license": "CC BY-SA 4.0 since 19 Nov 2026 (earlier CC0 gifts stay CC0), gifted on shakaleikaumaka.com/radio/" }
+        ], "live": { "status": "https://live.zuchiangmai.app/api/rt/status", "page": "https://live.zuchiangmai.app/" } }
+      ]
+    }
+  }
+}

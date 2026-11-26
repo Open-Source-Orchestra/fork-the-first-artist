@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Change the Hedera payout on your own osoartist.eth name, signed with your own wallet. OSO cannot change it for you.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/arkiv.css">
+    <link rel="stylesheet" href="/trust.css">
+    <link rel="stylesheet" href="/payout.css">
+    <script type="module" src="/payout.mjs"></script>
+    <title>Your payout · osoartist.eth</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to your payout</a>
+    <header class="masthead wrap">
+      <a class="brand" href="/">Fork the First Artist</a>
+      <nav aria-label="Main navigation"><a href="/">Artist circle</a><a href="/consent">Artist consent</a><a href="/trust">Trust ledger</a></nav>
+    </header>
+    <main id="main" class="wrap">
+      <section class="editor-intro" aria-labelledby="payout-heading">
+        <p class="kicker">ENS · your own name · your own resolver · one signature</p>
+        <h1 id="payout-heading">Your payout. <em>Only you can change it.</em></h1>
+        <p class="sub">Your <code>&lt;you&gt;.osoartist.eth</code> is owned by <strong>your wallet</strong> and its records live on <strong>your own resolver</strong>. Fans' tips are paid to whatever Hedera payout your name says, re-read before every tip. OSO holds no rights on your records, so it cannot do this for you — and nobody else can either.</p>
+        <p class="draft-notice">This page only <strong>reads</strong> public ENS records and <strong>prepares</strong> one transaction. It shows you exactly what will be written, then hands it to <strong>your</strong> wallet; it never signs or sends anything itself. The transaction is on Ethereum mainnet and costs a little gas, paid by you.</p>
+      </section>
+
+      <section class="card" aria-labelledby="name-heading">
+        <p class="eyebrow">01 / Your name</p>
+        <h2 id="name-heading">Read your name</h2>
+        <form id="name-form" class="editor-form" autocomplete="off" novalidate>
+          <p><label for="label">Name label</label><br>
+            <input id="label" name="label" required pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?" spellcheck="false" placeholder="shaka"> <span>.osoartist.eth</span>
+            <button type="submit" id="read">Read records</button></p>
+        </form>
+        <p id="read-status" class="editor-status" role="status" aria-live="polite"></p>
+        <dl id="current" class="fork-kv" hidden></dl>
+      </section>
+
+      <section class="card" aria-labelledby="choose-heading" id="choose-card" hidden>
+        <p class="eyebrow">02 / Where tips should go</p>
+        <h2 id="choose-heading">Choose your payout</h2>
+        <form id="payout-form" class="editor-form" autocomplete="off" novalidate>
+          <fieldset>
+            <legend>Hedera network</legend>
+            <label><input type="radio" name="network" value="testnet" checked> testnet (the demo today)</label>
+            <label><input type="radio" name="network" value="mainnet"> mainnet (real money)</label>
+          </fieldset>
+          <fieldset>
+            <legend>Pay me at</legend>
+            <label><input type="radio" name="mode" value="account" checked> my Hedera account</label>
+            <input id="account-id" name="account-id" pattern="\d{1,10}\.\d{1,20}\.\d{1,20}" spellcheck="false" placeholder="0.0.12345" aria-label="Hedera account id">
+            <label><input type="radio" name="mode" value="wallet"> my wallet address (the connected wallet, paid as a Hedera alias — only your key can spend it)</label>
+          </fieldset>
+        </form>
+        <p><button type="button" id="connect">Connect wallet</button> <span id="who" aria-live="polite">not connected</span></p>
+      </section>
+
+      <section class="card" aria-labelledby="review-heading" id="review-card" hidden>
+        <p class="eyebrow">03 / Exactly what will be written</p>
+        <h2 id="review-heading">Review, then sign</h2>
+        <pre id="plan" aria-live="polite"></pre>
+        <ul id="warnings" class="trust-checks"></ul>
+        <details><summary>transaction (to, value, calldata)</summary><pre id="calldata"></pre></details>
+        <ul id="checks" class="trust-checks" aria-live="polite"></ul>
+        <p><button type="button" id="send" disabled>Sign &amp; send with my wallet</button></p>
+        <p id="send-status" class="editor-status" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+  </body>
+</html>

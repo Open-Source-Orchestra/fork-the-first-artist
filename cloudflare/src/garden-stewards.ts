@@ -116,7 +116,7 @@ export const GARDEN_PROFILES: readonly GardenProfile[] = [
   },
   {
     "slug": "amerge-x-subcult",
-    "name": "Amerge × Subcult",
+    "name": "Amerge Music Co-op",
     "role": "",
     "status": "placed",
     "set": "Nov 4 · 12:40p · 60 min",
